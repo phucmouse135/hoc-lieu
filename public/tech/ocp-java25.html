@@ -9422,6 +9422,7 @@ function parseContent(txt){
     LES[+n]={n:+n,g,title,grp,isNew:fl==='N',outline:(ol||'').split(';').filter(Boolean),intro:'',con:[],terms:[],qs:[],has:false,w:wk.w};wk.ls.push(+n);
   }
   document.querySelectorAll('script.wk').forEach(el=>parseContent(el.textContent));
+  document.querySelectorAll('script.wk,#d-meta').forEach(el=>el.remove());
 })();
 
 /* ================= Lộ trình ================= */
