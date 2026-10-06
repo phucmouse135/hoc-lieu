@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Học Liệu — Trang chủ các danh mục</title>
+<meta name="description" content="Tổng hợp tài liệu học tập: Tiếng Anh (IELTS), Tiếng Nhật (JLPT N5–N1), Tiếng Trung (HSK 1–6) và Tech (OCP Java SE 25). Chọn danh mục để bắt đầu học.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F2F4F8;--card:#FFFFFF;--ink:#15202F;--mute:#566375;--line:#D3DAE5;
+ --ui:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--en:"Source Serif 4",Georgia,"Times New Roman",serif}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--paper:#10161F;--card:#18212D;--ink:#E6ECF2;--mute:#9AA7B6;--line:#2B3848}
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--ui);-webkit-text-size-adjust:100%;min-height:100vh}
+.wrap{max-width:1000px;margin:0 auto;padding:56px 20px 72px}
+header{text-align:center;margin-bottom:48px}
+.badge{display:inline-block;font-weight:600;font-size:13px;letter-spacing:.04em;color:#fff;background:#1D3A6B;padding:6px 14px;border-radius:999px;margin-bottom:18px}
+h1{margin:0 0 10px;font-size:34px;line-height:1.2}
+.sub{margin:0;color:var(--mute)}
+.en{font-family:var(--en)}
+.cat{margin:34px 0 0}
+.cat h2{display:flex;align-items:center;gap:10px;font-size:20px;margin:0 0 4px}
+.cat h2 .dot{width:12px;height:12px;border-radius:4px;flex:none}
+.cat .cd{margin:0 0 14px;color:var(--mute);font-size:14px;padding-left:22px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.tile{display:block;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;text-decoration:none;color:inherit;transition:transform .15s ease,box-shadow .15s ease;position:relative;overflow:hidden}
+.tile:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(21,32,47,.10)}
+.tile .ico{font-family:var(--en);font-weight:700;font-size:20px;color:#fff;width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.tile .lvl{font-weight:700;font-size:18px;margin:0 0 2px}
+.tile .tag{font-size:12.5px;color:var(--mute);margin:0 0 10px;text-transform:uppercase;letter-spacing:.03em}
+.tile .meta{font-size:13px;margin:0;color:var(--ink);opacity:.82;line-height:1.5}
+footer{margin-top:52px;text-align:center;color:var(--mute);font-size:13px}
+a{color:inherit}
+@media (max-width:620px){.wrap{padding-top:40px}h1{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="badge">Học Liệu</span>
+    <h1>Trang chủ học tập</h1>
+    <p class="sub">Chọn danh mục và lộ trình để bắt đầu — Tiếng Anh · tiếng Nhật · tiếng Trung · tech.</p>
+  </header>
+
+  <main>
+    <!-- ===== Tiếng Anh ===== -->
+    <section class="cat">
+      <h2><span class="dot" style="background:#1D6FB8"></span>Tiếng Anh</h2>
+      <p class="cd">Luyện IELTS Academic từ nền tảng.</p>
+      <div class="grid">
+        <a class="tile" href="english/ielts.html">
+          <span class="ico" style="background:#1D6FB8">IE</span>
+          <h3 class="lvl">IELTS 3.0 → 6.0</h3>
+          <p class="tag">Academic · 24 tuần</p>
+          <p class="meta">Từ vựng, ngữ pháp, Listening, Reading, Writing, Speaking theo dạng đề thật, có đề tổng hợp tính giờ và sổ điểm.</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- ===== Tiếng Nhật ===== -->
+    <section class="cat">
+      <h2><span class="dot" style="background:#C2255C"></span>Tiếng Nhật</h2>
+      <p class="cd">Lộ trình JLPT từ N5 đến N1 — kanji, từ vựng, ngữ pháp, đọc hiểu, nghe hiểu.</p>
+      <div class="grid">
+        <a class="tile" href="japanese/jlpt-n5.html"><span class="ico" style="background:#C2255C">N5</span><h3 class="lvl">JLPT N5</h3><p class="tag">Sơ cấp</p><p class="meta">Nền tảng: chữ cái, từ vựng, ngữ pháp cơ bản.</p></a>
+        <a class="tile" href="japanese/jlpt-n4.html"><span class="ico" style="background:#D6457E">N4</span><h3 class="lvl">JLPT N4</h3><p class="tag">Sơ cấp trên</p><p class="meta">Ngữ pháp và từ vựng mở rộng, hội thoại hàng ngày.</p></a>
+        <a class="tile" href="japanese/jlpt-n3.html"><span class="ico" style="background:#E0801F">N3</span><h3 class="lvl">JLPT N3</h3><p class="tag">Trung cấp</p><p class="meta">Hiểu văn viết và hội thoại khó hơn, kanji phổ thông.</p></a>
+        <a class="tile" href="japanese/jlpt-n2.html"><span class="ico" style="background:#2E9E5B">N2</span><h3 class="lvl">JLPT N2</h3><p class="tag">Trung cấp trên</p><p class="meta">Đọc tài liệu thực tế, nghe tin tức và diễn đạt tốt.</p></a>
+        <a class="tile" href="japanese/jlpt-n1.html"><span class="ico" style="background:#1D3A6B">N1</span><h3 class="lvl">JLPT N1</h3><p class="tag">Cao cấp</p><p class="meta">Nắm vững ngôn ngữ ở mức cao, phục vụ học thuật và công việc.</p></a>
+      </div>
+    </section>
+
+    <!-- ===== Tiếng Trung ===== -->
+    <section class="cat">
+      <h2><span class="dot" style="background:#C62828"></span>Tiếng Trung</h2>
+      <p class="cd">Lộ trình HSK từ 1 đến 6 — từ vựng, ngữ pháp, Hán tự, nghe hiểu và đọc hiểu.</p>
+      <div class="grid">
+        <a class="tile" href="chinese/hsk1.html"><span class="ico" style="background:#E53935">一</span><h3 class="lvl">HSK 1</h3><p class="tag">7 tuần</p><p class="meta">~300 từ vựng, nền tảng giao tiếp cơ bản nhất.</p></a>
+        <a class="tile" href="chinese/hsk2.html"><span class="ico" style="background:#EF6C00">二</span><h3 class="lvl">HSK 2</h3><p class="tag">6 tuần</p><p class="meta">~600 từ, hội thoại thường ngày và câu hỏi đơn giản.</p></a>
+        <a class="tile" href="chinese/hsk3.html"><span class="ico" style="background:#F9A825">三</span><h3 class="lvl">HSK 3</h3><p class="tag">8 tuần</p><p class="meta">~1200 từ, tự tin nghe nói các tình huống quen thuộc.</p></a>
+        <a class="tile" href="chinese/hsk4.html"><span class="ico" style="background:#8E24AA">四</span><h3 class="lvl">HSK 4</h3><p class="tag">10 tuần</p><p class="meta">~2400 từ, hiểu và thảo luận nhiều chủ đề xã hội.</p></a>
+        <a class="tile" href="chinese/hsk5.html"><span class="ico" style="background:#3949AB">五</span><h3 class="lvl">HSK 5</h3><p class="tag">10 tuần</p><p class="meta">~5000 từ, đọc báo, xem phim và viết tương đối lưu loát.</p></a>
+        <a class="tile" href="chinese/hsk6.html"><span class="ico" style="background:#1E88E5">六</span><h3 class="lvl">HSK 6</h3><p class="tag">10 tuần</p><p class="meta">~5000+ từ, hiểu trọn vẹn các văn bản học thuật và báo chí.</p></a>
+      </div>
+    </section>
+
+    <!-- ===== Tech ===== -->
+    <section class="cat">
+      <h2><span class="dot" style="background:#0B6E4F"></span>Tech</h2>
+      <p class="cd">Kiến thức lập trình và chứng chỉ công nghệ.</p>
+      <div class="grid">
+        <a class="tile" href="tech/ocp-java25.html">
+          <span class="ico" style="background:#0B6E4F">OCP</span>
+          <h3 class="lvl">OCP Java SE 25</h3>
+          <p class="tag">Oracle · 1Z0-831 · 8 tuần</p>
+          <p class="meta">Lý thuyết kèm code, thuật ngữ, bài tập kiểu đề thi, kiểm tra tuần và đề thi thử theo exam topics.</p>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>Tiến độ từng lộ trình được lưu tự động trên trình duyệt của bạn.</footer>
+</div>
+</body>
+</html>
