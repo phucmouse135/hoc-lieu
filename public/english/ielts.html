@@ -1206,9 +1206,20 @@ function setV(){
   <label>Tốc độ đọc khi học <select data-act="rate">${[[.75,'Chậm'],[.9,'Vừa'],[1,'Tự nhiên']].map(([v,t])=>`<option value="${v}"${(ST.rate||.9)==v?' selected':''}>${t}</option>`).join('')}</select></label></div>
   <div class="row"><button class="btn line" data-act="ttstest">${SPK} Thử giọng đọc</button></div>
   <p class="mute">Phần nghe dùng giọng tiếng Anh có sẵn của thiết bị, ưu tiên giọng Anh. Nếu bấm thử mà không có tiếng, hãy mở trang bằng Chrome, Edge hoặc Safari, hoặc cài thêm giọng tiếng Anh trong phần cài đặt ngôn ngữ của máy. Ở chế độ thi, bài nghe luôn phát ở tốc độ tự nhiên.</p></section>
-  <section class="sec"><h2>Dữ liệu</h2><p class="mute">${cloud?'Tiến độ đang được lưu vào tài khoản Claude của bạn, nên mở trang trên máy khác vẫn thấy.':LSX.ok?'Tiến độ đang được lưu trong trình duyệt này. Xoá dữ liệu trình duyệt sẽ làm mất tiến độ.':'Trình duyệt đang chặn lưu trữ nên tiến độ sẽ mất khi đóng trang.'}</p>
+  <section class="sec"><h2>Dữ liệu</h2><p class="mute">${cloud?'Tiến độ đang được lưu vào tài khoản Claude của bạn, nên mở trang trên máy khác vẫn thấy.':LSX.ok?'Tiến độ đang được lưu trong trình duyệt này. Xoá dữ liệu trình duyệt sẽ làm mất tiến độ.':'Trình duyệt đang chặn lưu trữ nên tiến độ sẽ mất khi đóng trang.'} Bạn có thể tải sao lưu để chuyển hồ sơ, sổ lỗi và điểm số sang máy khác.</p>
+  <div class="row"><button class="btn sm line" data-act="backup">Tải sao lưu dữ liệu</button><button class="btn sm line" data-act="restore">Khôi phục từ sao lưu</button></div>
+  <input id="restore-file" type="file" accept="application/json,.json" data-act="import" style="display:none">
   <div class="row"><button class="btn sm danger" data-act="reset">Xoá toàn bộ tiến độ</button></div></section>
   <section class="sec"><h2>Về nội dung</h2><p class="mute">Toàn bộ bài nghe, bài đọc, đề viết và câu trả lời mẫu trong trang được soạn riêng theo định dạng của đề IELTS Academic; đây không phải đề thi thật. IELTS là nhãn hiệu của British Council, IDP và Cambridge University Press &amp; Assessment; trang này không liên kết với các đơn vị đó.</p></section>`;
+}
+function backupData(){
+  try{
+    const url=URL.createObjectURL(new Blob([JSON.stringify(ST)],{type:'application/json'}));
+    const a=document.createElement('a');a.href=url;a.download='ielts-backup.json';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+    toast('Đã tải file sao lưu.');
+  }catch(e){toast('Không thể tải sao lưu.')}
 }
 let lastHash=null;
 function render(keep){
@@ -1272,6 +1283,8 @@ document.addEventListener('click',e=>{
     render(true);toast('Đã lưu điểm.')}
   else if(a==='logdel'){if(confirm('Xoá lần ghi điểm này?')){ST.logs=ST.logs.filter(l=>String(l.t)!==t.dataset.t);save();render(true)}}
   else if(a==='saveset'){const s=$('#s-start').value;if(!s){toast('Hãy chọn ngày bắt đầu.');return}ST.name=$('#s-name').value.trim()||ST.name;ST.start=s;save();render();toast('Đã lưu thay đổi.')}
+  else if(a==='backup')backupData();
+  else if(a==='restore'){$('#restore-file').click()}
   else if(a==='ttstest')speak([{t:'Good morning. Can I take your surname, please?',v:'f'},{t:'Yes, it is Hartley. H, A, R, T, L, E, Y.',v:'m'}]);
   else if(a==='reset'){if(confirm('Xoá toàn bộ tiến độ, sổ lỗi, điểm số và bài viết nháp?')){const keep={name:ST.name,start:ST.start,theme:ST.theme,rate:ST.rate};ST=Object.assign(blank(),keep);loadMy();save();render();toast('Đã xoá tiến độ.')}}
 });
@@ -1281,6 +1294,21 @@ document.addEventListener('change',e=>{
   else if(a==='theme'){ST.theme=t.value;save();render(true)}
   else if(a==='rate'){ST.rate=+t.value;save()}
   else if(a==='scope'){ST.scope=t.value;save();render(true)}
+  else if(a==='import'){
+    const f=t.files&&t.files[0];if(!f)return;
+    const rd=new FileReader();
+    rd.onload=()=>{
+      try{
+        const obj=JSON.parse(rd.result);
+        if(!obj||typeof obj!=='object'||Array.isArray(obj))throw 0;
+        ST=Object.assign(blank(),obj);loadMy();save();render(true);
+        toast('Đã khôi phục dữ liệu.');
+      }catch(err){toast('File sao lưu không hợp lệ.')}
+      t.value='';
+    };
+    rd.onerror=()=>{toast('Không đọc được file.');t.value=''};
+    rd.readAsText(f);
+  }
 });
 document.addEventListener('input',e=>{
   const t=e.target;if(!OV||OV.k!=='w'||t.tagName!=='TEXTAREA')return;
