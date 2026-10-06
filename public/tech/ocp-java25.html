@@ -9894,7 +9894,7 @@ document.addEventListener('click',e=>{
   else if(a==='close')closeModal();
   else if(a==='askyes'){const f=ASK;closeModal();if(f)f()}
   else if(a==='reveal')t.classList.toggle('show');
-  else if(a==='read'){markDone(+t.dataset.n,'l',100);render(true);toast('Đã đánh dấu đọc xong phần lý thuyết.')}
+  else if(a==='read'){const n=+t.dataset.n;if(p.done[n]&&p.done[n].l!=null){delete p.done[n].l;if(!Object.keys(p.done[n]).length)delete p.done[n];save();toast('Đã bỏ đánh dấu đã đọc phần lý thuyết.')}else{markDone(n,'l',100);toast('Đã đánh dấu đọc xong phần lý thuyết.')}render(true)}
   else if(a==='quiz'){const n=+t.dataset.n,s=t.dataset.sec,d=D(n);startQuiz(`Ngày ${n}: ${d.type==='lesson'?SECN[s]:dayLabel(d)}`,buildSec(n,s),{done:pct=>markDone(n,s,pct)})}
   else if(a==='exam'){const n=+t.dataset.n;startExam(+t.dataset.no,n?pct=>markDone(n,'q',pct):null)}
   else if(a==='exgo')startExam.go();
