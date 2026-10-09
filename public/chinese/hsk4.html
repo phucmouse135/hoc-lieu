@@ -175,10 +175,16 @@ ruby{ruby-position:over}ruby{margin:0 .1em}rt{font:400 .58em/1.2 var(--ui);color
 .panels.p1{grid-template-columns:minmax(0,240px)}
 
 #homebtn{position:fixed;top:env(safe-area-inset-top,10px);left:14px;z-index:999;background:var(--card);border:1px solid var(--line);color:var(--ink);font:600 13px/1 var(--ui);padding:9px 12px;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px rgba(27,40,54,.12)}#homebtn:hover{opacity:.85}
+.pset>label{display:block;font-weight:600;margin:14px 0}
+.pset>label.chk{display:flex;font-weight:400}
+.picks{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:-6px 0 14px}
+.pick{display:inline-flex;align-items:center;gap:6px;margin:0;padding:3px 12px 3px 8px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);font-size:.9rem;font-weight:500;cursor:pointer}
+.pick:has(input:checked){border-color:var(--ai);background:var(--ai-soft);color:var(--ai)}
+.pick input{margin:0}
 </style>
 </head>
 <body>
-<a href="../index.html" id="homebtn" aria-label="Back to level selection">‹ HSK</a>
+<a href="index.html" id="homebtn" aria-label="Back to level selection">‹ HSK</a>
 <div id="app"></div>
 <div id="modal"></div>
 <div id="quiz" role="dialog" aria-label="Exercise"></div>
@@ -648,21 +654,21 @@ function writeBack(q){
   <div class="row"><button class="btn line" data-act="fno">Needs another go</button><button class="btn" data-act="fyes">Met the brief</button></div>`;
 }
 function drawQ(auto){
-  const z=QZ,q=z.qs[z.i],show=z.shown,k=q.kind||'mc',ex=z.opt.exam;let a=z.ans[z.i],body='',fb='';
+  const z=QZ,q=z.qs[z.i],show=z.shown,k=q.kind||'mc',ex=z.opt.exam||z.opt.late;let a=z.ans[z.i],body='',fb='';
   if(k==='mc'){a=a||(z.ans[z.i]=[]);body=optsHtml(q,a,show)+(show||q.subs.length<2?'':`<div class="row"><button class="btn" data-act="mcheck">${ex?'Next':'Check answers'}</button></div>`)}
   else if(k==='dict')body=`<input id="din" value="${esc(a||'')}" placeholder="${q.audio?'Write what you hear':'Type the character'}" autocomplete="off" autocapitalize="off" ${show?'disabled':''}>
     <div class="chipsb${q.nor?' nor':''}">${q.bank.map(c=>`<button class="chip" data-act="dchip" data-t="${esc(c)}" ${show?'disabled':''}>${esc(c)}</button>`).join('')}</div>
-    ${show?'':'<div class="row"><button class="btn line sm" data-act="dclr">Clear</button><button class="btn" data-act="dcheck">Check</button></div>'}`;
+    ${show?'':'<div class="row"><button class="btn line sm" data-act="dclr">Clear</button><button class="btn" data-act="dcheck">'+(z.opt.late?(z.i+1<z.qs.length?'Next':'Finish'):'Check')+'</button></div>'}`;
   else if(k==='cloze'){const st=a||(z.ans[z.i]={f:[],u:[]});
     body=`<div class="pass zh">${q.parts.map(p=>typeof p==='string'?esc(p):p.b==null?esc(p):`<button class="bl czb${show?(st.f[p.b]===q.sol[p.b]?' ok':' no'):''}" data-act="czrm" data-b="${p.b}" ${show?'disabled':''}>${st.f[p.b]!=null?esc(st.f[p.b]):p.b+1}</button>`).join('')}</div>
     <div class="chipsb">${q.bank.map((c,i)=>`<button class="chip" data-act="czadd" data-i="${i}" ${show||st.u.includes(i)?'disabled':''}>${esc(c)}</button>`).join('')}</div>
-    ${show?'':'<div class="row"><button class="btn" data-act="czcheck">Check</button></div>'}`}
+    ${show?'':'<div class="row"><button class="btn" data-act="czcheck">'+(z.opt.late?(z.i+1<z.qs.length?'Next':'Finish'):'Check')+'</button></div>'}`}
   else if(k==='order'){a=a||(z.ans[z.i]=[]);const L='ABCDEFG';
     body=`<p>Your order: <span class="seq">${a.map(x=>L[x]).join(' → ')||'tap the paragraph that comes first'}</span></p><div class="ord">${q.sh.map((pi,x)=>`<button class="ordp${show?(a.indexOf(x)===pi?' ok':' no'):''}" data-act="opick" data-x="${x}" ${show||a.includes(x)?'disabled':''}><b>${L[x]}</b><span>${esc(q.paras[pi])}</span></button>`).join('')}</div>
     ${show?'':`<div class="row"><button class="btn line sm" data-act="oundo">Undo</button><button class="btn" data-act="ocheck" ${!ex&&a.length<q.paras.length?'disabled':''}>${ex?'Next':'Check order'}</button></div>`}`}
   else if(k==='write'){const t=a||'';
     body=`<textarea id="wtx" ${show?'disabled':''} placeholder="在这里写……">${esc(t)}</textarea><p class="mute"><span class="cnt${zlen(t)<q.min?' low':''}" id="wcnt">${zlen(t)}</span> of ${C.lv>5&&q.first?'about':'at least'} ${q.min} characters${q.w.hint&&!ex?`<br>Useful: <span class="zh">${esc(q.w.hint)}</span>`:''}</p>`+(show?writeBack(q):`<div class="row"><button class="btn" data-act="wdone">${ex?(z.i+1<z.qs.length?'Next task':'Hand in'):'Finish and compare'}</button></div>`)}
-  else body=`<div class="flash">${q.front}${z.flip?`<div class="fback">${q.back}</div>`:''}</div>`+(z.flip?'<div class="row"><button class="btn line" data-act="fno">Not yet</button><button class="btn" data-act="fyes">Got it</button></div>':`<button class="btn wide" data-act="flip">${q.audio||/Speaking/.test(q.tag)?'I have finished speaking':'Turn the card'}</button>`);
+  else body=`<div class="flash">${q.front}${z.flip?`<div class="fback">${q.back}</div>`:''}</div>`+(z.flip?'<div class="row"><button class="btn line" data-act="fno">Not yet</button><button class="btn" data-act="fyes">Got it</button></div>':`<button class="btn wide" data-act="flip">${(q.audio&&!q.card)||/Speaking/.test(q.tag)?'I have finished speaking':'Turn the card'}</button>`);
   if(show&&k!=='write'){const r=z.res[z.i],ok=r===true,n=qpts(q);
     const more=k==='dict'?`<p>Answer: <span class="zh">${esc(q.raw)}</span><br>${esc(q.en)}</p>`:k==='cloze'?`<p>Answer: <span class="zh">${q.sol.map(esc).join(' ／ ')}</span></p>`:k==='order'?`<p>Correct order: <b>${q.paras.map((_,i)=>'ABCDEFG'[q.sh.indexOf(i)]).join(' → ')}</b></p>`:q.exp?`<p>${q.exp}</p>`:'';
     fb=`<div class="fb ${ok?'good':'bad'}"><b>${ok?'◯ Correct':n>1?`${earned(q,r)} of ${n} correct`:'✕ Not quite'}</b>${more}</div><button class="btn wide" data-act="qnext">${z.i+1<z.qs.length?'Next':'See result'}</button>`}
@@ -672,8 +678,8 @@ function drawQ(auto){
   ${q.audio?`<div class="row"><button class="btn line" data-act="qplay" ${once&&(z.plays[z.i]||0)>=LIM&&!show&&!z.flip?'disabled':''}>${SPK} ${once&&!show&&!z.flip?((z.plays[z.i]||0)>=LIM?'Played. No replay':LIM>1?(z.plays[z.i]?'Play once more':'Play the recording (twice at most)'):'Play the recording (once only)'):'Play again'}</button></div>`:''}${body}${fb}</div>`;
   if(auto){$('#quiz').scrollTop=0;if(q.audio&&!once)playQ()}
 }
-function grade(){const z=QZ,q=z.qs[z.i],a=z.ans[z.i]||[],c=q.subs.filter((s,j)=>a[j]===s.a).length;z.res[z.i]=c===q.subs.length?true:c;stopAudio();if(z.opt.exam)nextQ();else{z.shown=true;drawQ()}}
-function answer(val,ok){const z=QZ;z.ans[z.i]=val;z.res[z.i]=ok;stopAudio();if(z.opt.exam)nextQ();else{z.shown=true;drawQ()}}
+function grade(){const z=QZ,q=z.qs[z.i],a=z.ans[z.i]||[],c=q.subs.filter((s,j)=>a[j]===s.a).length;z.res[z.i]=c===q.subs.length?true:c;stopAudio();if(z.opt.exam||z.opt.late)nextQ();else{z.shown=true;drawQ()}}
+function answer(val,ok){const z=QZ;z.ans[z.i]=val;z.res[z.i]=ok;stopAudio();if(z.opt.exam||z.opt.late)nextQ();else{z.shown=true;drawQ()}}
 function nextQ(){const z=QZ;z.shown=false;z.flip=false;stopAudio();if(++z.i>=z.qs.length)finishQuiz();else drawQ(true)}
 function revItem(q,a){
   const k=q.kind||'mc',h=`<div class="rev"><p class="qtag">${q.tag}</p>`;
@@ -707,12 +713,174 @@ const PR0=[['vf','Word cards','Turn 20 cards and mark what you know.'],['vq','Vo
  ['dc','Dictation','Listen and write eight sentences.'],['cz','Dialogue gaps','Rebuild four dialogues from word tiles.'],
  ['rd','Reading','Three tasks: gap fill, paragraph order or comprehension.'],['wr','Writing',C.prw],['sp','Speaking','Retell, picture story and two questions, with timers.']];
 const PR=PR0.filter(x=>!(C.nopr||[]).includes(x[0]));
-function practice(m){
-  const p=P(),days=lessonDays(p.scope==='all'?LAST:todayN()),Ls=days.map(n=>D(n).L),it=merge(days),S=(a,n)=>shuf(a).slice(0,n);
-  const qs=m==='kf'?S(it.k,20).map(fK):m==='kq'?S(it.k,15).map(k=>qHan(k)):m==='vf'?S(it.w,20).map(fW):m==='vq'?S(it.w,15).map(w=>qWord(w)):
-    m==='g'?S(it.g,10).map(qGram).concat(S(freshOf(Ls),5).map(qGram)):m==='ls'?S(Ls,6).map(L=>qListen(L,1)):m==='dc'?S(SENT.filter(s=>Ls.includes(s.L)),8).map(qDict):
-    m==='cz'?S(Ls,4).map(qCloze):m==='rd'?S(Ls.filter(x=>RD[x]),3).flatMap(x=>readQs(RD[x])):m==='wr'?(EX.WS?S(EX.WS,3).map(x=>qSent(x)):[qWrite(S(WR.P,1)[0],1),qWrite(S(WR.E,1)[0],0)].filter(q=>q.w)):speakSet(1+rnd(2));
-  startQuiz(PR.find(x=>x[0]===m)[1],qs);
+const PICS=WALL.some(w=>w.e),CHW=typeof qCharAuto==='function',WSN=!!EX.WS&&typeof qSent==='function';
+const PM={
+ vf:{u:['card','cards'],ns:[10,20,30,50],d:20,src:1,wf:1,tyl:'Card side',ty:[['','Mixed sides'],['a','See the word, recall pinyin and meaning'],['b','See the meaning, recall the word'],['l','Listen, recall the word and meaning']],desc:'Turn each card and mark yourself. Every word has three sides: the word, its meaning, and sound only.'},
+ vq:{u:['question','questions'],ns:[10,15,20,30],d:15,src:1,wf:1,fb:1,tm:1,desc:'Multiple choice on meaning, pinyin and the correct characters, plus listening for the word.',ty:[['','Mixed types'],['m','Meaning of the word'],['rm','Word from its meaning'],['p','Pinyin'],['h','Correct characters']].concat(PICS?[['e','Listen and choose the picture']]:[],[['l','Listen and choose the meaning']])},
+ kf:{u:['card','cards'],ns:[10,20,30,50],d:20,src:1,wf:1,tyl:'Card side',ty:[['','Mixed sides'],['a','See the character, recall pinyin and meaning'],['b','See the meaning, write the character'],['w','Words that use the character']],desc:'Handwriting characters with their memory hooks. Each character has several sides: the character, its meaning, and the words that use it.'},
+ kq:{u:['question','questions'],ns:[10,15,20,30],d:15,src:1,wf:1,fb:1,tm:1,desc:'The pinyin, meaning and words of each character'+(CHW?', and writing the missing character.':'.'),ty:[['','Mixed types'],['0','Pinyin and meaning of the character'],['1','Character from its meaning'],['2','Pinyin of a word that uses it']].concat(CHW?[['3','Write the missing character']]:[])},
+ g:{u:['question','questions'],ns:[10,15,20,30],d:15,src:1,wf:1,fb:1,tm:1,desc:'Gap-fill on the official grammar points of this level, and the meaning of whole sentences. Some sentences are ones you have not seen in the lessons.',ty:[['','Mixed types'],['c','Fill the blank'],['t','Meaning of the sentence']]},
+ ls:{u:['question','questions'],ns:[5,10,15,20],d:10,src:1,fb:1,bor:1,desc:'Lesson dialogues with the question spoken at the end, played as in the exam, and single lines to match with their meaning.'},
+ dc:{u:['sentence','sentences'],ns:[5,8,12,20],d:8,src:1,fb:1,bor:1,desc:'Listen and write each sentence.'},
+ cz:{u:['dialogue','dialogues'],ns:[2,4,6,8],d:4,src:1,fb:1,bor:1,desc:'Rebuild lesson dialogues from word tiles. A dialogue can come back with different gaps.'},
+ rd:{u:['reading task','reading tasks'],ns:[1,2,3,5],d:3,src:1,fb:1,tm:1,bor:1,desc:'Gap fill, paragraph order or comprehension. When the reading texts run out, lesson dialogues are used as reading tasks.'},
+ wr:WSN?{u:['sentence','sentences'],ns:[3,5,8],d:3,desc:'Sentence-writing tasks with model answers.'}:{fixed:1},
+ sp:{fixed:1,tyl:'Which set',ty:[['','Either set'],['1','Set 1'],['2','Set 2']]}};
+const plu=(n,u)=>n+' '+u[n===1?0:1];
+const T={range:'Range',learned:n=>`Lessons up to today (${n})`,all:n=>`All ${n} lessons`,weeks:'Weeks I choose',pickWeeks:'Choose weeks',wk:'Week',
+ noRange:'This mode draws from one bank for the whole course, not from single lessons.',
+ type:'Question type',count:'How many per round',unit:plu,fb:'Show answers',fbNow:'After each question',fbEnd:'At the end, as in the exam',
+ time:'Time limit',times:[[0,'No limit'],[30,'30 seconds per item'],[60,'1 minute per item'],[120,'2 minutes per item']],wf:'Put items from the error notebook first',go:'Start',
+ none:(pm,nd)=>!pm.src?'This mode has no items in this edition yet.':nd?'The type you chose has nothing in this range. Change the type or widen the range.':'There are no lessons in this range yet. Choose all lessons, or pick weeks.',
+ enough:(n,u)=>`This selection gives ${plu(n,u)} with no repeats. Each round is drawn at random.`,
+ short:(own,n,u)=>`This selection makes ${plu(own,u)} that differ, fewer than the ${n} you asked for.`,
+ borrow:(own,bor,n,u)=>own?`This selection makes ${plu(own,u)}. The other ${bor} ${bor===1?'comes':'come'} from the nearest lessons outside the range, to reach ${n}.`:`This selection has nothing for this mode yet, so all ${plu(bor,u)} come from the nearest lessons.`,
+ again:(k,n,u,m)=>`To reach ${n}, ${plu(k,u)} ${m==='kf'||m==='vf'?(k===1?'is an earlier card':'are earlier cards')+' brought back, spaced apart':m==='cz'?(k===1?'is an earlier dialogue':'are earlier dialogues')+' brought back with different gaps':m==='dc'||m==='rd'||m==='wr'?(k===1?'is an earlier item':'are earlier items')+' brought back':(k===1?'asks an earlier item':'ask earlier items')+' again, spaced apart, with new wrong answers'}.`,
+ tipTy:'Choose “Mixed” as the type for more variety.',tipSrc:'Widen the range for more variety.'};
+const LN=n=>D(n).L;
+const tagIs=(q,t)=>q&&q.tag===t?q:null;
+const wExp=w=>`<b class="zh">${w.w}</b> ${w.p}: ${esc(w.m)}`;
+const gExp=e=>`<span class="zh">${exFull(e,1)}</span><br>${esc(e.en)}<br><small>${esc(e.g.t)}: ${esc(e.g.m)}</small>`;
+const fKb=k=>({kind:'flash',card:1,tag:'Character card · write it',front:`<p><b class="hv">${k.p}</b> ${esc(k.m)}</p><p class="mute">Write the character by hand, then turn the card.</p>`,back:`<div class="zh huge">${k.c}</div>${k.t?`<p class="tip mem">${esc(k.t)}</p>`:''}`,key:k.key,say:k.c});
+const fKw=(k,w)=>Object.assign(fW({w:w.w,p:w.p,m:w.m,key:k.key}),{tag:'Character card · word'});
+const fWb=w=>({kind:'flash',card:1,tag:'Word card · recall the word',front:`<p class="qs">${esc(w.m)}</p><p class="mute">Say and write the Chinese word, then turn the card.</p>`,back:fW(w).front+`<p class="qs">${w.p}</p>`,key:w.key,say:w.w});
+const fWl=w=>({kind:'flash',card:1,tag:'Word card · listen',audio:[{t:w.w,v:'n'}],front:'<p>Listen. Recall the word and its meaning, then turn the card.</p>',back:fW(w).front+`<p class="qs">${w.p}</p><p>${esc(w.m)}</p>`,key:w.key});
+function qHearW(w){
+  const q=mc('Listening · word','Listen and choose the meaning of the word you hear.',w.m,shuf(V[w.L-1].items).concat(shuf(WALL).slice(0,12)).filter(x=>x.p!==w.p&&x.w!==w.w).map(x=>x.m),wExp(w),w.key,1);
+  if(q)q.audio=[{t:w.w,v:'n'}];return q;
+}
+const qPinOf=(k,w)=>tagIs(qHan(Object.assign({},k,{w:[w]}),2),'Pinyin');
+const gNear=e=>shuf(Object.values(GEX)).filter(x=>x.g!==e.g&&x.en).sort((a,b)=>Math.abs(a.L-e.L)-Math.abs(b.L-e.L));
+const qMean=e=>e.en?mc(e.fresh?'Grammar · new sentence':'Grammar · meaning',`What does this sentence mean?<div class="qs zh">${exFull(e,1)}</div>`,e.en,gNear(e).map(x=>x.en),gExp(e),e.fresh?null:e.key,1):null;
+const qPickS=e=>e.en?mc('Grammar · choose the sentence',`Which sentence means: “${esc(e.en)}”?`,exText(e),gNear(e).map(exText),gExp(e),e.fresh?null:e.key):null;
+function qDlgRead(L){
+  const k=KW[L];if(!k||!k.q||!k.q.q||k.q.opts.every(o=>!/[\u4e00-\u9fffA-Za-z]/.test(o)))return null;
+  return {tag:'Reading · dialogue',html:`Read the dialogue and answer the question.<div class="pass zh">${k.lines.map(l=>l.s+'：'+esc(l.zh)).join('\n')}</div>`,subs:[sub(k.q)],exp:k.lines.map(l=>`${l.s}: ${esc(l.en)}`).join('<br>')};
+}
+function qLine(L,i){
+  const k=KW[L],l=k.lines[i];if(!l.en||l.zh.replace(PUNC,'').length<2)return null;
+  const far=shuf(Object.keys(KW).filter(x=>+x!==+L)).slice(0,4).flatMap(x=>KW[x].lines);
+  const q=mc('Listening · one line','Listen to one line of a dialogue and choose its meaning.',l.en,shuf(k.lines.filter(x=>x!==l)).concat(shuf(far)).map(x=>x.en),`<span class="zh">${esc(l.zh)}</span><br>${esc(l.en)}`,null,1);
+  if(q)q.audio=[{t:l.zh,v:VOI[l.s]||'n'}];return q;
+}
+const VARS={
+ vf:w=>[['a',()=>fW(w),1],['b',()=>fWb(w)],['l',()=>fWl(w)]],
+ kf:k=>[['a',()=>fK(k),1],['b',()=>fKb(k)],...k.w.map(w=>['w',()=>fKw(k,w)])],
+ vq:w=>[['m',()=>qWord(w,'m'),1],['rm',()=>qWord(w,'rm'),1],['p',()=>tagIs(qWord(w,'p'),'Pinyin'),1],w.w.length>1&&['h',()=>tagIs(qWord(w,'h'),'Characters'),1],PICS&&w.e&&['e',()=>tagIs(qWord(w,'e'),'Listening · picture'),1],['l',()=>qHearW(w)]],
+ kq:k=>[['0',()=>qHan(k,0),1],['1',()=>qHan(k,1),1],...k.w.map((w,i)=>['2',()=>qPinOf(k,w),!i]),CHW&&['3',()=>qCharAuto(k)]],
+ g:e=>[['c',()=>qGram(e),1],['t',()=>qMean(e)],!e.fresh&&['t',()=>qPickS(e)]],
+ wr:x=>[['',()=>qSent(x),1]]};
+function modeTiers(m,ty,days,ord){
+  const Ls=days.map(LN),V_=VARS[m],kw=Ls.filter(x=>KW[x]);
+  if(m==='wr')return passes(EX.WS||[],V_,ty,ord);
+  if(m==='kf'||m==='kq')return passes(uniq(merge(days).k),V_,ty,ord);
+  if(m==='vf'||m==='vq')return passes(uniq(merge(days).w),V_,ty,ord);
+  if(m==='g')return passes(merge(days).g.concat(freshOf(Ls)),V_,ty,ord);
+  if(m==='rd')return [ord(Ls.filter(x=>RD[x]).map(x=>[x,()=>typeof readQs==='function'?readQs(RD[x]):qRead(RD[x]),'r'+x])),ord(kw.map(x=>[x,()=>qDlgRead(x),'d'+x]))];
+  if(m==='ls')return [ord(kw.map(x=>[x,()=>qListen(x,1),'d'+x])),ord(kw.flatMap(x=>KW[x].lines.map((l,i)=>[x,()=>qLine(x,i),x+':'+i])))];
+  if(m==='cz'){const seen={};return [ord(kw.map(x=>[x,()=>{const q=qCloze(x);if(q)seen[x]=q.sol.join('|');return q},x])),
+    ord(kw.map(x=>[x,()=>{for(let t=0;t<8;t++){const q=qCloze(x);if(q&&q.sol.join('|')!==seen[x])return q}return null},x]))]}
+  if(m==='dc')return [ord(SENT.filter(s=>Ls.includes(s.L)).map(s=>[s,()=>qDict(s)]))];
+  return [];
+}
+function fixedPrac(m,ty){
+  if(m==='sp')return speakSet(ty?+ty:1+rnd(2));
+  return [qWrite(shuf(WR.P)[0],1),qWrite(shuf(WR.E)[0],0)].filter(q=>q.w);
+}
+/* ----- Practice core: range, round builder, setup sheet ----- */
+let LD_=null;
+const hasStuff=n=>{const d=D(n),x=items(n);return x.k.length+x.w.length+x.g.length>0||!!d.kw||!!d.read};
+const allDays=()=>LD_||(LD_=lessonDays(TOTAL).filter(hasStuff));
+/* Lessons that have something for this mode: unfinished parts of a course are left out. */
+const MD_={};
+const modeDays=m=>MD_[m]||(MD_[m]=PM[m].src?allDays().filter(n=>modeTiers(m,'',[n],r=>r).some(t=>t.length)):allDays());
+const lessonWeeks=m=>uniq(modeDays(m).map(n=>D(n).w));
+const pracN=c=>{const pm=PM[c.m],n=+c.n[c.m];return pm.fixed?1:pm.ns.includes(n)?n:pm.d};
+function pracDays(c){
+  const all=modeDays(c.m);
+  if(!PM[c.m].src||c.src==='all')return all;
+  if(c.src==='weeks')return all.filter(n=>c.weeks.includes(D(n).w));
+  const t=todayN();return all.filter(n=>n<=t);
+}
+function nearDays(m,days){
+  if(!days.length)return [];const s=new Set(days);
+  return modeDays(m).filter(n=>!s.has(n)).map(n=>[n,Math.min(...days.map(x=>Math.abs(x-n)))]).sort((a,b)=>a[1]-b[1]||a[0]-b[0]).map(x=>x[0]);
+}
+/* Each item offers several forms. Pass p asks form p of every item, so a round only
+   comes back to an item after every other item has had its turn. */
+function passes(its,vars,ty,ord){
+  const per=its.map(x=>{let v=vars(x).filter(Boolean);if(ty)v=v.filter(a=>a[0]===ty);return shuf(v.filter(a=>a[2])).concat(shuf(v.filter(a=>!a[2])))});
+  const out=[],mx=Math.max(0,...per.map(v=>v.length));
+  for(let p=0;p<mx;p++){const row=[];per.forEach((v,i)=>{if(v[p])row.push([its[i],v[p][1]])});out.push(ord(row))}
+  return out;
+}
+function spreadOut(a){
+  for(let i=1;i<a.length;i++){if(a[i].id!==a[i-1].id)continue;let j=-1;
+    for(let k=i+1;k<a.length;k++)if(a[k].id!==a[i].id&&(k+1>=a.length||a[k+1].id!==a[i].id)){j=k;break}
+    if(j<0)for(let k=0;k<i-1;k++)if(a[k].id!==a[i].id&&a[k+1].id!==a[i].id&&(!k||a[k-1].id!==a[i].id)){j=k;break}
+    if(j>=0){const t=a[i];a[i]=a[j];a[j]=t}}
+}
+/* Builds one round. own = units made from the chosen range, bor = units taken from the
+   nearest lessons outside it, again = units that ask an earlier item a second time. */
+function buildPrac(c){
+  const m=c.m,pm=PM[m],n=pracN(c),ty=c.ty[m]||'',p=P(),R={out:[],ok:[],own:0,bor:0,again:0};
+  if(pm.fixed){const q=fixedPrac(m,ty).filter(Boolean);return {qs:q,units:q.length?1:0,own:1,bor:0,again:0}}
+  const wf=c.wf&&pm.wf,byWrong=a=>wf?a.sort((x,y)=>(p.wrong[y[0]&&y[0].key]||0)-(p.wrong[x[0]&&x[0].key]||0)):a;
+  const ord=row=>byWrong(shuf(row)).map(([x,f,id])=>({x,f,id:id===undefined?x:id}));
+  const mk=t=>{let q=null;try{q=t.f()}catch(e){}if(Array.isArray(q)){q=q.filter(Boolean);if(!q.length)q=null}return q||null};
+  const run=(th,own)=>{for(const t of th){if(R.out.length>=n)return;const q=mk(t);if(q){R.out.push({q,id:t.id});own?R.own++:R.bor++;R.ok.push(t)}}};
+  const days=pracDays(c);
+  modeTiers(m,ty,days,ord).forEach(th=>run(th,1));
+  if(pm.bor&&days.length){const nd=nearDays(m,days);for(let i=0;i<nd.length&&R.out.length<n;i+=3)modeTiers(m,ty,nd.slice(i,i+3),ord).forEach(th=>run(th,0))}
+  for(let g=0;R.out.length<n&&R.ok.length&&g<80;g++)
+    for(const t of byWrong(shuf(R.ok.map(t=>[t.x,t]))).map(a=>a[1])){if(R.out.length>=n)break;const q=mk(t);if(q){R.out.push({q,id:t.id});R.again++}}
+  spreadOut(R.out);
+  return {qs:R.out.flatMap(x=>x.q),units:R.out.length,own:R.own,bor:R.bor,again:R.again};
+}
+let PS=null;
+function openSetup(m){
+  if(!PM[m])return;const p=P(),o=p.pr||{},LW=lessonWeeks(m);
+  PS={m,src:['learned','all','weeks'].includes(o.src)?o.src:(p.scope==='all'?'all':'learned'),weeks:(o.weeks||[]).slice(),wf:!!o.wf,fb:o.fb==='end'?'end':'now',time:+o.time||0,n:Object.assign({},o.n),ty:Object.assign({},o.ty)};
+  if(PS.src==='weeks'&&!PS.weeks.some(w=>LW.includes(w)))PS.src='learned';
+  if(PM[m].ty&&!PM[m].ty.some(x=>x[0]===(PS.ty[m]||'')))delete PS.ty[m];
+  drawSetup();
+}
+function drawSetup(){
+  const c=PS,m=c.m,pm=PM[m],pr=PR.find(x=>x[0]===m),n=pracN(c),LW=lessonWeeks(m),t=todayN(),nl=modeDays(m).filter(x=>x<=t).length,na=modeDays(m).length,big=LW.length>12,r=buildPrac(c),u=pm.u;
+  const sel=(k,v,o)=>`<select data-ps="${k}">${o.map(([x,s])=>`<option value="${x}"${String(v)===String(x)?' selected':''}>${s}</option>`).join('')}</select>`;
+  const msg=pm.fixed?'':!r.units?T.none(pm,pracDays(c).length):[r.bor?T.borrow(r.own,r.bor,n,u):r.again?T.short(r.own,n,u):T.enough(n,u),r.again?T.again(r.again,n,u,m):'',r.again&&c.ty[m]?T.tipTy:r.again&&pm.src&&c.src!=='all'?T.tipSrc:''].filter(Boolean).join(' ');
+  openModal(`<h3>${pr[1]}</h3><div class="pset"><p class="mute">${pm.desc||pr[2]}</p>
+  ${pm.src?`<label>${T.range} ${sel('src',c.src,[['learned',T.learned(nl)],['all',T.all(na)],['weeks',T.weeks]])}</label>
+  ${c.src==='weeks'?`<div class="picks" role="group" aria-label="${T.pickWeeks}">${big?`<span class="mute">${T.wk}</span>`:''}${LW.map(w=>`<label class="pick"><input type="checkbox" data-ps="weeks" value="${w}"${c.weeks.includes(w)?' checked':''}>${big?w:T.wk+' '+w}</label>`).join('')}</div>`:''}`
+  :pm.fixed?'':`<p class="mute">${T.noRange}</p>`}
+  ${pm.ty?`<label>${pm.tyl||T.type} ${sel('ty',c.ty[m]||'',pm.ty)}</label>`:''}
+  ${pm.fixed?'':`<label>${T.count} ${sel('n',n,pm.ns.map(x=>[x,T.unit(x,u)]))}</label>`}
+  ${pm.fb?`<label>${T.fb} ${sel('fb',c.fb,[['now',T.fbNow],['end',T.fbEnd]])}</label>`:''}
+  ${pm.tm?`<label>${T.time} ${sel('time',c.time,T.times)}</label>`:''}
+  ${pm.wf?`<label class="chk"><input type="checkbox" data-ps="wf"${c.wf?' checked':''}> ${T.wf}</label>`:''}
+  ${msg?`<p class="${r.units?'mute':'note'}">${msg}</p>`:''}
+  <div class="row"><button class="btn" data-act="pgo"${r.units?'':' disabled'}>${T.go}</button></div></div>`);
+}
+function setPS(t){
+  const c=PS,k=t.dataset.ps;if(!c)return;
+  if(k==='weeks'){const w=+t.value,i=c.weeks.indexOf(w);if(t.checked&&i<0)c.weeks.push(w);else if(!t.checked&&i>=0)c.weeks.splice(i,1)}
+  else if(k==='wf')c.wf=t.checked;
+  else if(k==='n')c.n[c.m]=+t.value;
+  else if(k==='ty')c.ty[c.m]=t.value;
+  else if(k==='time')c.time=+t.value;
+  else if(k==='src'){c.src=t.value;if(c.src==='weeks'&&!c.weeks.some(w=>lessonWeeks(c.m).includes(w))){const LW=lessonWeeks(c.m),cw=D(todayN()).w;c.weeks=[LW.includes(cw)?cw:LW.filter(w=>w<cw).pop()||LW[0]]}}
+  else if(k==='fb')c.fb=t.value;
+  const sh=$('#modal .sheet'),y=sh?sh.scrollTop:0;drawSetup();
+  const s2=$('#modal .sheet'),e=$(`#modal [data-ps="${k}"]`+(k==='weeks'?`[value="${t.value}"]`:''));
+  if(s2)s2.scrollTop=y;if(e)e.focus({preventScroll:true});
+}
+function startPrac(){
+  const c=PS,p=P();if(!c)return;const pm=PM[c.m],o={};
+  p.pr={src:c.src,weeks:c.weeks.slice().sort((a,b)=>a-b),wf:c.wf,fb:c.fb,time:c.time,n:c.n,ty:c.ty};save();
+  const qs=buildPrac(c).qs;
+  if(pm.fb&&c.fb==='end')o.late=true;
+  if(pm.tm&&c.time)o.limit=qs.length*c.time;
+  closeModal();PS=null;startQuiz(PR.find(x=>x[0]===c.m)[1],qs,o);
 }
 
 /* ================= Views ================= */
@@ -816,10 +984,9 @@ function day(n){
   return h+`<nav class="pn">${n>1?`<a href="#/day/${n-1}">Day ${n-1}</a>`:'<span></span>'}${n<TOTAL?`<a href="#/day/${n+1}">Day ${n+1}</a>`:''}</nav>`;
 }
 function pracV(){
-  const p=P(),nl=lessonDays(todayN()).length;
-  return `<h1>Practise one skill</h1><p class="lead">Extra practice on top of the daily lesson. Every round is a fresh set.</p>
-  <label>Range <select data-act="scope"><option value="learned">Lessons up to today (${nl})</option><option value="all"${p.scope==='all'?' selected':''}>All ${NL} lessons</option></select></label>
-  <div class="cards">${PR.map(([m,t,s])=>`<button class="pcard" data-act="prac" data-m="${m}"><b>${t}</b><span>${s}</span></button>`).join('')}
+  const p=P();
+  return `<h1>Practise one skill</h1><p class="lead">Extra practice on top of the daily lesson. Pick a skill, then choose the range, the question type, the number of items and how answers are shown before you start. Every round has the number you asked for. Your last choices are remembered.</p>
+  <div class="cards">${PR.map(([m,t,s])=>`<button class="pcard" data-act="prac" data-m="${m}"><b>${t}</b><span>${(PM[m]&&PM[m].desc)||s}</span></button>`).join('')}
   <a class="pcard" href="#/wrong"><b>Error notebook</b><span>${Object.keys(p.wrong).length} items you got wrong, drilled until they are gone.</span></a></div>`;
 }
 function examV(){
@@ -897,7 +1064,8 @@ document.addEventListener('click',e=>{
   else if(a==='exam'){const n=+t.dataset.n;startExam(+t.dataset.no,n?pct=>markDone(n,'q',pct):null)}
   else if(a==='exgo'){const ex=EXS,pt=ex.parts[ex.i];startQuiz(`${exName(ex.no)} · ${pt.title}`,pt.qs,{exam:true,limit:pt.min*60,chain:zz=>{zz.title=pt.title;ex.done.push(zz);QZ=null;if(++ex.i<ex.parts.length)examIntro();else examResult()}})}
   else if(a==='spk')startQuiz(SPKN+' '+t.dataset.no,speakSet(+t.dataset.no));
-  else if(a==='prac')practice(t.dataset.m);
+  else if(a==='prac')openSetup(t.dataset.m);
+  else if(a==='pgo')startPrac();
   else if(a==='wquiz')startQuiz('Error notebook drill',shuf(Object.keys(p.wrong)).slice(0,20).map(qFromKey));
   else if(a==='qplay')playQ();
   else if(a==='pick'){if(z.shown)return;(z.ans[z.i]=z.ans[z.i]||[])[+t.dataset.j]=+t.dataset.i;if(q.subs.length===1)grade();else drawQ()}
@@ -907,7 +1075,7 @@ document.addEventListener('click',e=>{
   else if(a==='dcheck'){const v=$('#din').value;answer(v,dictOk(q,v))}
   else if(a==='czadd'){const st=z.ans[z.i],b=q.sol.findIndex((_,j)=>st.f[j]==null);if(b<0)return;const i=+t.dataset.i;st.f[b]=q.bank[i];st.u[b]=i;drawQ()}
   else if(a==='czrm'){const st=z.ans[z.i],b=+t.dataset.b;st.f[b]=null;st.u[b]=null;drawQ()}
-  else if(a==='czcheck'){const st=z.ans[z.i];z.res[z.i]=q.sol.every((s,j)=>st.f[j]===s);z.shown=true;drawQ()}
+  else if(a==='czcheck'){const st=z.ans[z.i];z.res[z.i]=q.sol.every((s,j)=>st.f[j]===s);if(z.opt.late)nextQ();else{z.shown=true;drawQ()}}
   else if(a==='opick'){z.ans[z.i].push(+t.dataset.x);drawQ()}
   else if(a==='oundo'){z.ans[z.i].pop();drawQ()}
   else if(a==='ocheck'){const s=z.ans[z.i],c=s.filter((x,k)=>q.sh[x]===k).length;answer(s,c===q.paras.length?true:c)}
@@ -929,6 +1097,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('change',e=>{
   const t=e.target,a=t.dataset.act;
+  if(t.dataset.ps){setPS(t);return}
   if(a==='hide')t.closest('.sec').querySelector('.vlist').classList.toggle('hidden',t.checked);
   else if(a==='py'){P().py=t.checked;save();render(true)}
   else if(a==='theme'){P().theme=t.value;save();render(true)}
