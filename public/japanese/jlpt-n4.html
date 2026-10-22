@@ -162,8 +162,10 @@ span.ok{color:var(--ok)}span.no{color:var(--shu)}
 .pick{display:inline-flex;align-items:center;gap:6px;margin:0;padding:3px 12px 3px 8px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);font-size:.9rem;font-weight:500;cursor:pointer}
 .pick:has(input:checked){border-color:var(--ai);background:var(--ai-soft);color:var(--ai)}
 .pick input{margin:0}
+.cdbar{position:relative;height:24px;margin:8px 0 4px;border-radius:99px;background:var(--line);overflow:hidden}.cdbar i{position:absolute;left:0;top:0;bottom:0;background:var(--ai-soft);transition:width .25s linear}
+.cdbar span{position:relative;display:block;text-align:center;font-size:.85rem;line-height:24px;color:var(--ink)}.cdbar.low i{background:#f3c4c0}.cdbar.stop i{opacity:.5}.cdout{font-weight:700;color:var(--shu);margin:0 0 6px}
 .vxex{border-top:1px dashed var(--line);margin-top:10px;padding-top:8px}.vxex p{margin:4px 0}.vxex mark,.qs mark{background:var(--hl);color:inherit;padding:0 2px;border-radius:3px}
-.hv.sm{font-size:.95rem}.vlist li:has(.vex){flex-wrap:wrap}.vex{display:block;flex-basis:100%;font-size:.95rem;color:var(--mute);margin:2px 0 0 36px}.vex .jp{color:var(--ink);font-size:1rem}.vex small{font-size:.85rem}.ico{border:0;background:none;color:var(--ai);cursor:pointer;vertical-align:middle;padding:2px}
+.hv.sm{font-size:.95rem}.vlist li:has(.vex){flex-wrap:wrap}.vex{display:block;flex-basis:100%;font-size:.95rem;color:var(--mute);margin:2px 0 0 36px}.vex .jp{color:var(--ink);font-size:1rem}.vex .zh{color:var(--ink);font-size:1rem;min-width:0;font-weight:400}.vex small{font-size:.85rem}.ico{border:0;background:none;color:var(--ai);cursor:pointer;vertical-align:middle;padding:2px}
 .slots{font-size:1.5rem;letter-spacing:.08em;text-align:center;margin:12px 0;color:var(--ai)}
 #tin{width:100%;font-size:1.25rem;padding:10px 12px;border:1.5px solid var(--grid);border-radius:8px;background:var(--card);color:var(--ink);margin:4px 0 10px}
 .ndrate{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end;margin:8px 0;font-size:.9rem;color:var(--mute)}
@@ -811,7 +813,7 @@ function buildPrac(c){
 let PS=null;
 function openSetup(m){
   if(!PM[m])return;const p=P(),o=p.pr||{},LW=lessonWeeks(m);
-  PS={m,src:['learned','all','weeks'].includes(o.src)?o.src:(p.scope==='all'?'all':'learned'),weeks:(o.weeks||[]).slice(),wf:!!o.wf,fb:o.fb==='end'?'end':'now',time:+o.time||0,n:Object.assign({},o.n),ty:Object.assign({},o.ty)};
+  PS={m,src:['learned','all','weeks'].includes(o.src)?o.src:(p.scope==='all'?'all':'learned'),weeks:(o.weeks||[]).slice(),wf:!!o.wf,fb:o.fb==='end'?'end':'now',time:+o.time||0,cd:!!o.cd,n:Object.assign({},o.n),ty:Object.assign({},o.ty)};
   if(PS.src==='weeks'&&!PS.weeks.some(w=>LW.includes(w)))PS.src='learned';
   if(PM[m].ty&&!PM[m].ty.some(x=>x[0]===(PS.ty[m]||'')))delete PS.ty[m];
   drawSetup();
@@ -829,6 +831,7 @@ function drawSetup(){
   ${pm.fb?`<label>${T.fb} ${sel('fb',c.fb,[['now',T.fbNow],['end',T.fbEnd]])}</label>`:''}
   ${pm.tm?`<label>${T.time} ${sel('time',c.time,T.times)}</label>`:''}
   ${pm.wf?`<label class="chk"><input type="checkbox" data-ps="wf"${c.wf?' checked':''}> ${T.wf}</label>`:''}
+  ${!pm.fixed&&m!=='wr'&&typeof CDT!=='undefined'?`<label class="chk"><input type="checkbox" data-ps="cd"${c.cd?' checked':''}> ${CDT.opt}</label>`:''}
   ${msg?`<p class="${r.units?'mute':'note'}">${msg}</p>`:''}
   <div class="row"><button class="btn" data-act="pgo"${r.units?'':' disabled'}>${T.go}</button></div></div>`);
 }
@@ -836,6 +839,7 @@ function setPS(t){
   const c=PS,k=t.dataset.ps;if(!c)return;
   if(k==='weeks'){const w=+t.value,i=c.weeks.indexOf(w);if(t.checked&&i<0)c.weeks.push(w);else if(!t.checked&&i>=0)c.weeks.splice(i,1)}
   else if(k==='wf')c.wf=t.checked;
+  else if(k==='cd')c.cd=t.checked;
   else if(k==='n')c.n[c.m]=+t.value;
   else if(k==='ty')c.ty[c.m]=t.value;
   else if(k==='time')c.time=+t.value;
@@ -847,10 +851,11 @@ function setPS(t){
 }
 function startPrac(){
   const c=PS,p=P();if(!c)return;const pm=PM[c.m],o={};
-  p.pr={src:c.src,weeks:c.weeks.slice().sort((a,b)=>a-b),wf:c.wf,fb:c.fb,time:c.time,n:c.n,ty:c.ty};save();
+  p.pr={src:c.src,weeks:c.weeks.slice().sort((a,b)=>a-b),wf:c.wf,fb:c.fb,time:c.time,cd:c.cd,n:c.n,ty:c.ty};save();
   const qs=buildPrac(c).qs;
   if(pm.fb&&c.fb==='end')o.late=true;
   if(pm.tm&&c.time)o.limit=qs.length*c.time;
+  if(c.cd&&!pm.fixed&&c.m!=='wr')o.cd=true;
   closeModal();PS=null;(pm.run||startQuiz)(PR.find(x=>x[0]===c.m)[1],qs,o,c);
 }
 
@@ -1114,6 +1119,58 @@ if(HASKP){
   addEventListener('click',e=>{const t=e.target.closest('[data-act=kpart]');if(t){e.stopPropagation();kpComp(t.dataset.c)}},true);
   addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest&&e.target.closest('[data-act=kpart]')){e.preventDefault();kpComp(e.target.closest('[data-act=kpart]').dataset.c)}});
 }
+
+/* ----- Countdown per question (both families): time depends on how much there is to read and do, at least 20 s.
+   Answering stops the clock, so you can move on at once; when time runs out the question counts as wrong. */
+const CDT=typeof DATA!=='undefined'
+  ?{opt:'Countdown for each question (time depends on difficulty, at least 20 seconds)',out:'Time is up',s:'s',lab:'Time left'}
+  :{opt:'Đếm ngược từng câu (thời gian theo độ khó, ít nhất 20 giây)',out:'Hết giờ',s:'giây',lab:'Thời gian còn lại'};
+const cdTxt=h=>String(h||'').replace(/<rt>.*?<\/rt>/g,'').replace(/<[^>]+>/g,' ');
+const cdCount=s=>{const t=cdTxt(s);return {c:(t.match(/[぀-ヿ㐀-鿿]/g)||[]).length,l:(t.match(/[A-Za-zÀ-ỹ]/g)||[]).length}};
+function cdSec(q){
+  const k=q.kind||'mc',a=cdCount((q.html||'')+(q.front||'')),r=x=>a.c*x;
+  let s=12+r(.6)+a.l*.06;
+  if(q.audio)s+=8+cdCount(q.audio.map(x=>x.t||'').join('')).c*.3;
+  if(k==='mc'){const os=q.subs?q.subs.flatMap(x=>[x.q||''].concat(x.opts)):(q.opts||[]),o=cdCount(os.join(' '));s+=o.c*.5+o.l*.04+(q.subs?(q.subs.length-1)*18:0)}
+  else if(k==='type')s+=6+4*(q.slots||2);
+  else if(k==='seq')s+=4*q.sol.length;
+  else if(k==='dict')s+=10+2*cdCount(q.raw).c;
+  else if(k==='cloze')s+=8*q.sol.length+cdCount((q.parts||[]).map(p=>typeof p==='string'?p:p.c||'').join('')).c*.2;
+  else if(k==='order')s+=12*q.paras.length+cdCount(q.paras.join('')).c*.4;
+  else if(k==='flash')s=Math.max(s,20);
+  return Math.min(240,Math.max(20,Math.round(s/5)*5));
+}
+const cdOn=z=>z&&z.opt&&z.opt.cd&&!z.fin&&z.qs&&z.qs[z.i]&&z.qs[z.i].kind!=='write';
+const cdDone=z=>z.shown||(z.qs[z.i].kind==='flash'&&z.flip);
+function cdBar(){
+  const z=QZ;if(!cdOn(z))return;const c=z.cd[z.i],q=$('#quiz .qbar');if(!c||!q)return;
+  const left=c.stop!=null?c.stop:Math.max(0,c.end-Date.now()),sec=Math.ceil(left/1000),pct=left/(c.sec*1000)*100;
+  let e=$('#quiz .cdbar');if(!e){q.insertAdjacentHTML('afterend','<div class="cdbar" role="timer"><i></i><span></span></div>');e=$('#quiz .cdbar')}
+  e.classList.toggle('low',pct<25&&c.stop==null);e.classList.toggle('stop',c.stop!=null);
+  e.querySelector('i').style.width=pct+'%';e.querySelector('span').textContent=c.out?CDT.out:`${CDT.lab}: ${sec} ${CDT.s}`;
+}
+function cdExpire(){
+  const z=QZ;if(!cdOn(z)||cdDone(z))return;const q=z.qs[z.i],c=z.cd[z.i];c.out=true;c.stop=0;
+  if(q.kind==='flash'){z.res[z.i]=false;nextQ();return}
+  let v=z.ans[z.i];
+  if(q.kind==='type'){const i=$('#tin');v=Object.assign({h:0},v,{v:i?i.value:''})}
+  else if(q.kind==='dict'){const i=$('#din');v=i?i.value:''}
+  else if((q.kind||'mc')==='mc'&&q.subs)v=v||[];
+  answer(v,false);
+}
+function cdTick(){
+  const z=QZ;clearInterval(cdTick.t);if(!cdOn(z))return;
+  z.cd=z.cd||{};const sec=z.cd[z.i]?z.cd[z.i].sec:cdSec(z.qs[z.i]);
+  if(!z.cd[z.i])z.cd[z.i]={sec,end:Date.now()+sec*1000};
+  const c=z.cd[z.i];
+  if(cdDone(z)){if(c.stop==null)c.stop=Math.max(0,c.end-Date.now());cdBar();
+    if(c.out){const f=$('#quiz .fb');if(f&&!f.querySelector('.cdout'))f.insertAdjacentHTML('afterbegin',`<p class="cdout">⏱ ${CDT.out}</p>`)}return}
+  cdBar();
+  cdTick.t=setInterval(()=>{const y=QZ;if(y!==z||!cdOn(y)||cdDone(y)){clearInterval(cdTick.t);return}
+    if(Date.now()>=c.end){clearInterval(cdTick.t);cdExpire()}else cdBar()},250);
+}
+const drawQcd=drawQ;
+drawQ=function(auto){drawQcd(auto);cdTick()};
 
 /* ================= Giao diện ================= */
 const NAV=[['','Hôm nay','今'],['plan','Lộ trình','道'],['prac','Luyện tập','練'],['exam','Đề thi','試'],['kanji','Kanji','字'],['set','Cài đặt','設']];
