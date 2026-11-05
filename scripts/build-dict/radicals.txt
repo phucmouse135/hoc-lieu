@@ -1,0 +1,215 @@
+# 214 bộ thủ Khang Hy: số|bộ|biến thể|số nét|tên Hán-Việt|ý nghĩa
+1|一||1|nhất|số một
+2|丨||1|cổn|nét sổ
+3|丶||1|chủ|điểm, chấm
+4|丿||1|phiệt|nét phẩy
+5|乙|乚|1|ất|can thứ hai; ruột cá
+6|亅||1|quyết|nét sổ móc
+7|二||2|nhị|số hai
+8|亠||2|đầu|cái nắp (không nghĩa riêng)
+9|人|亻|2|nhân|người
+10|儿||2|nhân đi|người đi, chân người
+11|入||2|nhập|vào
+12|八||2|bát|số tám
+13|冂||2|quynh|vùng biên giới xa
+14|冖||2|mịch|trùm khăn lên
+15|冫||2|băng|nước đá
+16|几||2|kỷ|cái ghế dựa
+17|凵||2|khảm|há miệng, hố
+18|刀|刂|2|đao|con dao
+19|力||2|lực|sức mạnh
+20|勹||2|bao|bao bọc
+21|匕||2|chủy|cái thìa
+22|匚||2|phương|cái tủ đựng
+23|匸||2|hệ|che đậy
+24|十||2|thập|số mười
+25|卜||2|bốc|xem bói
+26|卩|㔾|2|tiết|đốt tre
+27|厂||2|hán|sườn núi
+28|厶||2|khư|riêng tư
+29|又||2|hựu|lại nữa; bàn tay
+30|口||3|khẩu|cái miệng
+31|囗||3|vi|vây quanh
+32|土||3|thổ|đất
+33|士||3|sĩ|kẻ sĩ
+34|夂||3|truy|đến sau
+35|夊||3|tuy|đi chậm
+36|夕||3|tịch|buổi chiều tối
+37|大||3|đại|to lớn
+38|女||3|nữ|con gái, phụ nữ
+39|子||3|tử|con
+40|宀||3|miên|mái nhà
+41|寸||3|thốn|tấc; chút ít
+42|小|⺌|3|tiểu|nhỏ
+43|尢|尣|3|uông|yếu đuối, què
+44|尸||3|thi|xác chết; thân người
+45|屮||3|triệt|mầm non
+46|山||3|sơn|núi
+47|巛|川|3|xuyên|sông ngòi
+48|工||3|công|người thợ
+49|己||3|kỷ|bản thân
+50|巾||3|cân|cái khăn
+51|干||3|can|thiên can; can dự
+52|幺||3|yêu|nhỏ nhắn
+53|广||3|nghiễm|mái nhà (dựa vách)
+54|廴||3|dẫn|bước dài
+55|廾||3|củng|chắp tay
+56|弋||3|dặc|bắn; cọc
+57|弓||3|cung|cây cung
+58|彐|⺕彑|3|kệ|đầu con nhím
+59|彡||3|sam|lông tóc dài
+60|彳||3|xích|bước chân trái
+61|心|忄⺗|4|tâm|quả tim, tấm lòng
+62|戈||4|qua|cây qua (binh khí)
+63|戶|户戸|4|hộ|cửa một cánh
+64|手|扌|4|thủ|tay
+65|支||4|chi|cành nhánh
+66|攴|攵|4|phộc|đánh khẽ
+67|文||4|văn|văn vẻ, chữ
+68|斗||4|đẩu|cái đấu
+69|斤||4|cân|cái rìu
+70|方||4|phương|vuông; phương hướng
+71|无|旡|4|vô|không
+72|日||4|nhật|mặt trời, ngày
+73|曰||4|viết|nói rằng
+74|月||4|nguyệt|mặt trăng, tháng
+75|木||4|mộc|cây, gỗ
+76|欠||4|khiếm|thiếu; ngáp
+77|止||4|chỉ|dừng lại
+78|歹|歺|4|đãi|xấu xa, chết chóc
+79|殳||4|thù|binh khí dài
+80|毋|毌母|4|vô|chớ, đừng
+81|比||4|tỷ|so sánh
+82|毛||4|mao|lông
+83|氏||4|thị|họ
+84|气||4|khí|hơi
+85|水|氵氺|4|thủy|nước
+86|火|灬|4|hỏa|lửa
+87|爪|爫|4|trảo|móng vuốt
+88|父||4|phụ|cha
+89|爻||4|hào|hào (quẻ dịch)
+90|爿|丬|4|tường|mảnh gỗ
+91|片||4|phiến|mảnh, tấm
+92|牙||4|nha|răng
+93|牛|牜|4|ngưu|con trâu, bò
+94|犬|犭|4|khuyển|con chó
+95|玄||5|huyền|màu đen huyền; huyền bí
+96|玉|王玊|5|ngọc|đá quý, ngọc
+97|瓜||5|qua|quả dưa
+98|瓦||5|ngõa|ngói
+99|甘||5|cam|ngọt
+100|生||5|sinh|sống, sinh ra
+101|用||5|dụng|dùng
+102|田||5|điền|ruộng
+103|疋|⺪|5|sơ|đơn vị đo vải; chân
+104|疒||5|nạch|bệnh tật
+105|癶||5|bát|gạt ngược lại
+106|白||5|bạch|màu trắng
+107|皮||5|bì|da
+108|皿||5|mãnh|bát đĩa
+109|目|⺫|5|mục|mắt
+110|矛||5|mâu|cây mâu
+111|矢||5|thỉ|mũi tên
+112|石||5|thạch|đá
+113|示|礻|5|thị|thần đất; bày tỏ
+114|禸||5|nhựu|vết chân thú
+115|禾||5|hòa|cây lúa
+116|穴||5|huyệt|hang lỗ
+117|立||5|lập|đứng
+118|竹|⺮|6|trúc|cây tre
+119|米||6|mễ|gạo
+120|糸|糹纟|6|mịch|sợi tơ
+121|缶||6|phẫu|đồ sành
+122|网|罒⺲罓|6|võng|cái lưới
+123|羊|⺶|6|dương|con dê, cừu
+124|羽||6|vũ|lông vũ
+125|老|耂|6|lão|già
+126|而||6|nhi|mà, và
+127|耒||6|lỗi|cái cày
+128|耳||6|nhĩ|tai
+129|聿||6|duật|cây bút
+130|肉|⺼|6|nhục|thịt
+131|臣||6|thần|bề tôi
+132|自||6|tự|tự bản thân
+133|至||6|chí|đến
+134|臼||6|cữu|cái cối
+135|舌||6|thiệt|cái lưỡi
+136|舛||6|suyễn|sai lầm, trái ngược
+137|舟||6|chu|cái thuyền
+138|艮||6|cấn|quẻ cấn; bền cứng
+139|色||6|sắc|màu sắc
+140|艸|艹|6|thảo|cỏ
+141|虍||6|hô|vằn con hổ
+142|虫||6|trùng|sâu bọ
+143|血||6|huyết|máu
+144|行||6|hành|đi; làm
+145|衣|衤|6|y|áo
+146|襾|西覀|6|á|che đậy
+147|見|见|7|kiến|thấy
+148|角||7|giác|cái sừng
+149|言|訁讠|7|ngôn|lời nói
+150|谷||7|cốc|khe suối
+151|豆||7|đậu|hạt đậu
+152|豕||7|thỉ|con heo
+153|豸||7|trĩ|loài sâu không chân; thú dữ
+154|貝|贝|7|bối|vỏ sò; tiền bạc
+155|赤||7|xích|màu đỏ
+156|走||7|tẩu|chạy
+157|足|⻊|7|túc|chân
+158|身||7|thân|thân mình
+159|車|车|7|xa|cái xe
+160|辛||7|tân|cay
+161|辰||7|thần|thìn; thời
+162|辵|辶⻌|7|sước|chợt bước chợt dừng
+163|邑|⻏|7|ấp|vùng đất (阝 bên phải)
+164|酉||7|dậu|rượu
+165|釆||7|biện|phân biệt
+166|里||7|lý|dặm; làng
+167|金|釒钅|8|kim|kim loại; vàng
+168|長|镸长|8|trường|dài
+169|門|门|8|môn|cửa hai cánh
+170|阜|⻖|8|phụ|gò đất (阝 bên trái)
+171|隶||8|đãi|kịp, đến
+172|隹||8|chuy|chim đuôi ngắn
+173|雨||8|vũ|mưa
+174|靑|青|8|thanh|màu xanh
+175|非||8|phi|không phải
+176|面||9|diện|mặt
+177|革||9|cách|da thú (đã cạo lông)
+178|韋|韦|9|vi|da đã thuộc
+179|韭||9|cửu|rau hẹ
+180|音||9|âm|âm thanh
+181|頁|页|9|hiệt|đầu; trang giấy
+182|風|风|9|phong|gió
+183|飛|飞|9|phi|bay
+184|食|飠饣|9|thực|ăn
+185|首||9|thủ|cái đầu
+186|香||9|hương|mùi thơm
+187|馬|马|10|mã|con ngựa
+188|骨||10|cốt|xương
+189|高||10|cao|cao
+190|髟||10|bưu|tóc dài
+191|鬥||10|đấu|đánh nhau
+192|鬯||10|sưởng|rượu nếp
+193|鬲||10|cách|cái đỉnh (nồi)
+194|鬼||10|quỷ|ma quỷ
+195|魚|鱼|11|ngư|con cá
+196|鳥|鸟|11|điểu|con chim
+197|鹵|卤|11|lỗ|đất mặn
+198|鹿||11|lộc|con hươu
+199|麥|麦|11|mạch|lúa mạch
+200|麻||11|ma|cây gai
+201|黃|黄|12|hoàng|màu vàng
+202|黍||12|thử|lúa nếp
+203|黑|黒|12|hắc|màu đen
+204|黹||12|chỉ|may vá
+205|黽|黾|13|mãnh|con ếch
+206|鼎||13|đỉnh|cái đỉnh
+207|鼓||13|cổ|cái trống
+208|鼠||13|thử|con chuột
+209|鼻||14|tỵ|cái mũi
+210|齊|斉齐|14|tề|ngang bằng
+211|齒|歯齿|15|xỉ|răng
+212|龍|竜龙|16|long|con rồng
+213|龜|亀龟|16|quy|con rùa
+214|龠||17|dược|sáo ba lỗ

@@ -9,7 +9,8 @@ Website tĩnh gộp tất cả tài liệu học tập vào **một trang chủ*
 | Tiếng Anh | IELTS 3.0 → 6.0 (24 tuần) | `public/english/` |
 | Tiếng Nhật | JLPT N5 → N1 | `public/japanese/` |
 | Tiếng Trung | HSK 1 → 6 | `public/chinese/` |
-| Tech | OCP Java SE 25 (1Z0-831) | `public/tech/` |
+| Tech | OCP Java SE 25 (1Z0-831), AWS SAA-C03, AI cho Backend | `public/tech/` |
+| Công cụ | Tra Kanji (`kanji.html`), tra Hán tự (`hanzi.html`) | `public/tools/` |
 
 ## Cấu trúc
 
@@ -24,6 +25,17 @@ vercel.json           <- config static hosting (cleanUrls)
 ```
 
 Mỗi file là một ứng dụng tĩnh tự chứa, có nút **‹ Trang chủ** (góc trên trái) để quay về hub. Tất cả chạy trên trình duyệt, không cần server.
+
+## Công cụ tra chữ (`public/tools/`)
+
+`kanji.html` và `hanzi.html` dùng chung `dict.js` + `dict.css`, đọc dữ liệu JSON trong `public/data/` (tải khi cần, nên **phải mở qua http/https**, không mở trực tiếp từ file). Có: gõ romaji/kana/pinyin/Hán-Việt/nghĩa, tìm theo 214 bộ Khang Hy và theo thành phần, vẽ tay nhận dạng (chạy trên máy), thứ tự nét, phân tích bộ và cây thành phần, từ ví dụ, sổ ôn (`tools-kanji-v1`, `tools-hanzi-v1`). Liên kết sâu: `tools/kanji.html#/k/漢`.
+
+Dữ liệu sinh bằng `scripts/build-dict/` (nguồn và giấy phép: `public/data/LICENSES.md`):
+
+```bash
+sh scripts/build-dict/fetch.sh /tmp/dict-raw
+node scripts/build-dict/build.js /tmp/dict-raw
+```
 
 ## Thêm một lộ trình mới
 
