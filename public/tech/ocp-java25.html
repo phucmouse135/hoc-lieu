@@ -9380,6 +9380,2448 @@ System.out.println(rb.getString("hi") + rb.getString("bye"));
 - Ném MissingResourceException
 >Không có App_de nên Java chuyển sang Locale mặc định và chọn App_en. Khoá hi có ngay trong đó; khoá bye không có nên được tìm tiếp ở bundle cha App.
 </script>
+<script type="text/plain" class="wk" data-exam="1">
+##E4
+?{T}Phương thức của String|Đoạn mã in ra gì?
+```
+String s = "banana";
+System.out.println(s.indexOf("an", 2) + " " + s.lastIndexOf('a', 4) + " "
+    + s.charAt(s.length() - 2) + " " + s.replace("na", "").isEmpty());
+```
++ 3 3 n false
+- 1 3 n false
+- 3 5 n false
+- 3 3 n true
+>indexOf("an", 2) bắt đầu tìm từ vị trí 2 nên gặp "an" ở vị trí 3. lastIndexOf('a', 4) tìm ngược từ vị trí 4 và gặp a ở vị trí 3. replace bỏ hai lần "na" còn "ba", không rỗng.
+%out:3 3 n false
+?{T}StringBuilder|Đoạn mã in ra gì?
+```
+var sb = new StringBuilder("java");
+sb.append(sb.length()).reverse().replace(0, 2, "X");
+System.out.println(sb + " " + sb.indexOf("a") + " " + sb.charAt(1));
+```
++ Xvaj 2 v
+- Xavaj 1 a
+- X4avaj 3 4
+- Xvaj 1 v
+>append(4) cho "java4", reverse cho "4avaj", replace(0, 2, "X") thay hai ký tự đầu "4a" bằng "X" thành "Xvaj". Chữ a đầu tiên nằm ở vị trí 2.
+%out:Xvaj 2 v
+?{T}Toán tử tăng và wrapper|Đoạn mã in ra gì?
+```
+int x = 5;
+x = x++ + ++x * 2;
+long big = Integer.MAX_VALUE + 1;
+Integer a = 127, b = 127, c = 128, d = 128;
+System.out.println(x + " " + big + " " + (a == b) + " " + (c == d));
+```
++ 19 -2147483648 true false
+- 19 2147483648 true false
+- 17 -2147483648 true false
+- 19 -2147483648 true true
+>x++ cho 5 rồi x thành 6, ++x cho 7, nên x = 5 + 7 * 2 = 19. Phép cộng thực hiện trên int và tràn trước khi được nới rộng sang long. Integer cache chỉ giữ sẵn các giá trị từ -128 đến 127.
+%out:19 -2147483648 true false
+?{T}LocalDateTime và Duration|Đoạn mã in ra gì?
+```
+LocalDateTime t = LocalDateTime.of(2025, 1, 31, 23, 30);
+t = t.plusMonths(1).plusHours(1);
+Duration du = Duration.ofMinutes(135);
+System.out.println(t + " " + du + " " + t.getDayOfYear());
+```
++ 2025-03-01T00:30 PT2H15M 60
+- 2025-03-03T00:30 PT2H15M 62
+- 2025-03-01T00:30 PT135M 60
+- 2025-02-28T00:30 PT2H15M 59
+>plusMonths(1) từ 31/1 lùi về ngày cuối hợp lệ là 28/2/2025, cộng 1 giờ thì sang 00:30 ngày 1/3. Duration in theo giờ và phút. Ngày 1/3/2025 là ngày thứ 31 + 28 + 1 = 60 của năm.
+%out:2025-03-01T00:30 PT2H15M 60
+?{T}Độ ưu tiên toán tử|Đoạn mã in ra gì?
+```
+int i = 0, j = 0;
+boolean r = (i++ > 0) && (j++ > 0) | (++i > 0);
+System.out.println(r + " " + i + " " + j);
+```
++ false 1 0
+- false 2 1
+- true 2 1
+- false 2 0
+>Toán tử | có độ ưu tiên cao hơn && nên biểu thức là A && (B | C). A là false nên && bỏ qua toàn bộ vế phải, cả j++ lẫn ++i đều không chạy.
+%out:false 1 0
+?{T}So sánh và định dạng chuỗi|Đoạn mã in ra gì?
+```
+String a = "Apple", b = "apple";
+System.out.println(a.compareTo(b) + " " + a.equalsIgnoreCase(b) + " "
+    + "ab".repeat(2).lastIndexOf("b") + " " + "%s-%03d".formatted("x", 7));
+```
++ -32 true 3 x-007
+- 32 true 3 x-007
+- -1 true 3 x-007
+- -32 true 1 x-7
+>compareTo trả về hiệu mã ký tự đầu tiên khác nhau: 'A' (65) trừ 'a' (97) là -32. "abab" có chữ b cuối ở vị trí 3. %03d độn số 0 cho đủ ba chữ số.
+%out:-32 true 3 x-007
+?{F}switch kiểu cũ trong vòng lặp|Đoạn mã in ra gì?
+```
+String r = "";
+for (int k = 1; k <= 4; k++) {
+    switch (k) {
+        case 1: r += "a";
+        case 2: r += "b"; break;
+        case 3: continue;
+        default: r += "d";
+    }
+    r += k;
+}
+System.out.println(r);
+```
++ ab1b2d4
+- a1b2d4
+- ab1b23d4
+- ab1b2
+>Case 1 không có break nên rơi xuống case 2. continue trong switch tác động lên vòng for, nên với k = 3 lệnh r += k bị bỏ qua. break chỉ thoát switch.
+%out:ab1b2d4
+?{F}Pattern switch có điều kiện|Chương trình in ra gì?
+```
+static String f(Object o) {
+    return switch (o) {
+        case Integer i when i > 50 -> "big";
+        case Integer i -> i % 2 == 0 ? "even" : "odd";
+        case String s -> s.length() + "";
+        case null, default -> "x";
+    };
+}
+
+void main() {
+    for (Object o : new Object[]{42, 99, "hi", 3.0, null}) System.out.print(f(o) + ";");
+}
+```
++ even;big;2;x;x;
+- even;odd;2;x;x;
+- even;big;hi;x;x;
+- In ra even;big;2;x; rồi ném NullPointerException
+>99 khớp nhánh có điều kiện when trước. 3.0 là Double nên rơi vào default. Nhờ có `case null` nên giá trị null không gây NullPointerException.
+%out:even;big;2;x;x;
+?{F}Câu lệnh không tới được|Dòng nào gây lỗi biên dịch?
+```
+int a = 0;
+while (false) { a++; }
+do { a++; } while (false);
+for (;;) { break; }
+if (false) { a++; }
+System.out.println(a);
+```
++ Dòng 2
+- Dòng 3
+- Dòng 5
+- Không có dòng nào
+>Thân của while (false) không bao giờ tới được nên trình biên dịch báo lỗi. if (false) là ngoại lệ được cho phép để hỗ trợ biên dịch có điều kiện. do-while luôn chạy thân ít nhất một lần.
+%cerr
+?^{F}Biến không tên trong record pattern|Với JDK 25, chương trình in ra gì?
+```
+record Point(int x, int y) { }
+sealed interface Shape permits Circle, Square { }
+record Circle(Point c, int r) implements Shape { }
+record Square(Point p, int side) implements Shape { }
+
+static int area(Shape s) {
+    return switch (s) {
+        case Circle(_, var r) -> 3 * r * r;
+        case Square(Point(var x, _), int side) when x > 0 -> side * side;
+        case Square _ -> -1;
+    };
+}
+
+void main() {
+    System.out.println(area(new Circle(new Point(0, 0), 2)) + " "
+        + area(new Square(new Point(1, 1), 3)) + " "
+        + area(new Square(new Point(-1, 0), 3)));
+}
+```
++ 12 9 -1
+- 12 9 9
+- Lỗi biên dịch vì switch không có default
+- Lỗi biên dịch vì không được dùng _ trong record pattern lồng nhau
+>_ thay cho thành phần không cần dùng, ở bất kỳ mức lồng nào. Shape là sealed và mọi lớp con đều được phủ (nhánh `case Square _` bắt phần còn lại) nên không cần default.
+%out:12 9 -1
+?{O}Che giấu trường và phương thức static|Chương trình in ra gì?
+```
+class A {
+    String n = "A";
+    static String s() { return "sA"; }
+    String m() { return "mA"; }
+    String show() { return n + m() + s(); }
+}
+class B extends A {
+    String n = "B";
+    static String s() { return "sB"; }
+    String m() { return "mB"; }
+}
+
+void main() {
+    A a = new B();
+    System.out.println(a.n + " " + a.show() + " " + ((B) a).n);
+}
+```
++ A AmBsA B
+- B BmBsB B
+- A AmBsB B
+- A AmAsA A
+>Trường và phương thức static được chọn theo kiểu khai báo lúc biên dịch, chỉ phương thức instance mới đa hình. Trong show() của A, n là A.n và s() là A.s().
+%out:A AmBsA B
+?{O}Nạp chồng|Chương trình in ra gì?
+```
+static void p(long x) { System.out.print("L"); }
+static void p(Integer x) { System.out.print("I"); }
+static void p(Object x) { System.out.print("O"); }
+static void p(int... x) { System.out.print("V"); }
+
+void main() {
+    byte b = 1;
+    Short s = 2;
+    p(b); p(5); p(s); p(); p('c');
+    System.out.println();
+}
+```
++ LLOVL
+- LIOVL
+- LLIVL
+- LLOVO
+>Java ưu tiên nới rộng kiểu nguyên thủy trước, rồi mới tới boxing, cuối cùng là varargs. byte, int và char đều nới rộng được sang long. Short là một Object nên p(Object) khớp mà không cần unboxing.
+%out:LLOVL
+?{O}Phương thức default|Chương trình in ra gì?
+```
+interface X {
+    default String hi() { return "X" + id(); }
+    private String id() { return "1"; }
+    static String st() { return "S"; }
+}
+interface Y extends X {
+    default String hi() { return "Y" + X.super.hi(); }
+}
+class Z implements X, Y { }
+
+void main() {
+    System.out.println(new Z().hi() + X.st());
+}
+```
++ YX1S
+- X1S
+- Lỗi biên dịch vì Z thừa hưởng hai phương thức hi() xung đột
+- Lỗi biên dịch vì Y không được gọi X.super.hi()
+>Y kế thừa X và ghi đè hi() nên bản của Y cụ thể hơn, không có xung đột. Interface con gọi được bản default của interface cha trực tiếp bằng X.super.hi().
+%out:YX1S
+?{O}Constructor gọi phương thức bị ghi đè|Chương trình in ra gì?
+```
+abstract class Base {
+    Base() { System.out.print(name() + " "); }
+    abstract String name();
+}
+class Impl extends Base {
+    private String n = "impl";
+    private final String f = "fin";
+    String name() { return n + "/" + f; }
+}
+
+void main() {
+    System.out.println(new Impl().name());
+}
+```
++ null/fin impl/fin
+- null/null impl/fin
+- impl/fin impl/fin
+- Lỗi biên dịch vì constructor của lớp abstract gọi phương thức abstract
+>Khi constructor của Base chạy, trường n của Impl chưa được khởi tạo nên còn null. f là biến final gán bằng hằng số nên trình biên dịch thay thẳng giá trị "fin" vào chỗ dùng.
+%out:null/fin impl/fin
+?^{O}Flexible constructor bodies|Với JDK 25, chương trình in ra gì?
+```
+class Parent {
+    Parent() { System.out.print("P:" + describe() + " "); }
+    String describe() { return "p"; }
+}
+class Child extends Parent {
+    private final int size;
+    private String label = "L";
+    Child(int s) {
+        if (s < 0) throw new IllegalArgumentException();
+        size = s * 2;
+        super();
+        System.out.print("C:" + label + " ");
+    }
+    @Override String describe() { return size + label; }
+}
+
+void main() {
+    new Child(3);
+    System.out.println("end");
+}
+```
++ P:6null C:L end
+- P:0null C:L end
+- P:6L C:L end
+- Lỗi biên dịch vì gán trường trước super()
+>Từ Java 25, phần trước super() được gán trường của chính lớp đó, nên size đã là 6 khi constructor cha gọi describe(). Trình khởi tạo của label chỉ chạy sau super() nên lúc đó label còn null.
+%out:P:6null C:L end
+?^{O}Chọn phương thức main|Tệp Launch.java có nội dung sau. Kết quả của `java Launch.java` với JDK 25?
+```
+public class Launch {
+    static void main() {
+        System.out.println("A");
+    }
+    void main(String[] args) {
+        System.out.println("B" + args.length);
+    }
+}
+```
++ B0
+- A
+- Lỗi biên dịch vì có hai phương thức main
+- Lỗi khi chạy vì main có tham số không phải static
+>Trình khởi chạy tìm main có tham số String[] trước, dù static hay không. Chỉ khi không có bản đó mới dùng main không tham số. Với main instance, Java tự tạo đối tượng bằng constructor không tham số.
+%out:B0
+?{O}Record chứa mảng|Chương trình in ra gì?
+```
+record Batch(String id, int[] values) {
+    Batch { values = values.clone(); }
+    static Batch of(String id, int... v) { return new Batch(id, v); }
+    int total() { return Arrays.stream(values).sum(); }
+}
+
+void main() {
+    int[] src = {1, 2, 3};
+    var a = new Batch("x", src);
+    src[0] = 100;
+    var b = Batch.of("x", 1, 2, 3);
+    System.out.println(a.total() + " " + a.equals(b) + " " + a.values().length);
+}
+```
++ 6 false 3
+- 6 true 3
+- 105 false 3
+- 105 true 3
+>Compact constructor sao chép mảng trước khi gán vào trường, nên sửa src sau đó không ảnh hưởng a. equals sinh tự động so từng thành phần bằng equals của nó; với mảng đó là so sánh tham chiếu, nên hai mảng cùng nội dung vẫn khác nhau.
+%out:6 false 3
+?{O}Enum có thân riêng|Chương trình in ra gì?
+```
+enum Op {
+    ADD("+") { int apply(int a, int b) { return a + b; } },
+    MUL("*") { int apply(int a, int b) { return a * b; } };
+
+    private final String sym;
+    Op(String s) { sym = s; System.out.print(s); }
+    abstract int apply(int a, int b);
+}
+
+void main() {
+    System.out.print("start ");
+    int r = 1;
+    for (Op o : Op.values()) r = o.apply(r, 3);
+    System.out.println(r + " " + Op.MUL.ordinal() + " " + (Op.valueOf("ADD").getClass() == Op.class));
+}
+```
++ start +*12 1 false
+- +*start 12 1 false
+- start +*12 1 true
+- start +*6 1 false
+>Enum chỉ được khởi tạo khi dùng lần đầu, nên "start " in trước "+*". r = (1 + 3) * 3 = 12. Hằng có thân riêng là một lớp con vô danh của Op nên getClass() khác Op.class.
+%out:start +*12 1 false
+?{O}Lớp lồng nhau|Dòng nào gây lỗi biên dịch?
+```
+class Outer {
+    private int x = 1;
+    class Inner { int get() { return x; } }
+    static class Nested { int get() { return x; } }
+    static void test() {
+        Outer o = new Outer();
+        Inner i = o.new Inner();
+        Nested n = new Nested();
+    }
+}
+```
++ Dòng 4
+- Dòng 3
+- Dòng 7
+- Dòng 8
+>Lớp lồng static không gắn với đối tượng Outer nào nên không đọc được trường instance x. Lớp inner thì được, kể cả trường private. Tạo Inner trong ngữ cảnh static cần một đối tượng Outer như dòng 7.
+%cerr
+?{O}Lớp sealed|Những phát biểu nào đúng? (Chọn 2)
++ Lớp con được phép của một lớp sealed phải được khai báo là final, sealed hoặc non-sealed
++ Có thể bỏ mệnh đề permits khi lớp sealed và các lớp con của nó nằm cùng một tệp nguồn
+- Lớp con được phép luôn phải nằm cùng package với lớp sealed, kể cả khi ở trong module có tên
+- Interface không thể khai báo sealed
+- Một lớp non-sealed không được có lớp con
+>Record và enum ngầm định là final nên tự thoả điều kiện. Trong module có tên, lớp con chỉ cần cùng module; quy định cùng package chỉ áp dụng cho module không tên. non-sealed mở lại quyền kế thừa cho mọi lớp.
+?{O}Pattern matching với instanceof|Chương trình in ra gì?
+```
+void main() {
+    Object o = "Java25";
+    if (!(o instanceof String s) || s.length() < 3) {
+        System.out.println("short");
+        return;
+    }
+    System.out.println(s.substring(4));
+}
+```
++ 25
+- Java
+- short
+- Lỗi biên dịch vì s không thuộc phạm vi ở dòng cuối
+>Nhánh if luôn kết thúc bằng return, nên sau if trình biên dịch biết chắc o là String và biến s vẫn trong phạm vi. Trong vế phải của ||, s cũng dùng được vì vế trái false nghĩa là đã khớp.
+%out:25
+?{O}this trong lambda và lớp vô danh|Chương trình in ra gì?
+```
+public class Ctx {
+    String name = "outer";
+    void run() {
+        Runnable lam = () -> System.out.print(this.name + " ");
+        Runnable anon = new Runnable() {
+            String name = "anon";
+            public void run() { System.out.println(this.name + " " + Ctx.this.name); }
+        };
+        lam.run();
+        anon.run();
+    }
+    public static void main(String[] args) { new Ctx().run(); }
+}
+```
++ outer anon outer
+- anon anon outer
+- outer outer outer
+- Lỗi biên dịch vì lớp vô danh khai báo trường trùng tên
+>Lambda không tạo phạm vi mới nên this là đối tượng Ctx. Lớp vô danh là một lớp riêng nên this chỉ chính nó; muốn tới đối tượng bao ngoài phải viết Ctx.this.
+%out:outer anon outer
+?{E}Ngoại lệ bị nén|Chương trình in ra gì?
+```
+class Res implements AutoCloseable {
+    final String n;
+    Res(String n) { this.n = n; System.out.print("open" + n + " "); }
+    public void close() { System.out.print("close" + n + " "); throw new IllegalStateException(n); }
+}
+
+void main() {
+    try (Res a = new Res("A"); Res b = new Res("B")) {
+        throw new RuntimeException("body");
+    } catch (Exception e) {
+        System.out.print(e.getMessage() + " " + e.getSuppressed().length + " " + e.getSuppressed()[0].getMessage());
+    } finally {
+        System.out.println(" done");
+    }
+}
+```
++ openA openB closeB closeA body 2 B done
+- openA openB closeA closeB body 2 A done
+- openA openB closeB closeA A 1 B done
+- openA openB closeB closeA body 0 done
+>Tài nguyên đóng theo thứ tự ngược với lúc mở. Ngoại lệ từ thân try là ngoại lệ chính; hai ngoại lệ ném từ close được gắn vào nó dưới dạng suppressed, theo thứ tự đóng.
+%out:openA openB closeB closeA body 2 B done
+?{E}catch không tới được|Dòng nào gây lỗi biên dịch?
+```
+void work() {
+    try { System.out.println("x"); }
+    catch (java.io.IOException e) { }
+    try { throw new Exception(); }
+    catch (RuntimeException e) { }
+    catch (Exception e) { }
+    try { int a = 1; }
+    catch (Exception e) { }
+}
+void main() { }
+```
++ Dòng 3
+- Dòng 6
+- Dòng 8
+- Không có dòng nào
+>Không được bắt một checked exception mà khối try không thể ném ra. Exception và Throwable là ngoại lệ của quy tắc này vì chúng bao cả unchecked exception, nên dòng 8 hợp lệ.
+%cerr
+?{E}Ngoại lệ lồng nguyên nhân|Chương trình in ra gì?
+```
+class AppEx extends Exception {
+    AppEx(String m, Throwable c) { super(m, c); }
+}
+
+void load() throws AppEx {
+    try { Integer.parseInt("x1"); }
+    catch (NumberFormatException e) { throw new AppEx("load", e); }
+}
+
+void main() {
+    try { load(); }
+    catch (AppEx e) {
+        System.out.println(e.getMessage() + " " + e.getCause().getClass().getSimpleName() + " " + (e.getCause() instanceof IllegalArgumentException));
+    }
+}
+```
++ load NumberFormatException true
+- load NumberFormatException false
+- For input string: "x1" NumberFormatException true
+- Lỗi biên dịch vì AppEx thiếu constructor không tham số
+>Constructor Exception(String, Throwable) gắn nguyên nhân để lấy lại bằng getCause(). NumberFormatException là lớp con của IllegalArgumentException.
+%out:load NumberFormatException true
+?{E}Ngoại lệ|Những phát biểu nào đúng? (Chọn 2)
++ Error và các lớp con của nó là unchecked exception
++ Phương thức ghi đè được ném thêm bất kỳ unchecked exception nào dù bản gốc không khai báo
+- Khối finally luôn chạy, kể cả khi try gọi System.exit(0)
+- Trong try-with-resources, tài nguyên được đóng sau khi khối catch chạy xong
+- Một khối try bắt buộc phải có ít nhất một khối catch
+>Chỉ checked exception bị giới hạn khi ghi đè. System.exit dừng JVM nên finally không chạy. Tài nguyên được đóng trước khi vào catch. try thường chỉ cần một catch hoặc một finally.
+?{C}Lớp tiện ích Arrays|Đoạn mã in ra gì?
+```
+int[] a = {3, 1, 2};
+int[] b = a.clone();
+Arrays.sort(b);
+System.out.println(Arrays.mismatch(a, b) + " " + Arrays.compare(a, b) + " "
+    + Arrays.binarySearch(b, 5) + " " + Arrays.equals(a, b));
+```
++ 0 1 -4 false
+- 0 1 -3 false
+- 1 1 -4 false
+- -1 -1 -4 true
+>clone tạo mảng mới nên sắp b không ảnh hưởng a. Hai mảng khác nhau ngay vị trí 0, và 3 > 1 nên compare dương. Số 5 nếu chèn sẽ ở vị trí 3, nên binarySearch trả -(3) - 1 = -4.
+%out:0 1 -4 false
+?{C}List và subList|Đoạn mã in ra gì?
+```
+List<Integer> list = new ArrayList<>(List.of(10, 20, 30, 40));
+list.remove(1);
+list.remove(Integer.valueOf(40));
+list.add(1, 5);
+List<Integer> sub = list.subList(1, 3);
+sub.set(0, 99);
+System.out.println(list + " " + sub.size());
+```
++ [10, 99, 30] 2
+- [10, 5, 30] 2
+- [99, 5, 30] 2
+- [10, 99, 30, 40] 3
+>remove(1) xoá theo vị trí, remove(Integer) xoá theo giá trị. Sau add(1, 5) danh sách là [10, 5, 30]. subList là khung nhìn trên danh sách gốc nên set qua sub sửa luôn list.
+%out:[10, 99, 30] 2
+?{C}Các phương thức của Map|Đoạn mã in ra gì?
+```
+Map<String, Integer> m = new TreeMap<>();
+for (String w : "b a b c a b".split(" ")) m.merge(w, 1, Integer::sum);
+m.computeIfPresent("c", (k, v) -> null);
+m.putIfAbsent("a", 100);
+m.compute("d", (k, v) -> v == null ? 0 : v + 1);
+System.out.println(m + " " + m.getOrDefault("c", -1));
+```
++ {a=2, b=3, d=0} -1
+- {a=100, b=3, d=0} -1
+- {a=2, b=3, c=null, d=0} null
+- {a=2, b=3, d=1} -1
+>merge đếm số lần xuất hiện. Hàm của computeIfPresent trả null thì khoá bị xoá. putIfAbsent không ghi đè khoá đã có. compute với khoá chưa có nhận v là null.
+%out:{a=2, b=3, d=0} -1
+?{C}Wildcard|Những dòng nào không biên dịch? (Chọn 2)
+```
+List<? extends Number> a = new ArrayList<Integer>();
+List<? super Integer> b = new ArrayList<Number>();
+b.add(5);
+Object o = b.get(0);
+a.add(null);
+a.add(5);
+Integer i = b.get(0);
+```
++ Dòng 6
++ Dòng 7
+- Dòng 3
+- Dòng 4
+- Dòng 5
+>Với ? extends Number, trình biên dịch không biết kiểu phần tử thật nên chỉ cho add null. Với ? super Integer thì add được Integer, nhưng get chỉ trả về Object.
+%cerr
+?{C}SequencedMap|Đoạn mã in ra gì?
+```
+var m = new LinkedHashMap<String, Integer>();
+m.put("x", 1);
+m.put("y", 2);
+m.putFirst("z", 3);
+m.put("x", 4);
+m.putLast("y", 5);
+System.out.println(m + " " + m.firstEntry().getKey() + " " + m.reversed().keySet());
+```
++ {z=3, x=4, y=5} z [y, x, z]
+- {z=3, y=2, x=4, y=5} z [y, x, z]
+- {z=3, y=5, x=4} z [x, y, z]
+- {x=4, y=5, z=3} x [z, y, x]
+>put với khoá đã có chỉ đổi giá trị, giữ nguyên vị trí. putFirst và putLast thì đặt khoá vào đầu hoặc cuối, kể cả khi khoá đã có. reversed() là khung nhìn theo thứ tự ngược.
+%out:{z=3, x=4, y=5} z [y, x, z]
+?{S}Tính lười của stream|Đoạn mã in ra gì?
+```
+var r = Stream.of("a", "bb", "ccc", "dd")
+    .peek(s -> System.out.print(s + " "))
+    .filter(s -> s.length() == 2)
+    .map(String::toUpperCase)
+    .findFirst().orElse("none");
+System.out.println(r);
+```
++ a bb BB
+- a bb ccc dd BB
+- BB
+- a bb ccc dd BB DD
+>Stream xử lý từng phần tử đi hết pipeline rồi mới tới phần tử sau. findFirst là thao tác ngắt sớm nên dừng ngay khi "bb" lọt qua filter; "ccc" và "dd" không bao giờ được peek.
+%out:a bb BB
+?{S}partitioningBy lồng groupingBy|Đoạn mã in ra gì?
+```
+var words = List.of("ant", "bee", "cat", "deer", "eel", "fox");
+Map<Boolean, Map<Integer, Long>> m = words.stream().collect(
+    Collectors.partitioningBy(w -> w.contains("e"),
+        Collectors.groupingBy(String::length, TreeMap::new, Collectors.counting())));
+System.out.println(m);
+```
++ {false={3=3}, true={3=2, 4=1}}
+- {true={3=2, 4=1}, false={3=3}}
+- {false={3=3}, true={3=3}}
+- {false=[ant, cat, fox], true=[bee, deer, eel]}
+>partitioningBy luôn có đủ hai khoá false rồi true. Bộ thu xuôi dòng groupingBy đếm theo độ dài trong từng nhóm: nhóm có chữ e gồm bee, deer, eel.
+%out:{false={3=3}, true={3=2, 4=1}}
+?^{S}Stream Gatherers|Với JDK 25, đoạn mã in ra gì?
+```
+var r = Stream.of(1, 2, 3, 4)
+    .gather(Gatherers.scan(() -> 10, (acc, x) -> acc - x))
+    .toList();
+System.out.println(r);
+```
++ [9, 7, 4, 0]
+- [10, 9, 7, 4, 0]
+- [0]
+- [-9, -7, -4, 0]
+>scan phát ra giá trị tích luỹ sau mỗi phần tử, không phát giá trị khởi đầu. Khác với fold chỉ phát một kết quả cuối cùng.
+%out:[9, 7, 4, 0]
+?{S}Method reference và lambda|Dòng nào không biên dịch?
+```
+Function<String, Integer> f = String::length;
+BiFunction<String, String, Boolean> eq = String::equals;
+Supplier<List<String>> s = ArrayList::new;
+UnaryOperator<String> u = String::toUpperCase;
+Predicate<String> p = String::isEmpty;
+Consumer<String> c = s -> System.out.println(s);
+```
++ Dòng 6
+- Dòng 2
+- Dòng 3
+- Dòng 4
+>Tham số lambda không được trùng tên với biến cục bộ đang trong phạm vi; s đã được khai báo ở dòng 3. Các method reference còn lại đều khớp kiểu hàm.
+%cerr
+?{S}Optional|Đoạn mã in ra gì?
+```
+Optional<String> o = Optional.of("  ");
+String r = o.filter(s -> !s.isBlank()).map(String::trim)
+    .or(() -> Optional.of("def")).orElseThrow();
+Optional<Integer> e = Optional.empty();
+System.out.println(r + " " + e.map(x -> x * 2).isPresent() + " "
+    + Optional.ofNullable(null).orElseGet(() -> "g"));
+```
++ def false g
+- "" false g
+- def false null
+- Ném NoSuchElementException
+>Chuỗi toàn dấu cách là blank nên filter trả Optional rỗng; or thay bằng Optional chứa "def". map trên Optional rỗng vẫn rỗng. orElseGet gọi Supplier khi không có giá trị.
+%out:def false g
+?{S}Stream nguyên thủy|Đoạn mã in ra gì?
+```
+var st = IntStream.rangeClosed(1, 5).filter(i -> i % 2 == 1).summaryStatistics();
+double avg = IntStream.empty().average().orElse(-1);
+System.out.println(st.getSum() + " " + st.getAverage() + " " + st.getMax() + " " + avg + " "
+    + LongStream.of(2, 3).reduce(1, (a, b) -> a * b));
+```
++ 9 3.0 5 -1.0 6
+- 9 3 5 -1 6
+- 9 3.0 5 0.0 6
+- 6 2.0 4 -1.0 6
+>rangeClosed lấy cả 5, các số lẻ là 1, 3, 5. getAverage trả double. average() trả OptionalDouble nên orElse(-1) cho -1.0.
+%out:9 3.0 5 -1.0 6
+?{S}Stream|Những phát biểu nào đúng? (Chọn 2)
++ Gọi thêm một thao tác trên stream đã chạy thao tác kết thúc sẽ ném IllegalStateException
++ `Stream.iterate(1, x -> x < 10, x -> x * 2)` là stream hữu hạn
+- sorted() là thao tác ngắt sớm nên dùng được với stream vô hạn
+- peek là thao tác kết thúc
+- limit() là thao tác kết thúc
+>Bản iterate ba tham số dừng khi điều kiện sai. sorted phải đọc hết dữ liệu nên treo với stream vô hạn. peek và limit đều là thao tác trung gian; limit còn là thao tác ngắt sớm.
+?^{M}Import module|Kết quả khi biên dịch tệp sau bằng JDK 25?
+```
+import module java.sql;
+
+public class Repo {
+    public static void main(String[] args) {
+        Logger log = Logger.getLogger("repo");
+        Date d = new Date(0L);
+        List<String> names = new ArrayList<>();
+    }
+}
+```
++ Lỗi biên dịch ở dòng 7 vì List và ArrayList chưa được import
+- Lỗi biên dịch ở dòng 5 vì Logger thuộc module java.logging
+- Lỗi biên dịch ở dòng 6 vì Date không rõ ràng
+- Biên dịch thành công
+>import module còn kéo theo các module được requires transitive: java.sql requires transitive java.logging nên Logger dùng được. java.base không được re-export nên java.util không được import, Date vì thế chỉ là java.sql.Date. Chỉ compact source file mới tự import java.base.
+%cerr
+?{M}Chỉ thị opens|Framework dùng reflection để đọc cả trường private của các lớp trong package `app.model` lúc chạy, nhưng không module nào khác được dùng package này lúc biên dịch. Chỉ thị nào trong module-info.java của module `app` là phù hợp nhất?
++ `opens app.model;`
+- `exports app.model;`
+- `requires transitive app.model;`
+- `uses app.model;`
+>opens chỉ cho truy cập sâu bằng reflection lúc chạy, không cho các module khác biên dịch với package đó. exports thì cho dùng lúc biên dịch nhưng không cho reflection vào thành viên private.
+?{M}Công cụ của JDK|Những phát biểu nào đúng? (Chọn 2)
++ `jlink --module-path mods --add-modules app --output img` tạo một runtime image chỉ chứa các module cần thiết
++ `java -p mods -d app` in ra mô tả của module app
+- jdeps chỉ phân tích được những tệp JAR có module-info.class
+- Module có tên được requires module không tên để dùng các lớp trên classpath
+- Automatic module không export package nào
+>-d là dạng ngắn của --describe-module. jdeps phân tích được mọi JAR và thư mục lớp. Module không tên không có tên nên không thể requires. Automatic module export toàn bộ package của nó.
+?{X}ExecutorService|Chương trình in ra gì?
+```
+void main() throws Exception {
+    try (ExecutorService ex = Executors.newFixedThreadPool(2)) {
+        List<Callable<Integer>> tasks = List.of(() -> 1, () -> 2, () -> 3);
+        int sum = 0;
+        for (Future<Integer> f : ex.invokeAll(tasks)) sum += f.get();
+        Future<?> r = ex.submit(() -> System.out.print("run "));
+        System.out.println(sum + " " + (r.get() == null));
+    }
+}
+```
++ run 6 true
+- 6 true run
+- 6 false
+- Lỗi biên dịch vì ExecutorService không dùng được trong try-with-resources
+>invokeAll chờ mọi tác vụ xong rồi trả danh sách Future. Với Runnable, get() chờ tác vụ chạy xong rồi trả null, nên "run " chắc chắn in trước. Từ Java 19 ExecutorService là AutoCloseable.
+%out:run 6 true
+?^{X}Scoped values|Với JDK 25, kết quả khi chạy?
+```
+static final ScopedValue<String> ROLE = ScopedValue.newInstance();
+
+static String check() { return ROLE.isBound() ? ROLE.get() : "none"; }
+
+void main() {
+    ScopedValue.where(ROLE, "admin").run(() -> {
+        System.out.print(check() + " ");
+        ScopedValue.where(ROLE, "guest").run(() -> System.out.print(check() + " "));
+        System.out.print(check() + " ");
+    });
+    System.out.print(check() + " ");
+    System.out.println(ROLE.get());
+}
+```
++ In ra admin guest admin none rồi ném NoSuchElementException
+- In ra admin guest admin none null
+- In ra admin guest guest none rồi ném NoSuchElementException
+- Lỗi biên dịch vì không được gắn lại ROLE khi đang gắn
+>Gắn lại bên trong chỉ có hiệu lực trong phạm vi run lồng nhau; ra ngoài thì giá trị cũ "admin" trở lại. Ngoài mọi phạm vi, isBound() là false còn get() ném NoSuchElementException.
+%rt:NoSuchElementException
+?{X}Collection đồng thời|Chương trình in ra gì?
+```
+void main() {
+    var list = new CopyOnWriteArrayList<>(List.of(1, 2, 3));
+    for (int x : list) { if (x == 2) list.add(4); }
+    var arr = new ArrayList<>(List.of(1, 2, 3));
+    int count = 0;
+    try {
+        for (int x : arr) { if (x == 2) arr.add(4); count++; }
+    } catch (ConcurrentModificationException e) { System.out.print("CME "); }
+    System.out.println(list + " " + count);
+}
+```
++ CME [1, 2, 3, 4] 2
+- CME [1, 2, 3] 2
+- [1, 2, 3, 4] 4
+- CME CME [1, 2, 3, 4] 1
+>Iterator của CopyOnWriteArrayList duyệt trên bản chụp nên không lỗi, và phần tử mới vẫn được thêm vào. Với ArrayList, lần gọi next() kế tiếp sau khi sửa sẽ ném ConcurrentModificationException.
+%out:CME [1, 2, 3, 4] 2
+?{X}Đa luồng|Những phát biểu nào đúng? (Chọn 2)
++ shutdown() không ngắt các tác vụ đang chạy mà chỉ ngừng nhận tác vụ mới
++ Từ Java 19, close() của ExecutorService chờ các tác vụ đã gửi chạy xong rồi mới trả về
+- Gọi thẳng run() trên một đối tượng Thread sẽ khởi chạy một thread mới
+- Khai báo biến volatile làm cho count++ trở nên an toàn giữa nhiều thread
+- ConcurrentHashMap chấp nhận khoá null
+>run() chỉ chạy mã trên thread hiện tại; phải gọi start(). volatile bảo đảm thấy giá trị mới nhưng count++ gồm đọc, cộng, ghi nên vẫn có race. ConcurrentHashMap cấm cả khoá lẫn giá trị null.
+?{I}Path|Đoạn mã in ra gì trên hệ điều hành dùng dấu / làm dấu phân cách?
+```
+Path p = Path.of("/a/b/../c/./d.txt");
+Path q = Path.of("/a/x");
+System.out.println(p.normalize() + " " + q.relativize(p.normalize()) + " "
+    + p.getNameCount() + " " + q.resolve("/y"));
+```
++ /a/c/d.txt ../c/d.txt 6 /y
+- /a/c/d.txt ../c/d.txt 4 /a/x/y
+- /a/c/d.txt c/d.txt 6 /y
+- /a/c/d.txt ../../c/d.txt 6 /a/x/y
+>getNameCount đếm cả ".." và "." vì Path chưa chuẩn hoá. Từ /a/x tới /a/c/d.txt phải lùi một cấp. resolve với đường dẫn tuyệt đối trả về chính đường dẫn đó.
+%out:/a/c/d.txt ../c/d.txt 6 /y
+?{I}Files|Chương trình in ra gì?
+```
+void main() throws IOException {
+    Path f = Path.of("data.txt");
+    Files.writeString(f, "one\ntwo\n");
+    Files.writeString(f, "three", StandardOpenOption.APPEND);
+    List<String> lines = Files.readAllLines(f);
+    try (var s = Files.lines(f)) {
+        System.out.println(lines.size() + " " + s.filter(l -> l.startsWith("t")).count() + " " + Files.size(f));
+    }
+    Files.delete(f);
+}
+```
++ 3 2 13
+- 2 1 13
+- 3 2 15
+- 1 1 5
+>Không có tuỳ chọn, writeString tạo mới hoặc ghi đè tệp. APPEND ghi nối vào cuối nên tệp có ba dòng. Kích thước tính theo byte: 8 byte của hai dòng "one", "two" kèm ký tự xuống dòng, cộng 5 byte của "three".
+%out:3 2 13
+?^{I}Lớp java.lang.IO|Với JDK 25, những phát biểu nào đúng về lớp IO? (Chọn 2)
++ IO nằm trong package java.lang nên mọi lớp đều dùng được mà không cần import
++ `IO.readln("Tên: ")` in lời nhắc rồi đọc một dòng từ đầu vào chuẩn
+- Trong compact source file, gọi `println("x")` không cần tiền tố IO vẫn biên dịch được
+- `IO.println` chỉ nhận tham số kiểu String
+- Các phương thức của IO là phương thức instance nên phải viết `new IO().println(...)`
+>Ở bản cuối cùng trong Java 25, compact source file không còn tự import static các phương thức của IO nên phải viết IO.println. println nhận Object. Mọi phương thức của IO đều là static.
+?{L}NumberFormat|Đoạn mã in ra gì?
+```
+var pf = NumberFormat.getPercentInstance(Locale.US);
+var cf = NumberFormat.getCurrencyInstance(Locale.US);
+var g = NumberFormat.getInstance(Locale.GERMANY);
+System.out.println(pf.format(0.256) + " " + cf.format(1234.5) + " " + g.format(1234.5));
+```
++ 26% $1,234.50 1.234,5
+- 25.6% $1,234.50 1.234,5
+- 26% $1,234.5 1,234.5
+- 0.26% $1234.50 1.234,50
+>Định dạng phần trăm nhân với 100 và mặc định không có chữ số thập phân. Tiền đô la luôn có hai chữ số lẻ. Tiếng Đức dùng dấu chấm phân cách hàng nghìn và dấu phẩy thập phân.
+%out:26% $1,234.50 1.234,5
+?{L}ResourceBundle|Có ba tệp: Shop.properties chứa `title=Shop` và `tax=10`, Shop_fr.properties chứa `title=Boutique`, Shop_fr_CA.properties chứa `tax=5`. Locale mặc định là en_US và không có Shop_en. Đoạn mã sau in ra gì?
+```
+var a = ResourceBundle.getBundle("Shop", Locale.CANADA_FRENCH);
+var b = ResourceBundle.getBundle("Shop", Locale.of("de"));
+System.out.println(a.getString("title") + a.getString("tax") + " " + b.getString("title") + b.getString("tax"));
+```
++ Boutique5 Shop10
+- Boutique10 Shop10
+- Shop5 Shop10
+- Ném MissingResourceException
+>Bundle fr_CA chỉ có tax; khoá title được tìm tiếp ở bundle cha Shop_fr. Với de, không có Shop_de, Shop_en_US hay Shop_en nên Java dùng bundle gốc Shop.
+%out:Boutique5 Shop10
+</script>
+
+<script type="text/plain" class="wk" data-exam="1">
+##E5
+?{T}split và join|Đoạn mã in ra gì?
+```
+String s = "a,b,,c,,";
+System.out.println(s.split(",").length + " " + s.split(",", -1).length + " "
+    + s.split(",", 2)[1] + " " + String.join("-", "x", "", "y"));
+```
++ 4 6 b,,c,, x--y
+- 6 6 b,,c,, x-y
+- 4 6 b x--y
+- 4 5 b,,c,, x--y
+>split không có giới hạn bỏ các chuỗi rỗng ở cuối. Giới hạn âm giữ lại tất cả. Giới hạn 2 chỉ cắt một lần nên phần sau giữ nguyên. join vẫn ghép chuỗi rỗng ở giữa.
+%out:4 6 b,,c,, x--y
+?{T}Nối chuỗi và char|Đoạn mã in ra gì?
+```
+String s = null;
+s += 1 + 2;
+s = s + 'a' + 1;
+char c = 'a' + 1;
+System.out.println(s + " " + c + " " + ('a' + 1) + " " + (char) ('a' + 2));
+```
++ null3a1 b 98 c
+- 3a1 b 98 c
+- null12a1 b 98 c
+- null3a1 98 98 c
+>1 + 2 tính trước thành 3 rồi mới nối vào null, và null được nối thành chữ "null". 'a' + 1 là hằng số nằm trong phạm vi char nên gán thẳng được, ra 'b'. Trong biểu thức, 'a' + 1 là int 98.
+%out:null3a1 b 98 c
+?{T}Math và chia số nguyên|Đoạn mã in ra gì?
+```
+System.out.println(Math.round(-2.5) + " " + Math.round(2.5) + " " + (-7 / 2) + " "
+    + (-7 % 3) + " " + Math.floorMod(-7, 3) + " " + Math.ceil(-0.5));
+```
++ -2 3 -3 -1 2 -0.0
+- -3 3 -3 -1 2 0.0
+- -2 3 -4 2 2 -0.0
+- -3 3 -4 -1 -1 -1.0
+>Math.round cộng 0.5 rồi lấy sàn nên -2.5 thành -2. Chia số nguyên cắt về phía 0, còn % mang dấu của số bị chia. floorMod luôn cùng dấu số chia. ceil(-0.5) cho -0.0.
+%out:-2 3 -3 -1 2 -0.0
+?{T}Period và ChronoUnit|Đoạn mã in ra gì?
+```
+LocalDate a = LocalDate.of(2024, 1, 31), b = LocalDate.of(2024, 3, 1);
+System.out.println(Period.between(a, b) + " " + ChronoUnit.DAYS.between(a, b) + " "
+    + ChronoUnit.MONTHS.between(a, b) + " " + a.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1));
+```
++ P1M1D 30 1 2024-02-01
+- P1M 30 1 2024-02-01
+- P1M1D 29 2 2024-02-01
+- P30D 30 1 2024-02-29
+>Period.between đếm tháng trọn trước: 31/1 cộng 1 tháng là 29/2/2024, còn thiếu 1 ngày. Năm 2024 nhuận nên tổng là 30 ngày. Chưa tới 31/3 nên chỉ được 1 tháng trọn.
+%out:P1M1D 30 1 2024-02-01
+?{T}Wrapper|Đoạn mã in ra gì?
+```
+Long a = 10L;
+System.out.println(a.equals(10) + " " + a.equals(10L) + " " + (a == 10) + " "
+    + Integer.parseInt("+15") + " " + Integer.valueOf("0012") + " " + Boolean.parseBoolean("TRUE"));
+```
++ false true true 15 12 true
+- true true true 15 12 true
+- false true false 15 12 false
+- Ném NumberFormatException vì "+15"
+>equals của Long trả false khi đối số là Integer, dù cùng giá trị. Với ==, a được unbox để so sánh số. parseInt chấp nhận dấu + ở đầu, valueOf bỏ qua số 0 đứng đầu. parseBoolean không phân biệt hoa thường.
+%out:false true true 15 12 true
+?{T}Literal số|Những dòng nào không biên dịch? (Chọn 2)
+```
+int a = 1_000;
+int b = 0b1_01;
+double c = 1_.5;
+long d = 0x_FF;
+float e = 1e2f;
+int f = 0_7;
+```
++ Dòng 3
++ Dòng 4
+- Dòng 2
+- Dòng 5
+- Dòng 6
+>Dấu gạch dưới phải nằm giữa hai chữ số: không đứng sát dấu chấm thập phân, không đứng ngay sau tiền tố 0x hay 0b. 0_7 hợp lệ vì số 0 đầu là một chữ số của literal hệ bát phân.
+%cerr
+?{F}Nhãn và vòng lặp lồng nhau|Đoạn mã in ra gì?
+```
+int n = 0;
+outer:
+for (int i = 0; i < 3; i++) {
+    int j = 0;
+    while (true) {
+        if (j > i) continue outer;
+        if (i == 2 && j == 1) break outer;
+        n += 10 * i + j;
+        j++;
+    }
+}
+System.out.println(n);
+```
++ 41
+- 21
+- 62
+- Vòng lặp chạy mãi
+>continue outer kết thúc vòng while và sang lượt for kế tiếp. Các lần cộng là 0, rồi 10 và 11, rồi 20 trước khi break outer thoát hẳn cả hai vòng.
+%out:41
+?{F}switch expression dạng dấu hai chấm|Chương trình in ra gì?
+```
+String grade(int p) {
+    return switch (p / 10) {
+        case 10, 9:
+            yield "A";
+        case 8:
+        case 7:
+            yield "B";
+        default:
+            if (p < 0) yield "?";
+            yield "C";
+    };
+}
+
+void main() {
+    System.out.println(grade(100) + grade(85) + grade(70) + grade(-5) + grade(42));
+}
+```
++ ABB?C
+- ACB?C
+- ABBCC
+- Lỗi biên dịch vì switch expression không được dùng dạng dấu hai chấm
+>switch expression vẫn viết được bằng case có dấu hai chấm, khi đó phải trả giá trị bằng yield và các nhãn liền nhau rơi xuống nhau như case 8 sang case 7. -5 / 10 là 0 nên vào default.
+%out:ABB?C
+?{F}switch phải vét hết|Dòng nào gây lỗi biên dịch?
+```
+int k = 3;
+String a = switch (k) { case 1, 2 -> "low"; default -> "high"; };
+switch (k) { case 1 -> System.out.print("1"); }
+String b = switch (k) { case 1 -> "one"; case 2 -> "two"; };
+int c = switch (k) { default -> { yield 5; } };
+```
++ Dòng 4
+- Dòng 3
+- Dòng 5
+- Không có dòng nào
+>switch expression phải phủ mọi giá trị có thể; với int điều đó nghĩa là cần default. Câu lệnh switch kiểu mũi tên trên int như dòng 3 thì không bắt buộc vét hết. Một switch chỉ có default vẫn hợp lệ.
+%cerr
+?^{F}Biến không tên|Với JDK 25, đoạn mã in ra gì?
+```
+int total = 0;
+for (var _ : List.of(1, 2, 3)) total++;
+try { Integer.parseInt("?"); } catch (NumberFormatException _) { total += 10; }
+BiFunction<Integer, Integer, Integer> f = (a, _) -> a * 2;
+var map = new HashMap<String, Integer>(Map.of("k", 5));
+map.computeIfAbsent("q", _ -> 7);
+System.out.println(total + f.apply(4, 99) + map.get("q"));
+```
++ 28
+- 1387
+- 13107
+- Lỗi biên dịch vì không dùng được _ trong vòng for-each
+>_ khai báo được biến không dùng tới trong for-each, catch và tham số lambda. Cả ba số hạng đều là số nên phép + cộng số học: 13 + 8 + 7.
+%out:28
+?{O}Chuỗi constructor|Dòng nào gây lỗi biên dịch?
+```
+class Animal {
+    String name;
+    Animal(String name) { this.name = name; }
+}
+class Dog extends Animal {
+    Dog() { super("dog"); }
+    Dog(int age) { this(); }
+}
+class Cat extends Animal {
+    Cat() { }
+}
+```
++ Dòng 10
+- Dòng 7
+- Dòng 9
+- Không có dòng nào
+>Constructor của Cat không gọi this(...) hay super(...) nên trình biên dịch chèn super(). Animal không có constructor không tham số nên lỗi. Dog(int) gọi this() rồi Dog() gọi super("dog") nên hợp lệ.
+%cerr
+?{O}Nạp chồng và ghi đè|Chương trình in ra gì?
+```
+class P {
+    String f(Object o) { return "P-O"; }
+    String f(String s) { return "P-S"; }
+}
+class C extends P {
+    String f(Object o) { return "C-O"; }
+}
+
+void main() {
+    P p = new C();
+    Object o = "x";
+    System.out.println(p.f(o) + " " + p.f("x") + " " + ((C) p).f(o));
+}
+```
++ C-O P-S C-O
+- P-S P-S C-O
+- C-O C-O C-O
+- C-O P-S P-S
+>Phiên bản nạp chồng được chọn lúc biên dịch theo kiểu khai báo của đối số: o là Object nên chọn f(Object), rồi lúc chạy mới chọn bản ghi đè của C. f(String) không bị C ghi đè nên vẫn là bản của P.
+%out:C-O P-S C-O
+?{O}Interface|Những dòng nào gây lỗi biên dịch? (Chọn 2)
+```
+interface Shape {
+    double PI2 = 6.28;
+    double area();
+    static Shape unit() { return () -> 1.0; }
+}
+class Sq implements Shape {
+    double area() { return 4; }
+}
+void main() {
+    double a = Sq.PI2;
+    Shape u = Sq.unit();
+    Shape v = Shape.unit();
+}
+```
++ Dòng 7
++ Dòng 11
+- Dòng 2
+- Dòng 4
+- Dòng 10
+>Phương thức trừu tượng của interface ngầm định là public, nên bản hiện thực không được thu hẹp quyền truy cập. Phương thức static của interface không được kế thừa, chỉ gọi được qua tên interface. Hằng số thì được kế thừa.
+%cerr
+?{O}equals nạp chồng thay vì ghi đè|Chương trình in ra gì?
+```
+class Pt {
+    int x;
+    Pt(int x) { this.x = x; }
+    public boolean equals(Pt o) { return o.x == x; }
+    public int hashCode() { return x; }
+}
+
+void main() {
+    Set<Pt> s = new HashSet<>();
+    s.add(new Pt(1));
+    s.add(new Pt(1));
+    Object o = new Pt(1);
+    System.out.println(s.size() + " " + new Pt(1).equals(new Pt(1)) + " " + new Pt(1).equals(o));
+}
+```
++ 2 true false
+- 1 true true
+- 1 true false
+- 2 false false
+>equals(Pt) chỉ là nạp chồng, không ghi đè equals(Object). HashSet gọi equals(Object) nên vẫn so sánh tham chiếu và giữ cả hai. Khi đối số có kiểu khai báo là Object, bản của lớp Object được chọn.
+%out:2 true false
+?^{O}Flexible constructor bodies|Với JDK 25, những dòng nào gây lỗi biên dịch? (Chọn 2)
+```
+class Base { Base(int v) { } }
+class Sub extends Base {
+    int a;
+    final int b;
+    Sub(int v) {
+        int t = check(v);
+        b = t;
+        System.out.print(a);
+        helper();
+        super(t);
+    }
+    static int check(int v) { return Math.abs(v); }
+    void helper() { }
+}
+```
++ Dòng 8
++ Dòng 9
+- Dòng 6
+- Dòng 7
+- Dòng 10
+>Trước super(), được gọi phương thức static và gán trường chưa khởi tạo của chính lớp, nhưng không được đọc trường hay gọi phương thức instance, vì đối tượng chưa được khởi tạo xong.
+%cerr
+?^{O}Compact source file|Tệp Counter.java có nội dung sau. Kết quả của `java Counter.java` với JDK 25?
+```
+int count = 5;
+static int calls;
+
+void bump() { count++; calls++; }
+
+void main() {
+    bump();
+    bump();
+    IO.println(count + " " + calls + " " + this.getClass().getName());
+}
+```
++ 7 2 Counter
+- 7 2 Main
+- Lỗi biên dịch vì trường được khai báo ngoài lớp
+- Lỗi biên dịch vì dùng this trong main
+>Các trường và phương thức cấp cao nhất là thành viên của một lớp ngầm định mang tên tệp. main không static nên Java tạo một đối tượng Counter rồi gọi main trên nó, vì vậy this hợp lệ.
+%out:7 2 Counter
+?{O}Record|Chương trình in ra gì?
+```
+void main() {
+    record Item(String name, int qty) {
+        static int created;
+        Item { created++; name = name.trim(); }
+        public String name() { return name.toUpperCase(); }
+    }
+    var a = new Item(" pen ", 2);
+    var b = new Item("pen", 2);
+    System.out.println(a.name() + " " + a + " " + a.equals(b) + " " + Item.created);
+}
+```
++ PEN Item[name=pen, qty=2] true 2
+- PEN Item[name=PEN, qty=2] true 2
+- PEN Item[name= pen , qty=2] false 2
+- Lỗi biên dịch vì record cục bộ không được có trường static
+>toString và equals của record dùng trực tiếp giá trị trường, không gọi accessor đã ghi đè. Compact constructor đã cắt khoảng trắng nên hai record bằng nhau. Record được có trường static.
+%out:PEN Item[name=pen, qty=2] true 2
+?{O}EnumMap|Đoạn mã in ra gì?
+```
+enum Size { L, S, M; public String toString() { return name().toLowerCase(); } }
+var m = new EnumMap<Size, Integer>(Size.class);
+m.put(Size.M, 1);
+m.put(Size.L, 2);
+m.put(Size.S, 3);
+System.out.println(m + " " + Size.S.compareTo(Size.L) + " " + Size.valueOf("M").name());
+```
++ {l=2, s=3, m=1} 1 M
+- {m=1, l=2, s=3} 1 M
+- {L=2, S=3, M=1} 1 M
+- {l=2, m=1, s=3} -1 m
+>EnumMap sắp khoá theo thứ tự khai báo hằng (ordinal), không theo thứ tự put hay chữ cái. toString bị ghi đè nhưng name() thì final và luôn trả đúng tên hằng. compareTo trả hiệu ordinal.
+%out:{l=2, s=3, m=1} 1 M
+?{O}Lớp cục bộ|Dòng nào gây lỗi biên dịch?
+```
+int base = 10;
+int step = 1;
+class Adder { int add(int x) { return x + base + step; } }
+Runnable r = () -> System.out.println(base);
+step++;
+System.out.println(new Adder().add(1));
+```
++ Dòng 3
+- Dòng 4
+- Dòng 5
+- Dòng 6
+>Lớp cục bộ và lambda chỉ được dùng biến cục bộ final hoặc effectively final. step bị tăng ở dòng 5 nên không còn effectively final, và lỗi được báo ở chỗ dùng nó trong Adder.
+%cerr
+?^{O}Compact source file|Với JDK 25, những phát biểu nào đúng về compact source file? (Chọn 2)
++ Lớp ngầm định được sinh ra là final và nằm trong unnamed package
++ Compact source file tự import mọi package mà module java.base export
+- Dòng đầu tiên của compact source file được khai báo package
+- Mã ở tệp khác có thể tạo đối tượng của lớp ngầm định bằng tên tệp
+- Phương thức main trong compact source file bắt buộc phải là static
+>Khai báo package trong compact source file là lỗi biên dịch. Lớp ngầm định không thể được tham chiếu theo tên từ mã khác. main được phép là phương thức instance và không cần tham số.
+?{O}Sao chép phòng vệ|Đoạn mã in ra gì?
+```
+final class Team {
+    private final List<String> members;
+    Team(List<String> m) { members = m; }
+    List<String> members() { return List.copyOf(members); }
+}
+var src = new ArrayList<>(List.of("an"));
+var t = new Team(src);
+src.add("binh");
+try { t.members().add("chi"); }
+catch (UnsupportedOperationException e) { System.out.print("UOE "); }
+System.out.println(t.members());
+```
++ UOE [an, binh]
+- UOE [an]
+- [an, binh, chi]
+- [an, chi]
+>Constructor giữ thẳng tham chiếu tới danh sách bên ngoài nên thay đổi trên src lọt vào Team. Getter trả bản sao không sửa được nên add ném UnsupportedOperationException. Muốn bất biến thật thì phải sao chép cả trong constructor.
+%out:UOE [an, binh]
+?{O}Kiểu trả về hiệp biến|Chương trình in ra gì?
+```
+class Animal {
+    Animal self() { return this; }
+    String sound() { return "..."; }
+}
+class Cat extends Animal {
+    @Override Cat self() { return this; }
+    String sound() { return "meo"; }
+    void purr() { System.out.print("purr "); }
+}
+
+void main() {
+    Animal a = new Cat();
+    Cat c = new Cat().self();
+    c.purr();
+    System.out.println(a.self().sound() + " " + (a.self() instanceof Cat));
+}
+```
++ purr meo true
+- purr ... true
+- purr meo false
+- Lỗi biên dịch vì self() trả kiểu khác bản gốc
+>Phương thức ghi đè được trả về kiểu con của kiểu gốc. new Cat().self() có kiểu khai báo là Cat nên gán thẳng được. a.self() có kiểu khai báo là Animal nhưng đối tượng thật vẫn là Cat.
+%out:purr meo true
+?{E}try-with-resources với biến có sẵn|Chương trình in ra gì?
+```
+class R implements AutoCloseable {
+    public void close() { System.out.print("close "); }
+}
+
+void main() throws Exception {
+    R r1 = new R();
+    try (r1; R r2 = null) {
+        System.out.print("body ");
+    }
+    System.out.println("end");
+}
+```
++ body close end
+- body close close end
+- In ra body rồi ném NullPointerException
+- Lỗi biên dịch vì r1 khai báo ngoài try
+>Biến effectively final có sẵn được đặt thẳng vào ngoặc của try. Tài nguyên có giá trị null thì đơn giản là không được đóng, không gây NullPointerException.
+%out:body close end
+?{E}Checked exception trong lambda|Dòng nào gây lỗi biên dịch?
+```
+void main() throws IOException {
+    Files.readString(Path.of("a.txt"));
+    List.of("a.txt").forEach(f -> Files.readString(Path.of(f)));
+    Callable<String> c = () -> Files.readString(Path.of("a.txt"));
+    Runnable r = () -> { throw new UncheckedIOException(new IOException()); };
+}
+```
++ Dòng 3
+- Dòng 2
+- Dòng 4
+- Dòng 5
+>throws của main không áp dụng cho thân lambda. Consumer.accept không khai báo checked exception nên dòng 3 lỗi. Callable.call khai báo throws Exception nên dòng 4 hợp lệ. UncheckedIOException là unchecked.
+%cerr
+?{E}Thứ tự catch|Chương trình in ra gì?
+```
+class AEx extends Exception { }
+class BEx extends AEx { }
+
+void f(int k) throws AEx {
+    if (k == 1) throw new BEx();
+    if (k == 2) throw new AEx();
+}
+
+void main() {
+    for (int k = 0; k < 3; k++) {
+        try { f(k); System.out.print("ok "); }
+        catch (BEx e) { System.out.print("B "); }
+        catch (AEx e) { System.out.print("A "); }
+        finally { System.out.print(k + ";"); }
+    }
+    System.out.println();
+}
+```
++ ok 0;B 1;A 2;
+- ok 0;A 1;A 2;
+- 0;B 1;A 2;
+- Lỗi biên dịch vì f chỉ khai báo throws AEx nhưng ném BEx
+>Ngoại lệ được bắt bởi khối catch đầu tiên khớp kiểu. BEx là lớp con của AEx nên khai báo throws AEx là đủ. finally chạy sau mỗi lượt dù có ngoại lệ hay không.
+%out:ok 0;B 1;A 2;
+?{E}try-with-resources|Những phát biểu nào đúng? (Chọn 2)
++ Biến tài nguyên khai báo trong ngoặc của try-with-resources ngầm định là final
++ Có thể đặt vào ngoặc của try một biến final hoặc effectively final đã khai báo trước đó
+- Tài nguyên bắt buộc phải hiện thực java.io.Closeable
+- try-with-resources bắt buộc phải có ít nhất một khối catch hoặc finally
+- Khi cả thân try và close() đều ném ngoại lệ, ngoại lệ của close() được ném ra, còn ngoại lệ của thân bị nén
+>Chỉ cần hiện thực AutoCloseable. try-with-resources đứng một mình là hợp lệ. Ngoại lệ của thân try là ngoại lệ chính, ngoại lệ từ close() mới là ngoại lệ bị nén.
+?{C}Mảng răng cưa|Đoạn mã in ra gì?
+```
+int[][] g = new int[3][];
+g[0] = new int[]{1, 2};
+g[2] = new int[3];
+int sum = 0;
+for (int[] row : g) sum += row == null ? -1 : row.length;
+char[] cs = new char[2];
+System.out.println(sum + " " + g[2][1] + " " + (int) cs[0] + " " + Arrays.toString(g[0]));
+```
++ 4 0 0 [1, 2]
+- 5 0 0 [1, 2]
+- 4 0 32 [1, 2]
+- Ném NullPointerException
+>Chỉ chiều thứ nhất được cấp phát nên g[1] là null và được tính -1. Phần tử mảng số mặc định là 0, phần tử mảng char mặc định là ký tự mã 0.
+%out:4 0 0 [1, 2]
+?{C}PriorityQueue và Comparator|Đoạn mã in ra gì?
+```
+var pq = new PriorityQueue<String>(
+    Comparator.comparing(String::length).thenComparing(Comparator.reverseOrder()));
+pq.addAll(List.of("bb", "a", "ccc", "aa", "c"));
+StringBuilder sb = new StringBuilder();
+while (!pq.isEmpty()) sb.append(pq.poll()).append(' ');
+System.out.println(sb.toString().trim());
+```
++ c a bb aa ccc
+- a c aa bb ccc
+- ccc bb aa c a
+- bb a ccc aa c
+>poll luôn lấy phần tử nhỏ nhất theo Comparator: so độ dài trước, cùng độ dài thì xếp ngược thứ tự chữ cái. Lưu ý chỉ poll mới bảo đảm thứ tự; in thẳng PriorityQueue thì không.
+%out:c a bb aa ccc
+?{C}TreeSet với Comparator|Đoạn mã in ra gì?
+```
+var ts = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+ts.addAll(List.of("b", "A", "a", "B", "c"));
+var hs = new HashSet<>(List.of("b", "A", "a", "B", "c"));
+System.out.println(ts + " " + hs.size() + " " + ts.contains("C") + " " + ts.higher("a"));
+```
++ [A, b, c] 5 true b
+- [A, b, c] 3 true b
+- [A, a, B, b, c] 5 false B
+- [a, b, c] 5 true b
+>TreeSet coi hai phần tử là trùng khi Comparator trả 0, nên "a" và "B" không được thêm vì đã có "A" và "b". HashSet dùng equals nên giữ đủ 5. contains và higher cũng so sánh không phân biệt hoa thường.
+%out:[A, b, c] 5 true b
+?{C}Kiểu generic có giới hạn|Những dòng nào không biên dịch? (Chọn 2)
+```
+class Box<T extends Number> {
+    T val;
+    Box(T v) { val = v; }
+    double twice() { return val.doubleValue() * 2; }
+    static T make() { return null; }
+}
+void main() {
+    Box<Integer> a = new Box<>(1);
+    Box<String> b = null;
+    Box<? extends Number> c = a;
+}
+```
++ Dòng 5
++ Dòng 9
+- Dòng 4
+- Dòng 8
+- Dòng 10
+>Tham số kiểu thuộc về từng đối tượng nên không dùng được trong ngữ cảnh static. String không thoả giới hạn extends Number. Nhờ giới hạn đó, val gọi được doubleValue().
+%cerr
+?{C}Arrays.asList|Kết quả khi chạy?
+```
+List<String> fixed = Arrays.asList("x", "y", "z");
+fixed.set(0, "w");
+String[] arr = {"p", "q"};
+List<String> view = Arrays.asList(arr);
+arr[1] = "r";
+Collections.reverse(fixed);
+System.out.print(fixed + " " + view + " ");
+fixed.add("t");
+```
++ In ra [z, y, w] [p, r] rồi ném UnsupportedOperationException
+- In ra [z, y, w] [p, q] rồi ném UnsupportedOperationException
+- Ném UnsupportedOperationException ngay ở dòng 2
+- In ra [z, y, w] [p, r] và kết thúc bình thường
+>Arrays.asList trả danh sách có kích thước cố định dựa trên chính mảng: set và đảo thứ tự được, thay đổi mảng thì danh sách thấy, nhưng add hay remove thì ném ngoại lệ.
+%rt:UnsupportedOperationException
+?{S}mapMulti|Đoạn mã in ra gì?
+```
+var r = Stream.of("a1", "b22", "c")
+    .<String>mapMulti((s, sink) -> {
+        for (char ch : s.toCharArray())
+            if (Character.isDigit(ch)) sink.accept(s.charAt(0) + "" + ch);
+    })
+    .collect(Collectors.joining(","));
+System.out.println(r);
+```
++ a1,b2,b2
+- a1,b2
+- a1,b22,c
+- a1,b2,b2,c
+>mapMulti cho mỗi phần tử đẩy ra không, một hay nhiều phần tử. "b22" có hai chữ số nên đẩy ra hai lần, "c" không có chữ số nên không đẩy gì.
+%out:a1,b2,b2
+?{S}toMap với hàm gộp|Đoạn mã in ra gì?
+```
+var m = Stream.of("apple", "avocado", "banana", "blueberry", "cherry")
+    .collect(Collectors.toMap(s -> s.charAt(0), String::length, Math::max, TreeMap::new));
+var j = m.keySet().stream().map(String::valueOf).collect(Collectors.joining("|", "<", ">"));
+System.out.println(m + " " + j);
+```
++ {a=7, b=9, c=6} <a|b|c>
+- {a=5, b=6, c=6} <a|b|c>
+- {a=12, b=15, c=6} <a|b|c>
+- Ném IllegalStateException vì khoá trùng
+>Tham số thứ ba là hàm gộp khi gặp khoá trùng, ở đây giữ độ dài lớn nhất. joining nhận dấu phân cách, tiền tố và hậu tố.
+%out:{a=7, b=9, c=6} <a|b|c>
+?^{S}Gatherer tự viết|Với JDK 25, đoạn mã in ra gì?
+```
+Gatherer<Integer, ?, Integer> dedup = Gatherer.ofSequential(
+    () -> new int[]{Integer.MIN_VALUE},
+    (state, x, down) -> {
+        if (state[0] != x) {
+            state[0] = x;
+            return down.push(x);
+        }
+        return true;
+    });
+System.out.println(Stream.of(1, 1, 2, 2, 2, 1, 3, 3).gather(dedup).toList());
+```
++ [1, 2, 1, 3]
+- [1, 2, 3]
+- [1, 1, 2, 2, 2, 1, 3, 3]
+- [3]
+>Trạng thái nhớ giá trị vừa đẩy ra, nên chỉ bỏ các phần tử trùng đứng liền nhau; số 1 xuất hiện lại sau số 2 vẫn được giữ. Integrator trả true để báo vẫn muốn nhận phần tử tiếp theo.
+%out:[1, 2, 1, 3]
+?{S}Predicate và BinaryOperator|Đoạn mã in ra gì?
+```
+Predicate<String> empty = String::isEmpty;
+Predicate<String> p = empty.negate().and(s -> s.length() < 4).or(s -> s.startsWith("z"));
+BinaryOperator<String> shorter = BinaryOperator.minBy(Comparator.comparingInt(String::length));
+System.out.println(p.test("") + " " + p.test("zebra") + " " + p.test("java") + " "
+    + shorter.apply("ab", "cd") + " " + Predicate.not(empty).test("x"));
+```
++ false true false ab true
+- true true false ab true
+- false true true cd true
+- false false false ab true
+>Ghép theo thứ tự gọi: (không rỗng và dài dưới 4) hoặc bắt đầu bằng z. "java" dài đúng 4 nên trượt. Khi hai phần tử bằng nhau theo Comparator, minBy trả phần tử thứ nhất.
+%out:false true false ab true
+?{S}Collectors.teeing|Đoạn mã in ra gì?
+```
+var r = Stream.of(4, 8, 15, 16, 23, 42).collect(Collectors.teeing(
+    Collectors.summingInt(x -> x), Collectors.counting(), (s, c) -> s + "/" + c));
+var avg = Stream.of(1, 2).collect(Collectors.averagingInt(x -> x));
+System.out.println(r + " " + avg);
+```
++ 108/6 1.5
+- 108/6 1
+- 114/6 1.5
+- 108/6.0 1.5
+>teeing đưa mỗi phần tử qua cả hai bộ thu rồi ghép hai kết quả bằng hàm cuối. summingInt trả Integer, counting trả Long. averagingInt luôn trả Double.
+%out:108/6 1.5
+?{S}takeWhile và dropWhile|Đoạn mã in ra gì?
+```
+var a = Stream.of(1, 3, 5, 2, 7, 9).takeWhile(x -> x % 2 == 1).toList();
+var b = Stream.of(1, 3, 5, 2, 7, 9).dropWhile(x -> x < 4).skip(1).toList();
+var c = Stream.iterate(1, x -> x * 3).limit(4).reduce(0, Integer::sum);
+System.out.println(a + " " + b + " " + c);
+```
++ [1, 3, 5] [2, 7, 9] 40
+- [1, 3, 5, 7, 9] [7, 9] 40
+- [1, 3, 5] [5, 2, 7, 9] 40
+- [1, 3, 5] [2, 7, 9] 13
+>takeWhile dừng hẳn ở phần tử đầu tiên không thoả, dù phía sau còn số lẻ. dropWhile bỏ phần đầu đến khi gặp 5 rồi giữ toàn bộ phần còn lại. 1 + 3 + 9 + 27 = 40.
+%out:[1, 3, 5] [2, 7, 9] 40
+?{S}Lambda và Optional|Những phát biểu nào đúng? (Chọn 2)
++ Functional interface có thể có nhiều phương thức default và static
++ `Optional.of(null)` ném NullPointerException
+- Lambda gán được cho biến kiểu Object mà không cần ép kiểu
+- Biến cục bộ dùng trong lambda phải được khai báo final tường minh
+- Supplier<T> có phương thức trừu tượng là apply()
+>Functional interface chỉ giới hạn một phương thức trừu tượng. Lambda cần một kiểu đích là functional interface, Object không phải. Biến chỉ cần effectively final. Supplier có get().
+?^{M}Import module và kiểu thành viên|Với JDK 25, chương trình in ra gì?
+```
+import module java.base;
+
+public class Shelf {
+    record List(String name) { }
+
+    public static void main(String[] args) {
+        List l = new List("x");
+        Map<String, Integer> m = Map.of("a", 1);
+        System.out.println(l.name() + m.size());
+    }
+}
+```
++ x1
+- Lỗi biên dịch vì List không rõ ràng
+- Lỗi biên dịch vì không gọi được java.util.List bằng new
+- Lỗi biên dịch vì import module java.base là thừa trong lớp thường
+>Kiểu được khai báo ngay trong lớp che khuất mọi kiểu cùng tên được import, kể cả qua import module. Map vẫn lấy từ java.util nhờ import module java.base.
+%out:x1
+?{M}requires transitive|Module `lib` có `requires transitive util;` và export package `lib.api`. Module `app` chỉ có `requires lib;`. Phát biểu nào đúng?
++ app đọc được cả util, nên dùng được các package mà util export
+- app phải tự thêm `requires util;` thì mới dùng được package của util
+- app dùng được mọi package của util, kể cả package không được export
+- app chỉ biên dịch được khi util cũng có `requires transitive lib;`
+>requires transitive làm cho mọi module đọc lib cũng ngầm đọc util. Dù vậy chỉ những package util export mới truy cập được.
+?{M}Công cụ dòng lệnh|Những lệnh nào chạy được và in thông tin về module? (Chọn 2)
++ `java --list-modules`
++ `jar --file app.jar --describe-module`
+- `javac --list-modules`
+- `jdeps --describe-module app.jar`
+- `java --show-module app.jar`
+>--list-modules là tuỳ chọn của java, javac không có. --describe-module có ở jar và java (dạng ngắn -d), không có ở jdeps; jdeps dùng --list-deps hay -summary để xem phụ thuộc.
+?{X}CountDownLatch|Chương trình in ra gì?
+```
+void main() throws Exception {
+    var latch = new CountDownLatch(3);
+    var sum = new AtomicInteger();
+    try (var ex = Executors.newVirtualThreadPerTaskExecutor()) {
+        for (int i = 1; i <= 3; i++) {
+            int n = i;
+            ex.submit(() -> { sum.addAndGet(n); latch.countDown(); });
+        }
+        latch.await();
+        System.out.print(sum.get() + " " + latch.getCount() + " ");
+    }
+    System.out.println(sum.incrementAndGet());
+}
+```
++ 6 0 7
+- 6 3 7
+- 0 0 1
+- Kết quả không xác định vì các tác vụ chạy song song
+>await chờ đến khi bộ đếm về 0, tức cả ba tác vụ đã cộng xong. Biến n là bản sao effectively final của i cho từng vòng nên lambda dùng được.
+%out:6 0 7
+?^{X}Scoped values|Với JDK 25, những phát biểu nào đúng về ScopedValue? (Chọn 2)
++ ScopedValue không có phương thức set; muốn đổi giá trị phải gắn lại bằng where trong một phạm vi lồng bên trong
++ Khi run() hoặc call() kết thúc, giá trị đã gắn tự hết hiệu lực
+- Thread tạo bằng `Thread.ofVirtual().start(...)` bên trong phạm vi tự thừa hưởng giá trị đã gắn
+- get() trả null khi chưa gắn giá trị
+- Trong Java 25, ScopedValue vẫn là tính năng preview, cần --enable-preview
+>ScopedValue chính thức từ Java 25 và bất biến trong một phạm vi. Chỉ các tác vụ con của StructuredTaskScope mới thừa hưởng giá trị; thread tạo thường thì không. get() khi chưa gắn ném NoSuchElementException.
+?{X}Parallel stream và biến atomic|Đoạn mã in ra gì?
+```
+var counter = new AtomicLong();
+IntStream.range(0, 1000).parallel().forEach(i -> counter.incrementAndGet());
+long cnt = IntStream.range(0, 1000).parallel().filter(i -> i % 3 == 0).count();
+List<Integer> list = IntStream.range(0, 5).parallel().boxed().toList();
+System.out.println(counter.get() + " " + cnt + " " + list);
+```
++ 1000 334 [0, 1, 2, 3, 4]
+- 1000 333 [0, 1, 2, 3, 4]
+- Số đầu tiên có thể nhỏ hơn 1000
+- 1000 334 và danh sách có thứ tự không xác định
+>incrementAndGet là thao tác nguyên tử nên không mất lượt tăng. Các số chia hết cho 3 từ 0 đến 999 có 334 số. toList giữ thứ tự gặp của stream nguồn dù chạy song song.
+%out:1000 334 [0, 1, 2, 3, 4]
+?{X}interrupt và join|Chương trình in ra gì?
+```
+void main() throws Exception {
+    Thread t = Thread.ofPlatform().unstarted(() -> {
+        try {
+            Thread.sleep(5000);
+            System.out.print("woke ");
+        } catch (InterruptedException e) {
+            System.out.print("int " + Thread.currentThread().isInterrupted() + " ");
+        }
+    });
+    System.out.print(t.getState() + " ");
+    t.start();
+    t.interrupt();
+    t.join();
+    System.out.println(t.getState() + " " + t.isAlive());
+}
+```
++ NEW int false TERMINATED false
+- NEW int true TERMINATED false
+- NEW woke TERMINATED false
+- RUNNABLE int false TERMINATED false
+>unstarted tạo thread ở trạng thái NEW. Thread bị ngắt khi đang hoặc sắp sleep thì sleep ném InterruptedException và cờ ngắt bị xoá về false. Sau join, thread đã kết thúc.
+%out:NEW int false TERMINATED false
+?{I}PrintWriter|Chương trình in ra gì?
+```
+void main() {
+    var sw = new StringWriter();
+    try (var pw = new PrintWriter(sw)) {
+        pw.print(1);
+        pw.printf("%-3s|", "ab");
+        pw.println(true);
+        pw.write(65);
+    }
+    System.out.println(sw.toString().replace(System.lineSeparator(), "#"));
+}
+```
++ 1ab |true#A
+- 1 ab|true#65
+- 1ab|true#A
+- 1ab |true#65
+>%-3s căn trái và độn dấu cách cho đủ ba ký tự. write(int) ghi một ký tự có mã đó, nên 65 là chữ A; còn print(int) mới in số dưới dạng chữ số.
+%out:1ab |true#A
+?{I}Thao tác trên thư mục|Chương trình in ra gì? Giả sử thư mục tmp chưa tồn tại.
+```
+void main() throws IOException {
+    Path dir = Files.createDirectories(Path.of("tmp", "a", "b"));
+    Path src = Files.writeString(dir.resolve("x.txt"), "hi");
+    Path dst = dir.getParent().resolve("y.txt");
+    Files.copy(src, dst);
+    try { Files.copy(src, dst); } catch (FileAlreadyExistsException e) { System.out.print("exists "); }
+    Files.copy(src, dst, StandardCopyOption.REPLACE_EXISTING);
+    try (var s = Files.walk(Path.of("tmp"))) {
+        System.out.print(s.filter(Files::isRegularFile).count() + " ");
+    }
+    try { Files.delete(Path.of("tmp", "a")); }
+    catch (DirectoryNotEmptyException e) { System.out.print("notEmpty "); }
+    System.out.println(Files.exists(dst));
+}
+```
++ exists 2 notEmpty true
+- exists 2 true
+- 2 notEmpty true
+- exists 5 notEmpty true
+>createDirectories tạo cả các thư mục cha. copy mặc định không ghi đè tệp đã có. walk duyệt mọi cấp nhưng chỉ có hai tệp thường. delete không xoá được thư mục còn nội dung.
+%out:exists 2 notEmpty true
+?{I}Tuần tự hoá với lớp cha|Chương trình in ra gì?
+```
+import java.io.*;
+
+public class Store {
+    static class Parent {
+        int p = 1;
+        Parent() { p += 6; }
+    }
+    static class Acc extends Parent implements Serializable {
+        String id = "x";
+        transient int pin = 1234;
+        static int count;
+        Acc() { count++; id = "y"; }
+    }
+
+    public static void main(String[] args) throws Exception {
+        var bos = new ByteArrayOutputStream();
+        try (var out = new ObjectOutputStream(bos)) {
+            Acc a = new Acc();
+            a.p = 50;
+            out.writeObject(a);
+        }
+        try (var in = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()))) {
+            Acc b = (Acc) in.readObject();
+            System.out.println(b.id + " " + b.pin + " " + b.p + " " + Acc.count);
+        }
+    }
+}
+```
++ y 0 7 1
+- y 1234 50 1
+- x 0 7 2
+- y 0 50 1
+>Khi đọc lại, constructor của lớp Serializable không chạy nhưng constructor không tham số của lớp cha đầu tiên không Serializable thì có, nên p tính lại thành 7. id lấy giá trị đã ghi, pin là transient nên về 0.
+%out:y 0 7 1
+?{L}DateTimeFormatter|Đoạn mã in ra gì?
+```
+var dt = LocalDateTime.of(2025, 7, 4, 15, 5, 9);
+var f1 = DateTimeFormatter.ofPattern("EEE, d MMM yyyy hh:mm a", Locale.US);
+var f2 = DateTimeFormatter.ofPattern("dd.MM.yy HH'h'mm", Locale.GERMANY);
+System.out.println(dt.format(f1) + " | " + f2.format(dt));
+```
++ Fri, 4 Jul 2025 03:05 PM | 04.07.25 15h05
+- Fri, 04 Jul 2025 15:05 PM | 04.07.25 15h05
+- Friday, 4 July 2025 03:05 PM | 04.07.25 15h05
+- Fri, 4 Jul 2025 03:05 PM | 4.7.25 15h05
+>EEE và MMM cho tên viết tắt, d một chữ không độn số 0. hh là giờ theo 12 giờ đi kèm a. Văn bản trong dấu nháy đơn được in nguyên.
+%out:Fri, 4 Jul 2025 03:05 PM | 04.07.25 15h05
+?{L}ResourceBundle và Locale mặc định|Có ba tệp: Lbl.properties chứa `ok=OK` và `no=No`, Lbl_fr.properties chứa `ok=Oui`, Lbl_en.properties chứa `no=Nope`. Locale mặc định là en_US. Đoạn mã sau in ra gì?
+```
+var fr = ResourceBundle.getBundle("Lbl", Locale.FRANCE);
+var it = ResourceBundle.getBundle("Lbl", Locale.ITALIAN);
+System.out.println(fr.getString("ok") + fr.getString("no") + " " + it.getString("ok") + it.getString("no"));
+```
++ OuiNo OKNope
+- OuiNope OKNope
+- OuiNo OKNo
+- Ném MissingResourceException vì không có Lbl_it
+>Đã tìm thấy Lbl_fr thì chuỗi cha chỉ còn bundle gốc Lbl, nên khoá no lấy "No". Không có bundle tiếng Ý nên Java chuyển sang Locale mặc định và chọn Lbl_en, với cha là Lbl.
+%out:OuiNo OKNope
+</script>
+
+<script type="text/plain" class="wk" data-exam="1">
+##E6
+?{T}strip, lines và indent|Đoạn mã in ra gì?
+```
+String s = " \t hi there \n";
+System.out.println("[" + s.trim() + "][" + s.stripLeading().length() + "]"
+    + "a\nb\n".lines().count() + " " + "x".indent(2).length() + " " + "ab".compareTo("abc"));
+```
++ [hi there][10]2 4 -1
+- [hi there][9]2 3 -1
+- [hi there][10]3 4 -99
+- [ hi there][10]2 4 -1
+>stripLeading bỏ dấu cách và tab ở đầu, phần còn lại là "hi there" cùng một dấu cách và ký tự xuống dòng, dài 10. lines() không tạo dòng rỗng sau ký tự xuống dòng cuối. indent thêm dấu cách và luôn kết thúc bằng xuống dòng. Khi một chuỗi là tiền tố của chuỗi kia, compareTo trả hiệu độ dài.
+%out:[hi there][10]2 4 -1
+?{T}So sánh StringBuilder và String|Đoạn mã in ra gì?
+```
+var a = new StringBuilder("ab");
+var b = new StringBuilder("ab");
+String s1 = "ab", s2 = a.toString(), s3 = s2.intern();
+System.out.println(a.equals(b) + " " + a.compareTo(b) + " " + (s1 == s2) + " "
+    + (s1 == s3) + " " + a.toString().contentEquals(b));
+```
++ false 0 false true true
+- true 0 false true true
+- false 0 true true true
+- false 0 false false true
+>StringBuilder không ghi đè equals nên so sánh tham chiếu, nhưng compareTo so sánh nội dung. toString tạo String mới ngoài pool; intern trả về bản trong pool, chính là literal "ab". contentEquals so nội dung với mọi CharSequence.
+%out:false 0 false true true
+?{T}Ép kiểu số|Đoạn mã in ra gì?
+```
+short s = 10;
+s = (short) (s * 3);
+int i = 'A' + s;
+float f = 1.1f;
+double d = f;
+long l = (long) 3.99e2;
+System.out.println(i + " " + (d == 1.1) + " " + l + " " + (5 / 2.0f) + " " + (byte) 200);
+```
++ 95 false 399 2.5 -56
+- 95 true 399 2.5 -56
+- 95 false 3 2.5 -56
+- 95 false 399 2 200
+>Số 1.1 không biểu diễn chính xác được; bản float khi nới sang double khác với literal double 1.1. 3.99e2 là 399.0. Ép 200 sang byte cho 200 - 256 = -56.
+%out:95 false 399 2.5 -56
+?{T}LocalTime và Duration|Đoạn mã in ra gì?
+```
+LocalTime t = LocalTime.of(23, 50);
+LocalTime u = t.plusMinutes(25);
+Duration d = Duration.between(t, u);
+System.out.println(u + " " + d + " " + t.isBefore(u) + " " + LocalTime.MIDNIGHT.minusSeconds(1));
+```
++ 00:15 PT-23H-35M false 23:59:59
+- 00:15 PT25M true 23:59:59
+- 00:15 PT-23H-35M false 23:59
+- Ném DateTimeException vì vượt quá nửa đêm
+>LocalTime quay vòng qua nửa đêm mà không có khái niệm ngày, nên 00:15 nằm trước 23:50 và Duration âm. Giây khác 0 nên toString in đủ giờ:phút:giây.
+%out:00:15 PT-23H-35M false 23:59:59
+?{T}Toán tử gán kép và ternary|Đoạn mã in ra gì?
+```
+int a = 7;
+a -= a++ - --a;
+var r = a > 5 ? "big" : 1;
+Object o = true ? 1 : "x";
+System.out.println(a + " " + r + " " + o.getClass().getSimpleName() + " " + (true ? 1 : 2.0));
+```
++ 7 big Integer 1.0
+- 6 big Integer 1
+- 7 big Integer 1
+- Lỗi biên dịch vì hai nhánh ternary khác kiểu
+>Vế trái của -= được đọc trước (7), vế phải là 7 - 7 = 0. Ternary có nhánh String và int vẫn hợp lệ, kết quả có kiểu chung. Khi hai nhánh đều là số, int được nâng lên double nên in 1.0.
+%out:7 big Integer 1.0
+?{T}Text block và literal|Những dòng nào không biên dịch? (Chọn 2)
+```
+String a = """abc""";
+String b = """
+    x""";
+char c = "c";
+String d = "x" + 'y' + 1;
+var e = """
+    """;
+```
++ Dòng 1
++ Dòng 4
+- Dòng 3
+- Dòng 5
+- Dòng 6
+>Ba dấu nháy mở text block phải được theo sau bởi xuống dòng. Literal "c" là String, không gán được cho char. Dấu đóng được đặt cuối dòng nội dung, và text block rỗng vẫn hợp lệ.
+%cerr
+?{F}do-while và continue|Đoạn mã in ra gì?
+```
+int i = 10, count = 0;
+do {
+    i -= 3;
+    if (i % 2 == 0) continue;
+    count++;
+} while (i > 0);
+System.out.println(i + " " + count);
+```
++ -2 2
+- -2 3
+- 1 2
+- Vòng lặp chạy mãi
+>continue trong do-while nhảy tới phần kiểm tra điều kiện chứ không bỏ qua nó. i lần lượt là 7, 4, 1, -2; chỉ 7 và 1 là số lẻ được đếm.
+%out:-2 2
+?{F}switch với default ở giữa|Đoạn mã in ra gì?
+```
+StringBuilder sb = new StringBuilder();
+for (String cmd : new String[]{"go", "halt", "stop", "x"}) {
+    int code = switch (cmd) {
+        case "go", "start" -> 1;
+        default -> {
+            if (cmd.length() > 3) yield 9;
+            yield 0;
+        }
+        case "stop" -> 2;
+    };
+    sb.append(code);
+}
+System.out.println(sb);
+```
++ 1920
+- 1990
+- 1900
+- Lỗi biên dịch vì default không đứng cuối
+>Với switch không dùng pattern, default đặt ở đâu cũng được và chỉ được chọn khi không case nào khớp. "stop" vẫn khớp case của nó dù nằm sau default.
+%out:1920
+?^{F}Biến không tên|Với JDK 25, dòng nào gây lỗi biên dịch?
+```
+int _ = 5;
+var list = List.of(1, 2);
+for (int _ : list) { }
+String s = _ + "x";
+BiConsumer<String, String> bc = (_, _) -> { };
+try { } catch (Exception _) { }
+```
++ Dòng 4
+- Dòng 1
+- Dòng 3
+- Dòng 5
+>_ khai báo được nhiều lần như biến cục bộ, biến vòng lặp, tham số lambda hay tham số catch. Nhưng biến không tên thì không đọc được: _ không phải tên dùng trong biểu thức.
+%cerr
+?{F}if lồng nhau và ternary|Đoạn mã in ra gì?
+```
+int x = 5;
+String r = "";
+if (x > 3)
+    if (x > 10) r += "A";
+else r += "B";
+r += x > 4 ? x > 6 ? "C" : "D" : "E";
+System.out.println(r);
+```
++ BD
+- D
+- BC
+- AD
+>else luôn gắn với if gần nhất chưa có else, bất kể thụt lề. Ternary lồng được đọc từ phải sang: x > 4 ? (x > 6 ? "C" : "D") : "E".
+%out:BD
+?{O}Lớp abstract|Những dòng nào gây lỗi biên dịch? (Chọn 2)
+```
+abstract class Shape {
+    abstract double area() { return 0; }
+    abstract void draw();
+    Shape() { }
+}
+class Circle extends Shape {
+    double area() { return 3.14; }
+}
+abstract class Blob extends Shape { }
+```
++ Dòng 2
++ Dòng 6
+- Dòng 4
+- Dòng 7
+- Dòng 9
+>Phương thức abstract không được có thân. Circle là lớp cụ thể nhưng chưa hiện thực draw(). Lớp abstract vẫn có constructor, và lớp con abstract không bắt buộc hiện thực gì.
+%cerr
+?{O}Phương thức private không bị ghi đè|Chương trình in ra gì?
+```
+class A {
+    private String id() { return "A"; }
+    String call() { return id(); }
+}
+class B extends A {
+    String id() { return "B"; }
+}
+
+void main() {
+    A a = new B();
+    System.out.println(a.call() + ((B) a).id());
+}
+```
++ AB
+- BB
+- AA
+- Lỗi biên dịch vì B thu hẹp quyền của id()
+>Phương thức private không được kế thừa nên id() của B là phương thức mới, không ghi đè. Trong A, lời gọi id() gắn cứng với bản private của A.
+%out:AB
+?{O}Lớp thắng interface|Chương trình in ra gì?
+```
+interface Named { default String name() { return "I"; } }
+class Base { public String name() { return "C"; } }
+class Item extends Base implements Named { }
+class Other implements Named {
+    public String name() { return "O" + Named.super.name(); }
+}
+
+void main() {
+    System.out.println(new Item().name() + new Other().name());
+}
+```
++ COI
+- IOI
+- Lỗi biên dịch vì Item thừa hưởng hai phương thức name()
+- CO
+>Khi lớp cha và interface cùng có phương thức, bản của lớp cha luôn thắng phương thức default. Lớp hiện thực gọi được bản default bằng TênInterface.super.
+%out:COI
+?^{O}Flexible constructor bodies|Với JDK 25, chương trình in ra gì?
+```
+class Temp {
+    final double c;
+    Temp(double c) { this.c = c; System.out.print("A "); }
+    Temp(String s) {
+        var v = Double.parseDouble(s.replace("C", ""));
+        System.out.print("B ");
+        this(v);
+        System.out.print("C ");
+    }
+}
+
+void main() {
+    var t = new Temp("21.5C");
+    System.out.println(t.c);
+}
+```
++ B A C 21.5
+- A B C 21.5
+- B C A 21.5
+- Lỗi biên dịch vì this(v) không phải câu lệnh đầu tiên
+>Từ Java 25, câu lệnh đứng trước cả this(...) lẫn super(...), miễn là không dùng tới đối tượng đang tạo. Phần trước chạy, rồi tới constructor được gọi, rồi tới phần sau.
+%out:B A C 21.5
+?^{O}Lớp ngầm định|Tệp Calc.java có nội dung sau. Kết quả của `java Calc.java` với JDK 25?
+```
+static int total;
+
+record Pair(int a, int b) { int sum() { return a + b; } }
+
+int add(Pair p) { total += p.sum(); return total; }
+
+void main() {
+    add(new Pair(1, 2));
+    IO.print(add(new Pair(3, 4)) + " ");
+    IO.println(new Calc().add(new Pair(0, 1)));
+}
+```
++ Lỗi biên dịch vì không tham chiếu được lớp ngầm định bằng tên Calc
+- 10 11
+- 10 1
+- Lỗi biên dịch vì record không được khai báo trong compact source file
+>Lớp ngầm định có tên lấy từ tệp, nhưng tên đó không dùng được trong mã nguồn, kể cả trong chính tệp. Muốn có đối tượng thì dùng this trong phương thức instance.
+%cerr
+?{O}Record|Những dòng nào gây lỗi biên dịch? (Chọn 2)
+```
+record Money(long cents, String cur) {
+    Money { if (cents < 0) throw new IllegalArgumentException(); }
+    Money(long cents) { this.cents = cents; this.cur = "VND"; }
+    static Money zero() { return new Money(0, "VND"); }
+    public long cents() { return cents; }
+    void reset() { cents = 0; }
+}
+```
++ Dòng 3
++ Dòng 6
+- Dòng 2
+- Dòng 4
+- Dòng 5
+>Constructor không chuẩn của record phải gọi this(...) ở đầu thay vì tự gán trường. Trường của record là final nên phương thức thường không gán lại được.
+%cerr
+?{O}Enum hiện thực interface|Đoạn mã in ra gì?
+```
+enum Level implements Supplier<String> {
+    LOW, HIGH { public String get() { return "!!"; } };
+    public String get() { return name().charAt(0) + ""; }
+}
+var all = Level.values();
+all[0] = null;
+System.out.print(Level.values()[0] + " " + Level.HIGH.get() + Level.LOW.get() + " ");
+try { Level.valueOf("low"); }
+catch (IllegalArgumentException e) { System.out.println("IAE"); }
+```
++ LOW !!L IAE
+- null !!L IAE
+- LOW HL IAE
+- LOW !!L LOW
+>Mỗi lần gọi values() trả về một mảng mới nên sửa mảng cũ không ảnh hưởng. HIGH ghi đè get() trong thân riêng. valueOf phân biệt hoa thường nên "low" ném IllegalArgumentException.
+%out:LOW !!L IAE
+?{O}Lớp inner và che khuất biến|Chương trình in ra gì?
+```
+public class Outer {
+    private static int s = 1;
+    private int v = 10;
+    class Inner {
+        int v = 20;
+        int sum(int v) { return v + this.v + Outer.this.v; }
+    }
+    static class Nest { int get() { return s * 100; } }
+
+    public static void main(String[] args) {
+        Outer o = new Outer();
+        Outer.Inner in = o.new Inner();
+        System.out.println(in.sum(1) + " " + new Outer.Nest().get());
+    }
+}
+```
++ 31 100
+- 3 100
+- 60 100
+- Lỗi biên dịch vì Nest đọc trường private của Outer
+>Tên v trần là tham số, this.v là trường của Inner, Outer.this.v là trường của đối tượng bao ngoài. Lớp lồng static đọc được thành viên static kể cả private.
+%out:31 100
+?{O}Quyền truy cập|Những phát biểu nào đúng? (Chọn 2)
++ Thành viên protected truy cập được từ mọi lớp nằm cùng package
++ Lớp top-level chỉ được khai báo public hoặc không có modifier truy cập
+- Phương thức ghi đè được phép thu hẹp quyền truy cập, ví dụ từ public xuống protected
+- Lớp bao ngoài không truy cập được thành viên private của lớp lồng bên trong nó
+- Constructor không được khai báo private
+>protected gồm cả quyền package. Ghi đè chỉ được giữ nguyên hoặc mở rộng quyền. Thành viên private nhìn thấy được trong toàn bộ lớp top-level bao ngoài. Constructor private thường dùng cho singleton và lớp tiện ích.
+?{O}Ép kiểu lúc chạy|Kết quả khi chạy?
+```
+class Vehicle { }
+class Car extends Vehicle { }
+class Truck extends Vehicle { }
+
+void main() {
+    Vehicle v = new Car();
+    Object o = v;
+    System.out.print((o instanceof Vehicle) + " " + (v instanceof Car c ? "car" : "x") + " ");
+    Truck t = (Truck) v;
+    System.out.println("done");
+}
+```
++ In ra true car rồi ném ClassCastException
+- In ra true car done
+- Lỗi biên dịch vì ép Vehicle sang Truck
+- In ra true x rồi ném ClassCastException
+>Truck là lớp con của Vehicle nên phép ép biên dịch được. Lúc chạy đối tượng thật là Car, không phải Truck, nên ném ClassCastException.
+%rt:ClassCastException
+?{O}Giá trị mặc định khi khởi tạo|Chương trình in ra gì?
+```
+public class Order {
+    static int a = next();
+    static int b = 5;
+    static int next() { return b + 1; }
+
+    int x = y();
+    int z = 3;
+    int y() { return z * 2; }
+
+    public static void main(String[] args) {
+        System.out.println(a + " " + b + " " + new Order().x);
+    }
+}
+```
++ 1 5 0
+- 6 5 6
+- 1 5 6
+- Lỗi biên dịch vì tham chiếu tới trường khai báo phía sau
+>Trình khởi tạo chạy theo thứ tự khai báo. Khi next() chạy, b vẫn mang giá trị mặc định 0; tương tự z còn là 0 khi y() chạy. Gọi qua phương thức thì không bị luật cấm tham chiếu tiến.
+%out:1 5 0
+?{O}Nạp chồng với null|Kết quả khi biên dịch và chạy?
+```
+static void m(Object o) { System.out.print("O"); }
+static void m(String s) { System.out.print("S"); }
+static void m(Integer... i) { System.out.print("V"); }
+
+void main() {
+    m(null);
+    m((Object) null);
+    m();
+    Object x = "s";
+    m(x);
+    System.out.println();
+}
+```
++ Lỗi biên dịch vì lời gọi m(null) không rõ ràng
+- In ra SOVO
+- In ra OOVO
+- In ra SOVS
+>Ở giai đoạn chọn đầu tiên, phương thức varargs cũng được xét như một phương thức nhận mảng Integer[]. null hợp với cả String lẫn Integer[], hai kiểu không có quan hệ cha con nên không bên nào cụ thể hơn. Các lời gọi còn lại đều hợp lệ.
+%cerr
+?{E}finally và giá trị trả về|Chương trình in ra gì?
+```
+static StringBuilder sb() {
+    StringBuilder s = new StringBuilder("a");
+    try { return s; }
+    finally { s.append("b"); s = new StringBuilder("z"); }
+}
+static int num() {
+    int n = 1;
+    try { return n; }
+    finally { n = 2; }
+}
+
+void main() {
+    System.out.println(sb() + " " + num());
+}
+```
++ ab 1
+- z 2
+- a 1
+- ab 2
+>return lưu lại giá trị cần trả trước khi finally chạy. Với tham chiếu, finally vẫn sửa được đối tượng đó; gán biến sang đối tượng khác hay đổi biến int thì không ảnh hưởng giá trị đã lưu.
+%out:ab 1
+?{E}Ném lại ngoại lệ|Dòng nào gây lỗi biên dịch?
+```
+void read() {
+    try { new FileReader("x").close(); }
+    catch (FileNotFoundException e) { }
+    catch (IOException e) { }
+    try { System.out.print(1); }
+    catch (Exception e) { throw e; }
+    try { new FileReader("y"); }
+    catch (Exception e) { throw e; }
+}
+void main() { }
+```
++ Dòng 8
+- Dòng 4
+- Dòng 6
+- Không có dòng nào
+>Khi ném lại tham số catch không bị gán lại, trình biên dịch chỉ tính những checked exception mà khối try thực sự có thể ném. Ở dòng 6 không có checked exception nào; ở dòng 8 là FileNotFoundException mà read() không khai báo.
+%cerr
+?{E}Ngoại lệ lúc chạy|Đoạn mã in ra gì?
+```
+List<Runnable> tasks = List.of(
+    () -> { int[] a = new int[2]; a[2] = 1; },
+    () -> Integer.parseInt(""),
+    () -> List.of(1).iterator().remove(),
+    () -> "abc".substring(2, 1));
+for (Runnable r : tasks) {
+    try { r.run(); }
+    catch (IndexOutOfBoundsException e) { System.out.print("I"); }
+    catch (IllegalArgumentException e) { System.out.print("A"); }
+    catch (RuntimeException e) { System.out.print("R"); }
+}
+System.out.println();
+```
++ IARI
+- IAIR
+- IRRI
+- RARI
+>ArrayIndexOutOfBoundsException và StringIndexOutOfBoundsException đều là lớp con của IndexOutOfBoundsException. NumberFormatException là lớp con của IllegalArgumentException. Iterator của List.of không cho remove nên ném UnsupportedOperationException.
+%out:IARI
+?{E}Phân cấp ngoại lệ|Những phát biểu nào đúng? (Chọn 2)
++ IOException là checked exception
++ ArithmeticException là lớp con của RuntimeException
+- NumberFormatException là lớp con trực tiếp của RuntimeException
+- StackOverflowError là lớp con của Exception
+- FileNotFoundException là unchecked exception
+>NumberFormatException kế thừa IllegalArgumentException. StackOverflowError là một Error. FileNotFoundException là lớp con của IOException nên là checked.
+?{C}Sắp xếp mảng có null|Đoạn mã in ra gì?
+```
+String[] a = {"pear", null, "Fig", "apple"};
+Arrays.sort(a, Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER.reversed()));
+System.out.println(Arrays.toString(a) + " " + Arrays.asList(a).indexOf("Fig"));
+```
++ [null, pear, Fig, apple] 2
+- [null, apple, Fig, pear] 2
+- [pear, Fig, apple, null] 1
+- Ném NullPointerException
+>nullsFirst đưa null lên đầu và dùng Comparator bên trong cho phần còn lại: không phân biệt hoa thường, theo thứ tự ngược. asList là khung nhìn trên chính mảng đã sắp.
+%out:[null, pear, Fig, apple] 2
+?{C}removeIf và Iterator|Đoạn mã in ra gì?
+```
+List<Integer> nums = new ArrayList<>(List.of(5, 3, 8, 1, 9));
+nums.removeIf(n -> n > 7);
+Iterator<Integer> it = nums.iterator();
+while (it.hasNext()) if (it.next() == 3) it.remove();
+nums.replaceAll(n -> n * 2);
+Integer[] arr = nums.toArray(new Integer[0]);
+System.out.println(nums + " " + arr.length + " " + nums.indexOf(2) + " " + nums.contains(5));
+```
++ [10, 2] 2 1 false
+- [10, 6, 2] 3 2 false
+- [10, 2] 0 1 false
+- Ném ConcurrentModificationException
+>Xoá qua it.remove() là cách an toàn khi đang duyệt. toArray với mảng rỗng tạo mảng mới đúng kích thước. Sau replaceAll, 5 đã thành 10.
+%out:[10, 2] 2 1 false
+?{C}Khung nhìn của Map|Kết quả khi chạy?
+```
+Map<String, Integer> m = new HashMap<>(Map.of("a", 1, "b", 2, "c", 3));
+m.entrySet().forEach(e -> e.setValue(e.getValue() * 10));
+m.keySet().remove("b");
+m.values().removeIf(v -> v > 20);
+System.out.print(m + " ");
+var bad = Map.of("x", 1, "x", 2);
+```
++ In ra {a=10} rồi ném IllegalArgumentException
+- In ra {a=10, c=30} rồi ném IllegalArgumentException
+- In ra {a=10} và kết thúc bình thường
+- Ném UnsupportedOperationException ở dòng 2
+>keySet, values và entrySet là khung nhìn: sửa qua chúng là sửa Map gốc. Map.of không chấp nhận khoá trùng và ném IllegalArgumentException.
+%rt:IllegalArgumentException
+?{C}Phương thức generic và wildcard|Chương trình in ra gì?
+```
+static <T extends Comparable<? super T>> T maxOf(List<? extends T> list) {
+    T best = list.get(0);
+    for (T t : list) if (t.compareTo(best) > 0) best = t;
+    return best;
+}
+static double sum(Collection<? extends Number> c) {
+    double s = 0;
+    for (Number n : c) s += n.doubleValue();
+    return s;
+}
+static void fill(List<? super Integer> l) { l.add(1); l.add(2); }
+
+void main() {
+    List<Number> nums = new ArrayList<>();
+    fill(nums);
+    nums.add(2.5);
+    System.out.println(maxOf(List.of("kiwi", "apple", "zoo")) + " " + sum(nums) + " " + nums);
+}
+```
++ zoo 5.5 [1, 2, 2.5]
+- kiwi 5.5 [1, 2, 2.5]
+- zoo 5.5 [1.0, 2.0, 2.5]
+- Lỗi biên dịch vì không truyền được List<Number> cho List<? super Integer>
+>Number là kiểu cha của Integer nên List<Number> hợp với ? super Integer. Các phần tử giữ nguyên kiểu Integer và Double nên in ra 1, 2, 2.5.
+%out:zoo 5.5 [1, 2, 2.5]
+?{C}TreeMap|Đoạn mã in ra gì?
+```
+TreeMap<Integer, String> tm = new TreeMap<>(Map.of(10, "a", 20, "b", 30, "c", 40, "d"));
+System.out.println(tm.floorKey(25) + " " + tm.ceilingEntry(31).getValue() + " " + tm.headMap(20) + " "
+    + tm.tailMap(30, false) + " " + tm.descendingMap().firstKey() + " " + tm.pollFirstEntry().getKey() + " " + tm.size());
+```
++ 20 d {10=a} {40=d} 40 10 3
+- 20 c {10=a, 20=b} {30=c, 40=d} 40 10 3
+- 30 d {10=a} {40=d} 10 10 4
+- 20 d {10=a, 20=b} {40=d} 40 10 3
+>floorKey lấy khoá lớn nhất không vượt quá, ceilingEntry lấy khoá nhỏ nhất không nhỏ hơn. headMap mặc định không gồm khoá biên, tailMap ở đây được chỉ rõ là không gồm. pollFirstEntry xoá phần tử đầu nên còn 3.
+%out:20 d {10=a} {40=d} 40 10 3
+?{S}Comparator nhiều tầng|Đoạn mã in ra gì?
+```
+record P(String name, int age) { }
+var r = Stream.of(new P("an", 30), new P("binh", 25), new P("chi", 30), new P("dung", 25))
+    .sorted(Comparator.comparingInt(P::age).reversed().thenComparing(P::name, Comparator.reverseOrder()))
+    .map(P::name).toList();
+System.out.println(r);
+```
++ [chi, an, dung, binh]
+- [an, chi, binh, dung]
+- [dung, binh, chi, an]
+- [chi, an, binh, dung]
+>reversed() chỉ đảo phần so sánh tuổi đứng trước nó. thenComparing với Comparator.reverseOrder() xếp tên giảm dần trong từng nhóm tuổi.
+%out:[chi, an, dung, binh]
+?{S}groupingBy với mapping|Đoạn mã in ra gì?
+```
+var m = Stream.of("one", "two", "three", "four", "five", "six")
+    .collect(Collectors.groupingBy(String::length, TreeMap::new,
+        Collectors.mapping(s -> s.substring(0, 1), Collectors.joining())));
+System.out.println(m);
+```
++ {3=ots, 4=ff, 5=t}
+- {3=[o, t, s], 4=[f, f], 5=[t]}
+- {3=ots, 5=t, 4=ff}
+- {3=one two six, 4=four five, 5=three}
+>mapping biến đổi từng phần tử trước khi đưa vào bộ thu xuôi dòng; joining không đối số nối liền các chữ cái đầu. TreeMap giữ khoá theo thứ tự tăng dần.
+%out:{3=ots, 4=ff, 5=t}
+?^{S}Gatherer có finisher|Với JDK 25, đoạn mã in ra gì?
+```
+Gatherer<Integer, int[], Integer> sum3 = Gatherer.ofSequential(
+    () -> new int[2],
+    Gatherer.Integrator.ofGreedy((st, x, down) -> {
+        st[0] += x;
+        if (++st[1] == 3) { down.push(st[0]); st[0] = 0; st[1] = 0; }
+        return true;
+    }),
+    (st, down) -> { if (st[1] > 0) down.push(-st[0]); });
+System.out.println(Stream.of(1, 2, 3, 4, 5, 6, 7, 8).gather(sum3).toList());
+```
++ [6, 15, -15]
+- [6, 15, 15]
+- [6, 15]
+- [-6, -15, -15]
+>Integrator gom ba phần tử một lần và đẩy tổng ra. Finisher chạy một lần khi hết dữ liệu, đẩy phần còn dư 7 + 8 với dấu âm.
+%out:[6, 15, -15]
+?{S}Functional interface có sẵn|Dòng nào không biên dịch?
+```
+Supplier<String> a = () -> "x";
+Function<String> b = s -> s;
+BiPredicate<String, Integer> c = (s, n) -> s.length() == n;
+ToIntFunction<String> d = String::length;
+IntBinaryOperator e = Math::max;
+UnaryOperator<Integer> f = x -> x + 1;
+```
++ Dòng 2
+- Dòng 3
+- Dòng 4
+- Dòng 5
+>Function cần hai tham số kiểu: đầu vào và kết quả. Muốn một tham số kiểu cho cả hai thì dùng UnaryOperator. Math::max có bản (int, int) nên khớp IntBinaryOperator.
+%cerr
+?{S}Optional.stream và flatMap|Đoạn mã in ra gì?
+```
+List<Optional<String>> list = List.of(Optional.of("a"), Optional.empty(), Optional.of("bc"));
+var r = list.stream().flatMap(Optional::stream).map(String::length).reduce(Integer::sum);
+var e = Optional.of("x").flatMap(s -> Optional.<String>empty()).isEmpty();
+System.out.println(r + " " + e + " " + r.get());
+```
++ Optional[3] true 3
+- 3 true 3
+- Optional[3] false 3
+- Optional[2] true 2
+>Optional.stream() cho stream một phần tử hoặc rỗng, nên flatMap bỏ được các Optional rỗng. reduce không có giá trị khởi đầu trả Optional.
+%out:Optional[3] true 3
+?{S}iterate và collectingAndThen|Đoạn mã in ra gì?
+```
+List<Integer> l = IntStream.iterate(1, i -> i <= 20, i -> i * 2).boxed()
+    .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+int s = l.stream().mapToInt(Integer::intValue).map(x -> x % 5).sum();
+System.out.println(l + " " + s + " " + l.stream().anyMatch(x -> x > 15) + " " + l.stream().noneMatch(x -> x % 2 == 1));
+```
++ [1, 2, 4, 8, 16] 11 true false
+- [1, 2, 4, 8, 16, 32] 13 true false
+- [1, 2, 4, 8, 16] 11 true true
+- [2, 4, 8, 16] 10 true true
+>iterate dừng trước giá trị đầu tiên làm điều kiện sai, nên 32 không có. Phần dư khi chia 5 là 1, 2, 4, 3, 1. Có số 1 là số lẻ nên noneMatch trả false.
+%out:[1, 2, 4, 8, 16] 11 true false
+?{S}Stream|Những phát biểu nào đúng? (Chọn 2)
++ Nếu pipeline không có thao tác kết thúc, các lambda truyền cho filter và map không bao giờ chạy
++ findAny trên parallel stream có thể trả về phần tử khác nhau giữa các lần chạy
+- forEach trên parallel stream luôn duyệt theo thứ tự gặp
+- `Stream.of(1, 2, 3)` trả về một IntStream
+- count() luôn duyệt qua mọi phần tử, kể cả khi đã biết trước kích thước
+>Thao tác trung gian là lười. forEach không giữ thứ tự với parallel stream; cần forEachOrdered. Stream.of(1, 2, 3) cho Stream<Integer>. count() được phép không duyệt nếu tính được kích thước trực tiếp.
+?^{M}Import module|Với JDK 25, lớp sau có `import module java.base;` ở đầu tệp. Những kiểu nào dùng được bằng tên ngắn mà không cần thêm import? (Chọn 2)
++ `Function`
++ `Path`
+- `Connection`
+- `JFrame`
+- `Logger` của java.util.logging
+>import module java.base nhập mọi package java.base export, gồm java.util.function và java.nio.file. Connection thuộc java.sql, JFrame thuộc java.desktop, java.util.logging thuộc module java.logging.
+?{M}requires static|Module `app` có chỉ thị `requires static tools.anno;`. Phát biểu nào đúng?
++ tools.anno bắt buộc có khi biên dịch app, nhưng có thể vắng mặt khi chạy
+- tools.anno bắt buộc có cả khi biên dịch lẫn khi chạy
+- Mọi module đọc app cũng tự động đọc tools.anno
+- app chỉ được dùng các thành viên static của tools.anno
+>requires static là phụ thuộc chỉ bắt buộc lúc biên dịch, thường dùng cho annotation. Việc truyền quyền đọc sang module khác là của requires transitive.
+?{M}Automatic module|Tệp `my-lib-2.1.jar` không có module-info và được đặt trên module path. Tên module tự động của nó là gì?
++ `my.lib`
+- `my-lib`
+- `my.lib.2.1`
+- Không có tên, nó thuộc module không tên
+>Tên được suy từ tên tệp: bỏ đuôi .jar, bỏ phần phiên bản sau dấu gạch, rồi thay các ký tự không phải chữ hay số bằng dấu chấm. JAR trên module path không có module-info trở thành automatic module, chỉ JAR trên classpath mới vào module không tên.
+?^{X}Scoped values và Carrier|Với JDK 25, chương trình in ra gì?
+```
+static final ScopedValue<Integer> LIMIT = ScopedValue.newInstance();
+
+static int work(int n) {
+    if (n > LIMIT.get()) throw new IllegalStateException("over");
+    return n * 2;
+}
+
+void main() {
+    var carrier = ScopedValue.where(LIMIT, 5);
+    int a = carrier.call(() -> work(3));
+    String b;
+    try { b = "" + carrier.call(() -> work(9)); }
+    catch (IllegalStateException e) { b = e.getMessage(); }
+    int c = ScopedValue.where(LIMIT, 20).call(() -> work(9) + carrier.call(() -> LIMIT.get()));
+    System.out.println(a + " " + b + " " + c + " " + LIMIT.isBound());
+}
+```
++ 6 over 23 false
+- 6 18 38 false
+- 6 over 38 false
+- 6 over 23 true
+>where trả về một Carrier dùng lại được nhiều lần. Ngoại lệ ném trong call lan ra như bình thường. Lời gọi carrier.call lồng bên trong gắn lại LIMIT là 5 cho riêng phạm vi đó.
+%out:6 over 23 false
+?{X}Future và ExecutionException|Chương trình in ra gì?
+```
+void main() throws InterruptedException {
+    try (var ex = Executors.newSingleThreadExecutor()) {
+        Future<Integer> f = ex.submit(() -> 10 / 0);
+        Future<?> g = ex.submit(() -> System.out.print("run "));
+        try { g.get(); } catch (ExecutionException e) { System.out.print("fail "); }
+        try { f.get(); } catch (ExecutionException e) { System.out.print(e.getCause().getClass().getSimpleName() + " "); }
+        System.out.println(f.isDone() + " " + f.isCancelled());
+    }
+}
+```
++ run ArithmeticException true false
+- ArithmeticException run true false
+- run fail ArithmeticException true false
+- Luồng worker chết vì ArithmeticException nên g không bao giờ chạy
+>Ngoại lệ trong tác vụ được giữ lại trong Future, thread của executor vẫn sống để chạy g. get() bọc ngoại lệ gốc trong ExecutionException. Tác vụ kết thúc vì ngoại lệ vẫn được tính là done.
+%out:run ArithmeticException true false
+?{X}synchronized|Chương trình in ra gì?
+```
+class Counter {
+    private int n;
+    synchronized void inc() { n++; }
+    int get() { return n; }
+}
+
+void main() throws Exception {
+    var c = new Counter();
+    Runnable r = () -> { for (int i = 0; i < 1000; i++) c.inc(); };
+    Thread a = new Thread(r), b = new Thread(r);
+    a.start(); b.start();
+    a.join(); b.join();
+    System.out.println(c.get());
+}
+```
++ 2000
+- Một số bất kỳ từ 1000 đến 2000
+- 1000
+- Lỗi biên dịch vì lambda dùng biến c
+>inc() đồng bộ trên cùng một đối tượng nên không mất lượt tăng nào. join() bảo đảm main đọc sau khi cả hai thread xong và thấy được giá trị mới nhất.
+%out:2000
+?{X}Lock và atomic|Những phát biểu nào đúng? (Chọn 2)
++ ReentrantLock cho phép cùng một thread gọi lock() nhiều lần, và phải unlock() đủ bấy nhiêu lần
++ tryLock() không tham số trả về false ngay nếu khoá đang bị thread khác giữ
+- synchronized dùng được làm modifier cho biến cục bộ
+- Lock.lock() tự nhả khoá khi chương trình ra khỏi khối lệnh chứa nó
+- Một thread đã kết thúc có thể gọi start() lần nữa
+>synchronized chỉ dùng cho phương thức hoặc khối. Lock không tự nhả như synchronized, phải gọi unlock() trong finally. Gọi start() lần hai ném IllegalThreadStateException.
+?^{I}IO.readln|Với JDK 25, chạy chương trình rồi nhập `42` và Enter. Toàn bộ nội dung hiện trên màn hình (không tính dòng nhập) là gì?
+```
+void main() {
+    String s = IO.readln("n? ");
+    int n = Integer.parseInt(s.strip());
+    IO.print(n * 2);
+    IO.println(" done");
+}
+```
++ n? 84 done
+- 84 done
+- n? 4242 done
+- Lỗi biên dịch vì IO.print không nhận int
+>readln(prompt) in lời nhắc không kèm xuống dòng rồi đọc một dòng, không gồm ký tự xuống dòng. print nhận Object nên số được autobox.
+%out:n? 84 done
+?{I}InputStream|Chương trình in ra gì?
+```
+void main() throws IOException {
+    byte[] data = "ABCDEF".getBytes();
+    try (var in = new ByteArrayInputStream(data)) {
+        int first = in.read();
+        in.skip(2);
+        byte[] buf = new byte[4];
+        int n = in.read(buf);
+        System.out.println((char) first + " " + n + " " + new String(buf, 0, n) + " " + in.read());
+    }
+}
+```
++ A 3 DEF -1
+- A 4 DEF -1
+- 65 3 DEF -1
+- A 3 CDE 70
+>read() trả một byte dưới dạng int nên phải ép về char. Sau khi đọc A và bỏ qua B, C chỉ còn 3 byte. read(byte[]) trả số byte thực đọc, và -1 khi đã hết dữ liệu.
+%out:A 3 DEF -1
+?{I}Phương thức của Path|Đoạn mã in ra gì trên hệ điều hành dùng dấu / làm dấu phân cách?
+```
+Path p = Path.of("docs", "2025", "report.txt");
+System.out.println(p.getFileName() + " " + p.getParent().getFileName() + " " + p.subpath(0, 2) + " "
+    + p.startsWith("docs") + " " + p.endsWith("txt") + " " + p.resolveSibling("x.md"));
+```
++ report.txt 2025 docs/2025 true false docs/2025/x.md
+- report.txt 2025 docs/2025 true true docs/2025/x.md
+- report.txt docs/2025 docs true false docs/x.md
+- report.txt 2025 2025/report.txt true false docs/2025/report.txt/x.md
+>startsWith và endsWith với Path so sánh theo cả phần tên, không theo ký tự, nên "txt" không khớp "report.txt". subpath(0, 2) lấy hai phần tên đầu. resolveSibling thay tên tệp bằng tên mới trong cùng thư mục cha.
+%out:report.txt 2025 docs/2025 true false docs/2025/x.md
+?{L}Locale.Category|Locale mặc định ban đầu là en_US. Đoạn mã in ra gì?
+```
+Locale.setDefault(Locale.Category.FORMAT, Locale.GERMANY);
+System.out.println(String.format("%.2f", 1234.5) + " " + String.format(Locale.US, "%,.1f", 1234.56) + " "
+    + Locale.getDefault(Locale.Category.DISPLAY) + " " + NumberFormat.getInstance().format(0.5));
+```
++ 1234,50 1,234.6 en_US 0,5
+- 1234.50 1,234.6 en_US 0.5
+- 1234,50 1,234.6 de_DE 0,5
+- 1.234,50 1,234.6 en_US 0,5
+>String.format và NumberFormat.getInstance() không truyền Locale sẽ dùng Locale của nhóm FORMAT, nay là tiếng Đức. %.2f không có cờ dấu phẩy nên không chia nhóm hàng nghìn. Nhóm DISPLAY vẫn là en_US.
+%out:1234,50 1,234.6 en_US 0,5
+?{L}Locale và ResourceBundle|Những phát biểu nào đúng? (Chọn 2)
++ Locale mặc định có thể đổi lúc chạy bằng Locale.setDefault
++ Tệp bundle cho tiếng Nhật ở Nhật Bản của bundle Ui đặt tên là Ui_ja_JP.properties
+- Locale.Builder bắt buộc phải gọi setRegion trước khi build()
+- getBundle ném MissingResourceException ngay khi không có bundle khớp đúng Locale yêu cầu
+- `Locale.US.toString()` trả về chuỗi "en-US"
+>Region là tuỳ chọn. getBundle còn thử Locale mặc định và bundle gốc trước khi báo lỗi. toString dùng dấu gạch dưới (en_US); dạng en-US là của toLanguageTag().
+</script>
 <!--HET-NOI-DUNG-->
 <script>
 'use strict';
@@ -9830,7 +12272,7 @@ function examV(){
   <tr><td>Dạng câu</td><td>Một đáp án và nhiều đáp án</td><td>Câu nhiều đáp án ghi rõ số đáp án cần chọn, phải đúng hết mới được điểm.</td></tr>
   <tr><td>Trong lúc làm</td><td>Được quay lại và đánh dấu câu</td><td>Có nút Câu trước, Đánh dấu xem lại và bảng số câu.</td></tr>
   <tr><td>Kết quả</td><td>Đỗ từ ${PASS}%</td><td>Điểm theo từng nhóm mục tiêu, câu sai vào Sổ lỗi.</td></tr></table></div>
-  <div class="cards">${[1,2,3].map(i=>EXAMS[i]?`<button class="pcard" data-act="exam" data-no="${i}"><b>Đề số ${i}</b><span>${ex[i]?`${ex[i].ok}/${ex[i].n} câu, ${ex[i].pass?'đạt':'chưa đạt'} (${fmtY(pd(ex[i].d))})`:'Chưa làm'}</span></button>`:`<button class="pcard" disabled><b>Đề số ${i}</b><span>Chưa có trong bản này, sẽ được bổ sung sau.</span></button>`).join('')}
+  <div class="cards">${Object.keys(EXAMS).map(Number).sort((a,b)=>a-b).map(i=>EXAMS[i]?`<button class="pcard" data-act="exam" data-no="${i}"><b>Đề số ${i}</b><span>${ex[i]?`${ex[i].ok}/${ex[i].n} câu, ${ex[i].pass?'đạt':'chưa đạt'} (${fmtY(pd(ex[i].d))})`:'Chưa làm'}</span></button>`:`<button class="pcard" disabled><b>Đề số ${i}</b><span>Chưa có trong bản này, sẽ được bổ sung sau.</span></button>`).join('')}
   <button class="pcard" data-act="exam" data-no="0"><b>Đề ngẫu nhiên</b><span>Rút tối đa 50 câu từ ${bank} câu hiện có.${r0?` Lần gần nhất: ${r0.ok}/${r0.n} câu (${fmtY(pd(r0.d))}).`:''}</span></button></div>
   <p class="mute">Oracle có thể điều chỉnh mục tiêu và thông số đề thi. Hãy kiểm tra lại trang chính thức của kỳ thi 1Z0-831 trên Oracle University trước khi đăng ký.</p>`;
 }
@@ -9937,7 +12379,7 @@ document.addEventListener('change',e=>{
   if(t.dataset.ps){setPS(t);return}
   if(a==='hide')t.closest('.sec').querySelector('.vlist').classList.toggle('hidden',t.checked);
   else if(a==='theme'){P().theme=t.value;save();render(true)}
-  else if(t.id==='imp'&&t.files[0]){const f=new FileReader();f.onload=()=>{try{const d=JSON.parse(f.result);if(!d.profiles||!Object.keys(d.profiles).length)throw 0;DB=d;if(!P())DB.cur=Object.keys(DB.profiles)[0];save();render();toast('Đã khôi phục dữ liệu.')}catch(x){toast('Tệp không đúng định dạng sao lưu.')}};f.readAsText(t.files[0])}
+  else if(t.id==='imp'&&t.files[0]){bkRestore(t.files[0]);t.value=''}
 });
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){if($('#modal').classList.contains('on'))closeModal();return}
@@ -9956,5 +12398,46 @@ addEventListener('hashchange',()=>{if(!QZ)render()});
 if(!P()&&Object.keys(DB.profiles).length)DB.cur=Object.keys(DB.profiles)[0];
 render();
 </script>
-<a href="../index.html" id="homebtn" aria-label="Về trang chủ">‹ Trang chủ</a><style id="nhome">#homebtn{position:fixed;top:env(safe-area-inset-top,10px);left:14px;z-index:999;background:var(--card,#fff);border:1px solid var(--line,#d3dae5);color:var(--ink,#15202F);font:600 13px/1 var(--ui,inherit);padding:9px 12px;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px rgba(27,40,54,.12)}#homebtn:hover{opacity:.85}</style></body>
+<a href="../index.html" id="homebtn" aria-label="Về trang chủ">‹ Trang chủ</a><style id="nhome">#homebtn{position:fixed;top:env(safe-area-inset-top,10px);left:14px;z-index:999;background:var(--card,#fff);border:1px solid var(--line,#d3dae5);color:var(--ink,#15202F);font:600 13px/1 var(--ui,inherit);padding:9px 12px;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px rgba(27,40,54,.12)}#homebtn:hover{opacity:.85}</style><!-- Khôi phục sao lưu: kiểm tra đúng ứng dụng, xem trước, gộp hoặc thay thế -->
+<div id="bkpop" hidden role="dialog" aria-modal="true"><div class="bk-box" id="bk-box"></div></div>
+<style>#bkpop{position:fixed;inset:0;z-index:2100;background:rgba(10,15,25,.55);display:flex;align-items:center;justify-content:center;padding:16px}#bkpop[hidden]{display:none}#bkpop .bk-box{background:var(--card,#fff);color:var(--ink,#15202F);width:min(520px,100%);max-height:90vh;overflow:auto;border-radius:16px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.35);font:15px/1.55 var(--ui,system-ui,sans-serif)}#bkpop h3{margin:0 0 8px;font-size:1.1rem}#bkpop ul{margin:6px 0 10px;padding-left:20px}#bkpop .bk-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}#bkpop button{font:600 14px/1 var(--ui,system-ui,sans-serif);border:1px solid var(--line,#d3dae5);background:transparent;color:inherit;padding:10px 14px;border-radius:999px;cursor:pointer}#bkpop button.pri{background:var(--ai,#26497F);border-color:var(--ai,#26497F);color:#fff}#bkpop .bk-mute{opacity:.75;font-size:13.5px}#bkpop .bk-err{color:var(--shu,#C23B22)}</style>
+<script>
+(function(){
+  const APP='ocp-java25',EN=false;
+  const T=EN?{title:'Restore from backup',other:a=>`This backup belongs to another course (${a}). Open that course to restore it.`,bad:'That file is not a backup from this course.',old:'This file was made by an older version, so its course cannot be confirmed. Only restore it if you are sure it comes from this course.',
+    has:(n,f)=>`The file has ${n} profile(s)${f?', exported '+f:''}:`,prof:p=>`${p.name||'(no name)'}: ${Object.keys(p.done||{}).length} days done, ${Object.keys(p.exams||{}).length} mock exams`,
+    merge:'Merge into this device',replace:'Replace everything',cancel:'Cancel',note:'Merge keeps the profiles already on this device and adds the ones from the file; a profile with the same ID is replaced by the file version. Replace drops everything on this device.',
+    okM:'Backup merged.',okR:'Progress restored.'}
+  :{title:'Khôi phục từ bản sao lưu',other:a=>`Đây là bản sao lưu của lộ trình khác (${a}). Hãy mở đúng lộ trình đó để khôi phục.`,bad:'Tệp không đúng định dạng sao lưu của lộ trình này.',old:'Tệp được tạo từ phiên bản cũ nên không xác định được thuộc lộ trình nào. Chỉ khôi phục khi bạn chắc tệp là của lộ trình này.',
+    has:(n,f)=>`Tệp có ${n} hồ sơ${f?', tạo ngày '+f:''}:`,prof:p=>`${p.name||'(chưa đặt tên)'}: ${Object.keys(p.done||{}).length} ngày đã xong, ${Object.keys(p.exams||{}).length} đề thi thử`,
+    merge:'Gộp vào máy này',replace:'Thay thế toàn bộ',cancel:'Huỷ',note:'Gộp: giữ các hồ sơ đang có trên máy và thêm hồ sơ trong tệp; hồ sơ trùng mã sẽ lấy bản trong tệp. Thay thế: bỏ toàn bộ dữ liệu đang có trên máy này.',
+    okM:'Đã gộp bản sao lưu.',okR:'Đã khôi phục dữ liệu.'};
+  try{if(DB&&typeof DB==='object')DB.app=APP}catch(e){}
+  const pop=document.getElementById('bkpop'),box=document.getElementById('bk-box'),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const close=()=>{pop.hidden=true;box.innerHTML=''};
+  const show=h=>{box.innerHTML=`<h3>${T.title}</h3>`+h;pop.hidden=false};
+  let PEND=null;
+  window.bkRestore=function(file){
+    const f=new FileReader();
+    f.onload=()=>{let d=null;try{d=JSON.parse(f.result)}catch(e){}
+      if(!d||typeof d!=='object'||!d.profiles||typeof d.profiles!=='object'||!Object.keys(d.profiles).length){show(`<p class="bk-err">${T.bad}</p><div class="bk-row"><button data-bk="x">${T.cancel}</button></div>`);return}
+      if(d.app&&d.app!==APP){show(`<p class="bk-err">${esc(T.other(d.app))}</p><div class="bk-row"><button data-bk="x">${T.cancel}</button></div>`);return}
+      PEND=d;const ps=Object.values(d.profiles),ts=d.t||d.ts,has=DB&&DB.profiles&&Object.keys(DB.profiles).length;
+      show(`${d.app?'':`<p class="bk-mute">${T.old}</p>`}<p>${esc(T.has(ps.length,ts?new Date(ts).toLocaleDateString():''))}</p><ul>${ps.map(p=>`<li>${esc(T.prof(p))}</li>`).join('')}</ul>
+        <div class="bk-row">${has?`<button class="pri" data-bk="m">${T.merge}</button><button data-bk="r">${T.replace}</button>`:`<button class="pri" data-bk="r">${T.replace}</button>`}<button data-bk="x">${T.cancel}</button></div>${has?`<p class="bk-mute">${T.note}</p>`:''}`);
+    };
+    f.readAsText(file);
+  };
+  pop.addEventListener('click',e=>{
+    const b=e.target.closest('[data-bk]');if(e.target===pop||b&&b.dataset.bk==='x'){close();return}if(!b||!PEND)return;
+    const d=PEND;PEND=null;delete d.app;
+    if(b.dataset.bk==='m'){Object.assign(DB.profiles,d.profiles)}else{DB=d}
+    DB.app=APP;try{if(typeof migrate==='function')migrate()}catch(x){}
+    if(!DB.cur||!DB.profiles[DB.cur])DB.cur=Object.keys(DB.profiles)[0];
+    save();close();render();toast(b.dataset.bk==='m'?T.okM:T.okR);
+  });
+  addEventListener('keydown',e=>{if(e.key==='Escape'&&!pop.hidden)close()});
+})();
+</script>
+</body>
 </html>

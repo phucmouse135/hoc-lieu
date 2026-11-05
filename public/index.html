@@ -14,6 +14,9 @@
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){--paper:#10161F;--card:#18212D;--ink:#E6ECF2;--mute:#9AA7B6;--line:#2B3848}
 }
+:root[data-theme="dark"]{--paper:#10161F;--card:#18212D;--ink:#E6ECF2;--mute:#9AA7B6;--line:#2B3848;color-scheme:dark}
+.tile .prog{display:block;margin-top:10px;font-size:12px;font-weight:600;color:#2E9E5B}
+#themebtn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:14px;background:var(--card);border:1px solid var(--line);color:var(--ink);font:600 13px/1 var(--ui);padding:9px 12px;border-radius:999px;cursor:pointer}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--ui);-webkit-text-size-adjust:100%;min-height:100vh}
 .wrap{max-width:1000px;margin:0 auto;padding:56px 20px 72px}
@@ -133,5 +136,28 @@ a{color:inherit}
 
   <footer>Tiến độ từng lộ trình được lưu tự động trên trình duyệt của bạn.</footer>
 </div>
+<button id="themebtn" type="button" aria-label="Đổi giao diện sáng hoặc tối">◐ Giao diện</button>
+<script>
+/* Giao diện sáng/tối + tiến độ từng lộ trình (đọc dữ liệu các app lưu trên trình duyệt này) */
+(function(){
+  const R=document.documentElement,get=k=>{try{return localStorage.getItem(k)}catch(e){return null}},set=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+  const th=get('hub-theme');if(th)R.setAttribute('data-theme',th);
+  document.getElementById('themebtn').onclick=()=>{const cur=R.getAttribute('data-theme'),dark=cur?cur==='dark':matchMedia('(prefers-color-scheme: dark)').matches,v=dark?'light':'dark';R.setAttribute('data-theme',v);set('hub-theme',v)};
+  const KEY={'english/ielts.html':'ielts-36-v1','english/toeic.html':'toeic-990-v1','tech/ocp-java25.html':'ocp-java25-v1','tech/aws-saa-c03.html':'aws-saa-c03-v1','tech/ai-backend.html':'ai-eng-roadmap-v1','tools/kanji.html':'tools-kanji-v1','tools/hanzi.html':'tools-hanzi-v1'};
+  for(let i=1;i<=5;i++)KEY['japanese/jlpt-n'+i+'.html']='jlpt-n'+i+'-v1';
+  for(let i=1;i<=6;i++)KEY['chinese/hsk'+i+'.html']='hsk'+i+'-v1';
+  const fmt=d=>{const x=String(d).split('-');return x.length===3?x[2]+'/'+x[1]:''},t=new Date().toISOString().slice(0,10);
+  document.querySelectorAll('a.tile').forEach(a=>{
+    const k=KEY[a.getAttribute('href')];if(!k)return;let o=null;try{o=JSON.parse(get(k))}catch(e){}if(!o||typeof o!=='object')return;
+    let txt='';
+    if(Array.isArray(o.saved)){if(o.saved.length)txt=o.saved.length+' chữ trong sổ ôn'}
+    else{const p=o.profiles?o.profiles[o.cur]:o;if(!p||!p.done)return;
+      const n=Object.keys(p.done).length,acts=Object.keys(p.act||{}).sort(),ex=Object.keys(p.exams||{}).length,due=p.srs?Object.values(p.srs).filter(x=>x&&x.d<=t).length:0;
+      if(!n&&!acts.length)return;
+      txt=`${n} mục đã xong`+(ex?` · ${ex} đề thi`:'')+(acts.length?` · học gần nhất ${fmt(acts[acts.length-1])}`:'')+(due?` · ${due} mục cần ôn`:'')}
+    if(!txt)return;const s=document.createElement('span');s.className='prog';s.textContent=txt;a.appendChild(s);
+  });
+})();
+</script>
 </body>
 </html>

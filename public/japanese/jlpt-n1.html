@@ -1278,7 +1278,7 @@ function day(n){
     if(n>1) h+=`<section class="sec"><h2>Ôn bài cũ ${stamp(x.r!=null,'sm')}</h2><p>10 câu lấy từ các bài cách đây 1, 2, 4, 7, 14 và 30 ngày, cộng với những câu bạn từng làm sai.</p>${qb('r','Ôn bài cũ')}</section>`;
     if(d.gram.length) h+=`<section class="sec"><h2>Ngữ pháp ${stamp(x.g!=null,'sm')}</h2>${d.gram.map(g=>`<article class="gcard"><h3 class="jp">${esc(g.t)}</h3><p class="gm">${esc(g.m)}</p><p class="gs jp">${esc(g.s)}</p><p>${esc(g.ex)}</p>${g.tip?`<p class="tip">${esc(g.tip)}</p>`:''}
       <ul class="gx">${g.x.map(e=>`<li>${sayBtn(e.raw.replace('\u0001',e.opts[0]))}<div><span class="jp">${exFull(e,1)}</span><span class="vi">${esc(e.vi)}</span></div></li>`).join('')}</ul></article>`).join('')}${qb('g','Luyện ngữ pháp')}</section>`;
-    else h+=`<section class="sec"><h2>Ngữ pháp</h2><p class="note">Ngữ pháp, từ vựng, kaiwa và bài đọc của bài này chưa được soạn trong bản hiện tại (mới có 45 bài đầu). Hiện bài này chỉ có phần ôn bài cũ.</p></section>`;
+    else h+=`<section class="sec"><h2>Ngữ pháp</h2><p class="note">Ngữ pháp, từ vựng, kaiwa và bài đọc của bài này chưa có cho ngày này. Hôm nay chỉ có phần ôn bài cũ.</p></section>`;
     if(d.vocab.length) h+=`<section class="sec"><h2>Từ vựng: ${esc(d.theme)} ${stamp(x.v!=null,'sm')}</h2><p class="mute">${d.vocab.length} từ theo chủ đề. Phần Kanji bên dưới có thêm vài từ đi kèm các chữ của hôm nay.</p><label class="chk"><input type="checkbox" data-act="hide"> Che nghĩa để tự kiểm tra (bấm vào từng dòng để hiện)</label>
       <ul class="vlist">${d.vocab.map((w,i)=>`<li data-act="reveal"${i===10?' class="cut"':''}>${sayBtn(w.r||w.w)}<span class="jp">${wordHtml(w)}</span><span class="vm">${w.hv?`<span class="hv sm">${esc(w.hv)}</span> `:''}${esc(w.m)}</span>${w.ex?`<span class="vex"><span class="jp">${exHtml(w.ex,1)}</span> <small>${esc(w.ex.vi)}</small></span>`:''}</li>`).join('')}</ul>${qb('v','Luyện từ vựng')}</section>`;
     if(d.kanji.length) h+=`<section class="sec"><h2>Kanji ${stamp(x.k!=null,'sm')}</h2>${d.kanji.map(c=>kCard(K[c])).join('')}${qb('k','Luyện kanji')}</section>`;
@@ -1413,7 +1413,7 @@ document.addEventListener('change',e=>{
   else if(a==='theme'){P().theme=t.value;save();render(true)}
   else if(a==='rate'){P().rate=+t.value;save()}
   else if(a==='scope'){P().scope=t.value;save()}
-  else if(t.id==='imp'&&t.files[0]){const f=new FileReader();f.onload=()=>{try{const d=JSON.parse(f.result);if(!d.profiles||!Object.keys(d.profiles).length)throw 0;DB=d;if(!P())DB.cur=Object.keys(DB.profiles)[0];save();render();toast('Đã khôi phục dữ liệu.')}catch(x){toast('Tệp không đúng định dạng sao lưu.')}};f.readAsText(t.files[0])}
+  else if(t.id==='imp'&&t.files[0]){bkRestore(t.files[0]);t.value=''}
 });
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){if($('#modal').classList.contains('on')){stopAudio();closeModal()}return}
@@ -1452,6 +1452,75 @@ render();
   addEventListener('keydown',e=>{if(e.key==='Escape'&&!pop.hidden)close()});
   addEventListener('message',e=>{if(e.source===fr.contentWindow&&e.data==='dict-close')close()});
   if(location.hash==='#/dict'){history.replaceState(null,'','#/');dispatchEvent(new HashChangeEvent('hashchange'));open('')}
+})();
+</script>
+<!-- Khôi phục sao lưu: kiểm tra đúng ứng dụng, xem trước, gộp hoặc thay thế -->
+<div id="bkpop" hidden role="dialog" aria-modal="true"><div class="bk-box" id="bk-box"></div></div>
+<style>#bkpop{position:fixed;inset:0;z-index:2100;background:rgba(10,15,25,.55);display:flex;align-items:center;justify-content:center;padding:16px}#bkpop[hidden]{display:none}#bkpop .bk-box{background:var(--card,#fff);color:var(--ink,#15202F);width:min(520px,100%);max-height:90vh;overflow:auto;border-radius:16px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.35);font:15px/1.55 var(--ui,system-ui,sans-serif)}#bkpop h3{margin:0 0 8px;font-size:1.1rem}#bkpop ul{margin:6px 0 10px;padding-left:20px}#bkpop .bk-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}#bkpop button{font:600 14px/1 var(--ui,system-ui,sans-serif);border:1px solid var(--line,#d3dae5);background:transparent;color:inherit;padding:10px 14px;border-radius:999px;cursor:pointer}#bkpop button.pri{background:var(--ai,#26497F);border-color:var(--ai,#26497F);color:#fff}#bkpop .bk-mute{opacity:.75;font-size:13.5px}#bkpop .bk-err{color:var(--shu,#C23B22)}</style>
+<script>
+(function(){
+  const APP='jlpt-n1',EN=false;
+  const T=EN?{title:'Restore from backup',other:a=>`This backup belongs to another course (${a}). Open that course to restore it.`,bad:'That file is not a backup from this course.',old:'This file was made by an older version, so its course cannot be confirmed. Only restore it if you are sure it comes from this course.',
+    has:(n,f)=>`The file has ${n} profile(s)${f?', exported '+f:''}:`,prof:p=>`${p.name||'(no name)'}: ${Object.keys(p.done||{}).length} days done, ${Object.keys(p.exams||{}).length} mock exams`,
+    merge:'Merge into this device',replace:'Replace everything',cancel:'Cancel',note:'Merge keeps the profiles already on this device and adds the ones from the file; a profile with the same ID is replaced by the file version. Replace drops everything on this device.',
+    okM:'Backup merged.',okR:'Progress restored.'}
+  :{title:'Khôi phục từ bản sao lưu',other:a=>`Đây là bản sao lưu của lộ trình khác (${a}). Hãy mở đúng lộ trình đó để khôi phục.`,bad:'Tệp không đúng định dạng sao lưu của lộ trình này.',old:'Tệp được tạo từ phiên bản cũ nên không xác định được thuộc lộ trình nào. Chỉ khôi phục khi bạn chắc tệp là của lộ trình này.',
+    has:(n,f)=>`Tệp có ${n} hồ sơ${f?', tạo ngày '+f:''}:`,prof:p=>`${p.name||'(chưa đặt tên)'}: ${Object.keys(p.done||{}).length} ngày đã xong, ${Object.keys(p.exams||{}).length} đề thi thử`,
+    merge:'Gộp vào máy này',replace:'Thay thế toàn bộ',cancel:'Huỷ',note:'Gộp: giữ các hồ sơ đang có trên máy và thêm hồ sơ trong tệp; hồ sơ trùng mã sẽ lấy bản trong tệp. Thay thế: bỏ toàn bộ dữ liệu đang có trên máy này.',
+    okM:'Đã gộp bản sao lưu.',okR:'Đã khôi phục dữ liệu.'};
+  try{if(DB&&typeof DB==='object')DB.app=APP}catch(e){}
+  const pop=document.getElementById('bkpop'),box=document.getElementById('bk-box'),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const close=()=>{pop.hidden=true;box.innerHTML=''};
+  const show=h=>{box.innerHTML=`<h3>${T.title}</h3>`+h;pop.hidden=false};
+  let PEND=null;
+  window.bkRestore=function(file){
+    const f=new FileReader();
+    f.onload=()=>{let d=null;try{d=JSON.parse(f.result)}catch(e){}
+      if(!d||typeof d!=='object'||!d.profiles||typeof d.profiles!=='object'||!Object.keys(d.profiles).length){show(`<p class="bk-err">${T.bad}</p><div class="bk-row"><button data-bk="x">${T.cancel}</button></div>`);return}
+      if(d.app&&d.app!==APP){show(`<p class="bk-err">${esc(T.other(d.app))}</p><div class="bk-row"><button data-bk="x">${T.cancel}</button></div>`);return}
+      PEND=d;const ps=Object.values(d.profiles),ts=d.t||d.ts,has=DB&&DB.profiles&&Object.keys(DB.profiles).length;
+      show(`${d.app?'':`<p class="bk-mute">${T.old}</p>`}<p>${esc(T.has(ps.length,ts?new Date(ts).toLocaleDateString():''))}</p><ul>${ps.map(p=>`<li>${esc(T.prof(p))}</li>`).join('')}</ul>
+        <div class="bk-row">${has?`<button class="pri" data-bk="m">${T.merge}</button><button data-bk="r">${T.replace}</button>`:`<button class="pri" data-bk="r">${T.replace}</button>`}<button data-bk="x">${T.cancel}</button></div>${has?`<p class="bk-mute">${T.note}</p>`:''}`);
+    };
+    f.readAsText(file);
+  };
+  pop.addEventListener('click',e=>{
+    const b=e.target.closest('[data-bk]');if(e.target===pop||b&&b.dataset.bk==='x'){close();return}if(!b||!PEND)return;
+    const d=PEND;PEND=null;delete d.app;
+    if(b.dataset.bk==='m'){Object.assign(DB.profiles,d.profiles)}else{DB=d}
+    DB.app=APP;try{if(typeof migrate==='function')migrate()}catch(x){}
+    if(!DB.cur||!DB.profiles[DB.cur])DB.cur=Object.keys(DB.profiles)[0];
+    save();close();render();toast(b.dataset.bk==='m'?T.okM:T.okR);
+  });
+  addEventListener('keydown',e=>{if(e.key==='Escape'&&!pop.hidden)close()});
+})();
+</script>
+<!-- Ôn tập ngắt quãng (SRS): mỗi câu đã làm được xếp lịch ôn lại sau 1, 3, 7, 14, 30 ngày -->
+<script>
+(function(){
+  const EN=false,INT=[0,1,3,7,14,30];
+  const T=EN?{h:'Spaced review',due:n=>`${n} item(s) due today`,seen:n=>`${n} tracked`,known:n=>`${n} well known`,go:n=>`Review ${n} due items`,none:'Nothing is due today. Items you answer anywhere in the course are scheduled again after 1, 3, 7, 14 and 30 days; a wrong answer sends an item back to the start.',
+    note:'Every item you answer is scheduled again after 1, 3, 7, 14 and 30 days; a wrong answer sends it back to the start.',title:'Spaced review'}
+  :{h:'Ôn tập ngắt quãng',due:n=>`${n} mục đến hạn hôm nay`,seen:n=>`${n} mục đang theo dõi`,known:n=>`${n} mục đã nhớ chắc`,go:n=>`Ôn ${n} mục đến hạn`,none:'Hôm nay chưa có mục nào đến hạn. Mỗi câu bạn làm trong lộ trình được xếp lịch ôn lại sau 1, 3, 7, 14 và 30 ngày; trả lời sai thì mục đó quay lại từ đầu.',
+    note:'Mỗi câu bạn làm được xếp lịch ôn lại sau 1, 3, 7, 14 và 30 ngày; trả lời sai thì quay lại từ đầu.',title:'Ôn tập ngắt quãng'};
+  const S=()=>{try{if(typeof P==='function'){const p=P();if(p)return p}}catch(e){}try{if(typeof ST==='object'&&ST)return ST}catch(e){}return null};
+  const day=n=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)};
+  function up(s,k,ok){s.srs=s.srs||{};const m=s.srs[k]||{b:0};m.b=ok?Math.min(5,m.b+1):0;m.d=day(ok?INT[m.b]:0);s.srs[k]=m}
+  const dueKeys=()=>{const s=S();if(!s||!s.srs)return [];const t=today();return Object.keys(s.srs).filter(k=>s.srs[k].d<=t).sort((a,b)=>s.srs[a].b-s.srs[b].b)};
+  const of=finishQuiz;
+  finishQuiz=function(){try{const z=QZ,s=S();if(z&&z.qs&&s)z.qs.forEach((q,i)=>{if(q&&q.key&&i<z.res.length)up(s,q.key,z.res[i]===true)})}catch(e){}return of.apply(this,arguments)};
+  function box(){
+    const s=S();if(!s)return '';const m=s.srs||{},ks=Object.keys(m),due=dueKeys().length,known=ks.filter(k=>m[k].b>=4).length;
+    return `<section class="sec srsbox" style="border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin:0 0 16px;background:var(--card)"><h2 style="margin:0 0 4px">${T.h}</h2>
+      <p style="margin:0 0 8px"><b>${T.due(due)}</b> · ${T.seen(ks.length)} · ${T.known(known)}</p>
+      ${due?`<div class="row"><button class="btn" data-srs="go">${T.go(Math.min(20,due))}</button></div><p class="mute" style="margin:8px 0 0">${T.note}</p>`:`<p class="mute" style="margin:0">${T.none}</p>`}</section>`;
+  }
+  const wrap=n=>{try{const o=window[n];if(typeof o!=='function')return;window[n]=function(){const h=o.apply(this,arguments);return typeof h==='string'&&!arguments[0]?box()+h:h}}catch(e){}};
+  wrap('pracV');wrap('wrongV');
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-srs="go"]');if(!b)return;e.preventDefault();
+    const qs=dueKeys().slice(0,20).map(k=>{try{return qFromKey(k)}catch(x){return null}}).filter(Boolean);
+    if(!qs.length){toast(T.none);return}startQuiz(T.title,qs)});
+  try{if(/^#\/(prac|wrong)/.test(location.hash))render()}catch(e){}
 })();
 </script>
 </body>
