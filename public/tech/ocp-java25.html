@@ -356,6 +356,20 @@ class App {
 - Tệp không được khai báo thêm lớp hay record nào
 - Tệp không có main thì vẫn biên dịch được
 >Thiếu main khởi chạy được là lỗi biên dịch. Các kiểu khai báo thêm trong tệp trở thành thành viên của lớp ngầm định.
+?^Khởi chạy chương trình|Lớp `Run` (tệp Run.java) chỉ chứa đúng một phương thức như dưới đây. Với những khai báo nào, lệnh `java Run.java` chạy và in ra x? (Chọn 2)
++ `static void main() { IO.println("x"); }`
++ `void main(String... a) { IO.println("x"); }`
+- `private void main() { IO.println("x"); }`
+- `void main(int a) { IO.println("x"); }`
+- `static String main(String[] a) { return "x"; }`
+>Java 25 chấp nhận main static hay instance, có hoặc không có tham số String[], miễn là trả về void và không private. main(int) không phải phương thức khởi chạy; main trả về String cũng không. Các khai báo sai vẫn biên dịch được, lỗi xảy ra lúc JVM tìm main.
+?^Lớp IO|Những phát biểu nào đúng về lớp `java.lang.IO` trong Java 25? (Chọn 2)
++ `IO.readln(String)` in lời nhắc rồi trả về một `String`
++ Lớp thường (không phải compact source file) dùng được `IO` mà không cần import
+- `IO.println` khai báo ném `IOException`, nên phải bắt hoặc khai báo
+- `IO` có phương thức `printf` để in chuỗi theo định dạng
+- `IO` chỉ dùng được bên trong compact source file
+>IO nằm trong java.lang nên mọi tệp đều thấy. Các phương thức của nó không ném checked exception. Java 25 chỉ có print, println và readln, không có printf.
 ##2
 ~Import quyết định một tên ngắn như Date hay List trỏ tới lớp nào. Java 25 thêm import module, và kéo theo một bậc ưu tiên mới cần thuộc.
 @Import đơn và import theo yêu cầu|Dấu * chỉ lấy các kiểu nằm trực tiếp trong package, không lấy package con.
@@ -528,6 +542,20 @@ public class Db {
 - Lỗi biên dịch tại dòng 1
 >java.sql có `requires transitive java.logging` nên `Logger` dùng được. `List` thuộc java.base, mà java.sql không requires transitive java.base, nên `List` không được import.
 %cerr
+?Import đơn và wildcard|Trong một lớp thường (không phải compact source file), những dòng import nào, nếu đứng một mình, giúp câu lệnh `List<String> a = new ArrayList<>();` biên dịch được? (Chọn 2)
++ `import java.util.*;`
++ `import module java.base;`
+- `import java.util.List.*;`
+- `import static java.util.*;`
+- `import java.util.List;`
+>Wildcard import lấy mọi kiểu của package java.util; import module java.base lấy mọi package mà java.base export. `java.util.List.*` chỉ import các kiểu lồng bên trong List. Static import phải chỉ tới một kiểu. Import mỗi List thì vẫn thiếu ArrayList.
+?^Import module|Những phát biểu nào đúng về khai báo `import module` trong Java 25? (Chọn 2)
++ Sau `import module java.sql;`, có thể dùng `java.util.logging.Logger` bằng tên đơn giản `Logger`
++ Khi hai import module cùng mang vào tên `List`, thêm `import java.util.List;` sẽ hết mơ hồ
+- Khai báo `import module` chỉ được viết bên trong tệp module-info.java
+- Hai import module cùng mang vào một tên thì tự lấy theo dòng import viết trước
+- `import module java.base;` import cả các package không được export như `jdk.internal.misc`
+>import module lấy mọi package mà module đó export, cộng với các package của module nó requires transitive (java.sql requires transitive java.logging). Import một kiểu cụ thể luôn che khuất tên do import module hay wildcard mang vào. Trùng tên giữa hai import module thì dùng tên đó là lỗi mơ hồ.
 ##3
 ~Phần kiểu dữ liệu có nhiều câu "dòng nào không biên dịch". Nắm chắc giới hạn của literal, của var và hành vi của wrapper là lấy được điểm.
 @Tám kiểu nguyên thủy và literal|Literal số nguyên mặc định là int, số thực mặc định là double.
@@ -679,6 +707,20 @@ System.out.println(y);
 - `var arr = {1, 2};`
 - `var f = () -> 1;`
 >var không dùng trong khai báo nhiều biến, không dùng với khởi tạo mảng rút gọn, và lambda không tự có kiểu để suy luận.
+?Wrapper|Những biểu thức nào cho kết quả `true`? (Chọn 2)
++ `Integer.valueOf(127) == Integer.valueOf(127)`
++ `Long.valueOf(10L).equals(10L)`
+- `Integer.valueOf(128) == Integer.valueOf(128)`
+- `Long.valueOf(10).equals(10)`
+- `Short.valueOf((short) 1).equals(1)`
+>valueOf dùng bộ đệm cho giá trị từ -128 đến 127, nên 127 trả về cùng một đối tượng, còn 128 thì không. equals của wrapper so sánh cả kiểu: số 10 hay 1 không hậu tố được autobox thành Integer, nên so với Long hay Short luôn là false.
+?Text block|Những phát biểu nào đúng về text block? (Chọn 2)
++ Sau dấu `"""` mở đầu chỉ được có khoảng trắng rồi xuống dòng
++ Dấu `\` ở cuối một dòng nối dòng đó với dòng sau, không sinh ký tự xuống dòng
+- Khoảng trắng ở cuối mỗi dòng nội dung được giữ nguyên
+- Thụt lề chung bị cắt chỉ được tính theo dòng nội dung đầu tiên
+- Escape `\s` ở cuối dòng bị bỏ qua như khoảng trắng thường
+>Khoảng trắng cuối dòng bị xoá, nên muốn giữ phải dùng `\s` (một dấu cách thật). Thụt lề chung được tính theo dòng thụt ít nhất, kể cả dòng chứa `"""` đóng. Viết nội dung ngay sau `"""` mở là lỗi biên dịch.
 ##4
 ~Câu hỏi về toán tử hiếm khi khó về ý tưởng, nhưng dễ sai vì tính nhẩm vội. Hãy tập viết ra giá trị của từng biến sau mỗi bước.
 @Thứ tự ưu tiên và phép tăng giảm|Toán tử một ngôi tính trước, rồi nhân chia, cộng trừ, dịch bit, so sánh, bit, logic, ternary, cuối cùng là gán.
@@ -828,6 +870,28 @@ boolean b3 = n instanceof String;
 - Tất cả đều biên dịch
 >Integer là lớp final không liên quan tới String, nên trình biên dịch biết chắc phép kiểm tra không bao giờ đúng. `null instanceof` thì hợp lệ và cho false.
 %cerr
+?Ép kiểu ngầm|Biến `int x = 5;` đã khai báo. Những câu lệnh nào biên dịch được? (Chọn 2)
++ `short s = 10; s += x;`
++ `byte b = 'a';`
+- `short s = 10; s = s + x;`
+- `long n = 5; int y = n * 2;`
+- `float f = x * 1.0;`
+>Phép gán kép như `+=` tự ép kết quả về kiểu biến bên trái. 'a' là hằng 97, nằm trong phạm vi byte nên được thu hẹp ngầm. s + x có kiểu int, n * 2 có kiểu long, x * 1.0 có kiểu double; gán xuống kiểu hẹp hơn đều cần ép kiểu.
+?Toán tử logic và bit|Với `int a = 3, b = 0;`, những biểu thức nào có giá trị `true`? (Chọn 3)
++ `a > 2 || b++ > 0`
++ `(a ^ 1) == 2`
++ `-7 % 3 == -1`
+- `7 / 2 * 2.0 == 7.0`
+- `(a & 2) == 0`
+- `~a == -3`
+>|| dừng ngay vì vế trái true. 3 ^ 1 là 011 xor 001 = 010 = 2. Dấu của phép chia dư theo số bị chia nên -7 % 3 = -1. 7 / 2 là phép chia nguyên cho 3, nhân 2.0 được 6.0. 3 & 2 = 2. ~3 = -3 - 1 = -4.
+?Numeric promotion|Những phát biểu nào đúng về numeric promotion? (Chọn 2)
++ Cộng hai biến `byte` cho kết quả kiểu `int`
++ Một `char` cộng một `int` cho kết quả kiểu `int`
+- Một `long` nhân một `float` cho kết quả kiểu `long`
+- Cộng hai biến `short` cho kết quả kiểu `short`
+- `b++` trên biến `byte b` đổi kiểu của b thành `int`
+>Toán hạng nhỏ hơn int (byte, short, char) luôn được nâng lên int trước khi tính. Khi trộn long với float, kết quả là float vì float đứng cao hơn long. ++ tự ép kết quả về kiểu của biến nên b vẫn là byte.
 ##5
 ~Từ Java 21, switch làm được nhiều hơn hẳn: trả về giá trị, khớp theo kiểu, có điều kiện when. Đề thi khai thác kỹ các quy tắc đầy đủ nhánh và thứ tự case.
 @if/else và pattern matching với instanceof|Biến pattern chỉ dùng được ở nơi trình biên dịch chắc chắn phép khớp đã thành công.
@@ -1007,6 +1071,21 @@ void main() {
 - `boolean`
 - `double`
 >switch trên long, boolean, float, double cần pattern kiểu nguyên thủy, hiện vẫn là preview trong Java 25.
+?switch statement|Với switch kiểu cũ chỉ có các nhãn `case` hằng số (không dùng pattern), biến điều khiển có thể mang những kiểu nào? (Chọn 3)
++ `Character`
++ `String`
++ Một kiểu enum
+- `long`, miễn là mọi nhãn case đều là hằng kiểu long
+- `boolean`
+- `float`
+>switch với nhãn hằng chấp nhận char, byte, short, int, các wrapper của chúng, String và enum. long, boolean, float, double không dùng được; trong Java 25, switch trên các kiểu này thuộc tính năng preview primitive patterns.
+?Pattern switch|Với một pattern switch trên biến `Object o`, những phát biểu nào đúng? (Chọn 2)
++ `case String s when s.isEmpty()` phải đứng trước `case String s` nếu cả hai cùng có mặt
++ Khi không có `case null`, switch ném NullPointerException nếu o là null
+- Nhãn `case Integer i, String s ->` hợp lệ vì cả hai đều là pattern kiểu
+- Có thể thêm `when` sau một nhãn hằng, ví dụ `case 1 when flag ->`
+- Pattern switch trên Object bắt buộc có nhãn `default`
+>Nhãn không có guard chi phối nhãn cùng kiểu có guard, nên đặt sau là lỗi biên dịch. Gộp nhiều pattern trong một case chỉ được khi chúng không khai báo biến (dùng _). when chỉ đi kèm pattern. `case Object x` cũng đủ làm switch đầy đủ, không cần default.
 ##6
 ~Vòng lặp là nơi đề thi hay giấu lỗi biên dịch do mã không tới được. Bài này cũng học dấu gạch dưới, cách Java 22 cho phép bỏ tên những biến không dùng.
 @while, do-while và for|do-while luôn chạy thân ít nhất một lần; cả ba phần của for đều có thể bỏ trống.
@@ -1189,6 +1268,20 @@ System.out.println(sum);
 - 12
 >for-each chỉ sửa bản sao nên mảng vẫn là 1, 2, 3. Vòng sau cộng thêm chỉ số: 1, 3, 5, tổng là 9.
 %out:9
+?Vòng for|Những đoạn mã nào biên dịch được (đặt trong thân một phương thức)? (Chọn 2)
++ `for (int i = 0, j = 5; i < j; i++, j--) { }`
++ `outer: for (int i = 0; i < 3; i++) { continue outer; }`
+- `for (int i = 0, long j = 0; i < 3; i++) { }`
+- `while (false) { System.out.print(1); }`
+- `int x; for (var e : new int[]{1}) x = e; System.out.print(x);`
+>Phần khởi tạo của for khai báo được nhiều biến nhưng chỉ cùng một kiểu. `while (false)` làm thân vòng lặp không bao giờ tới được, đó là lỗi biên dịch. Sau for-each, x chưa chắc đã được gán vì mảng có thể rỗng.
+?^Biến không tên|Những dòng nào biên dịch được với Java 25? Biết `list` là `List<String>`, `n` là biến int cục bộ, `o` là Object và đã có `record Point(int x, int y) { }`. (Chọn 2)
++ `for (var _ : list) n++;`
++ `if (o instanceof Point(int x, _)) n = x;`
+- `int _ = 5; System.out.print(_);`
+- `record Pair(int _, int b) { }`
+- `if (o instanceof Point(_ x, int y)) n = y;`
+>`_` dùng được cho biến của for-each và trong record pattern để bỏ qua một thành phần. Không thể đọc giá trị của `_`, không dùng làm tên thành phần record, và `_ x` không phải cú pháp hợp lệ.
 </script>
 <script type="text/plain" class="wk" data-week="2">
 ##7
@@ -1331,6 +1424,28 @@ System.out.println(parts.length + " " + joined + " " + "ab".repeat(2).contains("
 - 2 a-b false
 >split bỏ các chuỗi rỗng ở cuối. "ab".repeat(2) là "abab", có chứa "ba".
 %out:2 a-b true
+?Phương thức của String|Với `String s = "Java";`, những biểu thức nào trả về `true`? (Chọn 3)
++ `s.substring(1, 1).isEmpty()`
++ `s.indexOf('a', 2) == 3`
++ `s.replace('a', 'o').equals("Jovo")`
+- `s.lastIndexOf("a") == 1`
+- `s.concat("!").length() == 4`
+- `s.startsWith("av", 0)`
+>substring(1, 1) là chuỗi rỗng. indexOf bắt đầu tìm từ vị trí 2 nên gặp 'a' ở vị trí 3. replace thay mọi ký tự khớp. lastIndexOf trả về 3. concat tạo chuỗi mới dài 5. startsWith("av", 0) so từ vị trí 0 nên false, phải là vị trí 1 mới true.
+?Khoảng trắng|Những phát biểu nào đúng? (Chọn 2)
++ `strip()` bỏ được khoảng trắng Unicode như `\u2000`, còn `trim()` thì không
++ `"  ".isBlank()` trả về true trong khi `"  ".isEmpty()` trả về false
+- `trim()` sửa trực tiếp chuỗi gọi nó, nên không cần gán kết quả trả về cho biến nào
+- `stripLeading()` xoá khoảng trắng ở cả đầu lẫn cuối chuỗi
+- `" a ".strip().length()` bằng 2
+>trim() chỉ bỏ ký tự có mã nhỏ hơn hoặc bằng U+0020; strip() dùng Character.isWhitespace nên bỏ được cả `\u2000`. String bất biến nên mọi phương thức đều trả về chuỗi mới. stripLeading chỉ bỏ đầu chuỗi. " a ".strip() là "a", dài 1.
+?indent và translateEscapes|Những phát biểu nào đúng? (Chọn 2)
++ `indent(n)` luôn thêm ký tự xuống dòng vào cuối nếu chuỗi chưa kết thúc bằng nó
++ `"a\\tb".translateEscapes()` cho chuỗi chứa một ký tự tab thật
+- `indent(-2)` ném ngoại lệ khi có dòng thụt ít hơn 2 khoảng trắng
+- `stripIndent()` xoá luôn mọi ký tự xuống dòng trong chuỗi
+- `String.format("%5.1f", 3.14159)` trả về `"3.1"`
+>indent chuẩn hoá ký tự xuống dòng và luôn kết thúc bằng một ký tự xuống dòng; số âm chỉ bỏ được tối đa phần khoảng trắng đang có. translateEscapes biến hai ký tự `\` và `t` thành tab. stripIndent chỉ bỏ thụt lề chung. %5.1f đệm trái cho đủ 5 ký tự: "  3.1".
 ##8
 ~StringBuilder thay đổi được, String thì không. Bài này cũng phân biệt == với equals và giải thích vì sao hai chuỗi giống hệt nhau đôi khi lại không ==.
 @StringBuilder thay đổi tại chỗ|Các phương thức sửa trực tiếp đối tượng và trả về chính nó, nên nối chuỗi lời gọi được.
@@ -1485,6 +1600,28 @@ System.out.println(sb + " " + s);
 - cba ab
 >StringBuilder bị sửa tại chỗ. Kết quả của s.concat("c") bị bỏ đi. s += 3 tạo chuỗi mới "ab3" và gán lại cho s.
 %out:cba ab3
+?StringBuilder|Biến `var sb = new StringBuilder("abcdef");` Xét từng phương án độc lập, những lời gọi nào làm sb thành "abef"? (Chọn 2)
++ `sb.delete(2, 4);`
++ `sb.replace(2, 4, "");`
+- `sb.deleteCharAt(2).deleteCharAt(3);`
+- `sb.delete(2, 3);`
+- `sb.substring(2, 4);`
+>delete và replace dùng vị trí đầu lấy, vị trí cuối không lấy, nên bỏ "cd". Sau deleteCharAt(2) chuỗi là "abdef", xoá vị trí 3 tiếp theo bỏ 'e' thành "abdf". delete(2, 3) chỉ bỏ 'c'. substring trả về String mới và không sửa sb.
+?String pool|Cho `String a = "hi"; String b = "h"; final String c = "h";`. Những biểu thức nào cho `true`? (Chọn 3)
++ `a == "h" + "i"`
++ `a == c + "i"`
++ `a == (b + "i").intern()`
+- `a == b + "i"`
+- `a.equals(new StringBuilder("hi"))`
+- `new String("hi") == a`
+>Biểu thức chỉ gồm hằng (kể cả biến final có giá trị hằng như c) được tính lúc biên dịch và dùng chuỗi trong pool. b không final nên b + "i" tạo chuỗi mới lúc chạy, trừ khi gọi intern(). String.equals trả về false với đối tượng không phải String.
+?^CharSequence.getChars|Những phát biểu nào đúng về phương thức `getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin)` được thêm vào `CharSequence` trong Java 25? (Chọn 2)
++ Đây là phương thức default nên mọi lớp hiện thực CharSequence đều có sẵn
++ Ký tự ở vị trí `srcEnd` không được chép
+- Phương thức trả về một mảng `char[]` mới chứa các ký tự đã chép
+- Chỉ `StringBuilder` có phương thức này, `String` thì không
+- Chỉ số không hợp lệ làm phương thức trả về false thay vì ném ngoại lệ
+>getChars trả về void và chép vào mảng dst có sẵn, từ srcBegin tới trước srcEnd. Là phương thức default của interface nên cả lớp tự viết cũng có. Chỉ số sai ném IndexOutOfBoundsException.
 ##9
 ~Mảng có cú pháp khai báo dễ gây nhầm, còn lớp Arrays và Math thì hỏi thẳng vào giá trị trả về. Cần nhớ chính xác từng trường hợp.
 @Khai báo và khởi tạo mảng|Kích thước và danh sách giá trị không được viết cùng lúc.
@@ -1638,6 +1775,28 @@ double d = Math.ceil(2);
 - Tất cả đều biên dịch
 >round nhận double thì trả long, không gán thẳng cho int được. round nhận float thì trả int.
 %cerr
+?Khai báo mảng|Những khai báo nào biên dịch được? (Chọn 3)
++ `int[] a, b[];`
++ `int[][] m = new int[3][];`
++ `String[] s = {};`
+- `int[] c = new int[];`
+- `int d[] = new int[2]{1, 2};`
+- `int[][] e = new int[][3];`
+>Trong `int[] a, b[]`, a là int[] và b là int[][]. Mảng nhiều chiều chỉ cần kích thước của chiều đầu. Tạo mảng phải có kích thước hoặc danh sách giá trị, không được có cả hai. Không thể bỏ trống chiều đầu rồi ghi chiều sau.
+?compare và mismatch|Những phát biểu nào đúng? (Chọn 2)
++ `Arrays.mismatch(new int[]{1, 2}, new int[]{1, 2})` trả về -1
++ `Arrays.compare(new int[]{1}, new int[]{1, 0})` trả về số âm
+- `Arrays.binarySearch(new int[]{1, 3, 5}, 4)` trả về -1
+- `Arrays.compare(new int[]{2}, new int[]{1, 9})` trả về số âm
+- `Arrays.mismatch(new int[]{1, 2}, new int[]{1, 3})` trả về 2
+>mismatch trả về -1 khi hai mảng bằng nhau, nếu không thì trả về vị trí khác đầu tiên (ở đây là 1). compare xét từng phần tử: mảng là tiền tố của mảng kia thì nhỏ hơn; 2 > 1 nên {2} lớn hơn. binarySearch không thấy trả về -(điểm chèn) - 1 = -3.
+?Math|Những phát biểu nào đúng? (Chọn 2)
++ `Math.round(-2.5)` trả về -2
++ `Math.ceil(-0.5)` trả về -0.0
+- `Math.round(2.5f)` trả về giá trị kiểu `long`
+- `Math.floor(-1.1)` trả về -1.0
+- `Math.pow(2, 3)` trả về giá trị kiểu `int`
+>round làm tròn nửa lên phía dương vô cùng, nên -2.5 thành -2. ceil(-0.5) ra số không âm, in là -0.0. round(float) trả về int, round(double) mới trả về long. floor(-1.1) là -2.0. pow luôn trả về double.
 ##10
 ~Mọi lớp trong java.time đều bất biến và không có constructor công khai. Phần khó nhất là giờ mùa hè; phần mới là Instant.until của Java 23.
 @LocalDate, LocalTime, LocalDateTime, ZonedDateTime|Tạo bằng phương thức static như of() và now(); mọi phép cộng trừ trả về đối tượng mới.
@@ -1785,6 +1944,27 @@ System.out.println(LocalTime.of(23, 30).plusHours(2) + " " + Period.between(Loca
 - 01:30 P1M1D 30
 >LocalTime quay vòng qua nửa đêm. Period tách thành 1 tháng (tới 28/2) và 1 ngày. Tổng số ngày thật là 29.
 %out:01:30 P1M1D 29
+?Tạo ngày giờ|Những phát biểu nào đúng? (Chọn 2)
++ `LocalDate.of(2025, 1, 31).plusMonths(1)` cho ngày 2025-02-28
++ `Period.of(1, 14, 0)` giữ nguyên 14 tháng, không tự đổi thành 2 năm 2 tháng
+- `LocalDate.of(2025, 2, 30)` tự chuyển thành ngày 2025-03-02
+- `LocalDate.of(2025, 1, 1).plus(Duration.ofDays(1))` chạy bình thường
+- `date.plusDays(1)` thay đổi chính đối tượng `date`
+>plusMonths kẹp về ngày cuối tháng nếu ngày không tồn tại. Period lưu riêng năm, tháng, ngày và không chuẩn hoá trừ khi gọi normalized(). Ngày không hợp lệ ném DateTimeException. Duration tính bằng giây nên cộng vào LocalDate ném UnsupportedTemporalTypeException. Các lớp ngày giờ đều bất biến.
+?^Instant.until|Những phát biểu nào đúng? (Chọn 2)
++ `Instant.until(Instant)` (Java 23) trả về một `Duration`
++ `a.until(b)` cho Duration âm khi b đứng trước a
+- `Instant.until(Instant)` trả về số mili giây kiểu `long`
+- `Instant` có phương thức `getYear()` để lấy năm
+- `Period.between` nhận được hai đối tượng `Instant`
+>Java 23 thêm until(Instant) trả về Duration, tương đương Duration.between(this, end). Instant chỉ là một điểm trên trục thời gian UTC nên không có getYear. Period.between nhận hai LocalDate.
+?Giờ mùa hè|Ngày 2025-03-09 ở `America/New_York`, lúc 2:00 sáng đồng hồ nhảy thẳng lên 3:00. Những phát biểu nào đúng? (Chọn 2)
++ `ZonedDateTime.of(2025, 3, 9, 2, 30, 0, 0, ny)` cho 03:30 với offset -04:00
++ Từ 1:00 đến 4:00 sáng hôm đó (giờ địa phương) chỉ cách nhau 2 giờ thực
+- `ZonedDateTime.of(2025, 3, 9, 2, 30, 0, 0, ny)` ném DateTimeException
+- Cộng `Duration.ofHours(1)` vào 1:30 sáng hôm đó cho 2:30 sáng
+- Sau 3:00 sáng hôm đó, offset của New York là -05:00
+>Giờ địa phương rơi vào khoảng bị nhảy qua sẽ bị đẩy tới sau đúng độ dài khoảng trống, thành 03:30 giờ mùa hè (-04:00). Giờ 2:00 tới 3:00 không tồn tại nên 1:00 tới 4:00 chỉ là 2 giờ, và 1:30 cộng một giờ là 3:30.
 ##11
 ~Khai báo phương thức có trật tự chặt chẽ, và mỗi mức truy cập mở ra đúng một phạm vi. Đề thi thích nhất là protected và static, hai chỗ dễ đoán sai nhất.
 @Các thành phần của khai báo phương thức|Thứ tự giữa các modifier tự do, nhưng kiểu trả về phải đứng ngay trước tên phương thức.
@@ -1960,6 +2140,20 @@ public class Config {
 - Lỗi biên dịch vì SIZE không được gán tại khai báo
 >Khối static chạy trước main: SIZE = 3, calls = 10. Hai lần next() đưa calls lên 12. SIZE + next() là phép cộng số: 3 + 12.
 %out:15 12
+?Khai báo phương thức|Những khai báo phương thức nào biên dịch được (đặt trong một lớp thường)? (Chọn 2)
++ `public final static void a() { }`
++ `void b(int... x) { }`
+- `void c(int... x, String s) { }`
+- `static public int d() { }`
+- `public void static e() { }`
+>Các modifier như public, final, static đổi thứ tự thoải mái nhưng phải đứng trước kiểu trả về. Varargs phải là tham số cuối. Phương thức khai báo trả về int mà thân không có return là lỗi biên dịch.
+?static|Những phát biểu nào đúng về thành viên static? (Chọn 2)
++ Gọi được phương thức static qua một biến tham chiếu, kể cả khi biến đó đang là null
++ Bên trong phương thức static không dùng được `this`
+- Phương thức static truy cập trực tiếp được trường instance của cùng lớp
+- Khối khởi tạo static chạy lại mỗi lần tạo đối tượng mới
+- Gọi constructor sẽ khởi tạo lại các biến static về giá trị ban đầu
+>Lời gọi static qua tham chiếu được trình biên dịch đổi thành gọi qua tên lớp nên không gây NullPointerException. Phương thức static không gắn với đối tượng nào nên không có this và không đọc thẳng trường instance được. Khối static chỉ chạy một lần khi lớp được khởi tạo.
 ##12
 ~Hai chủ đề nối tiếp nhau: dữ liệu đi vào phương thức thế nào, và khi có nhiều phương thức cùng tên thì Java chọn cái nào.
 @Java luôn truyền tham trị|Phương thức nhận bản sao của giá trị; với đối tượng, bản sao đó là bản sao của tham chiếu.
@@ -2148,6 +2342,27 @@ void main() {
 - 4 4 true
 >Mỗi lần gọi, a[0] *= 2 sửa mảng của nơi gọi: 1 thành 2 rồi thành 4. Gán a = new int[]... chỉ đổi bản sao tham chiếu; mảng mới được trả về và gán cho y.
 %out:4 7 false
+?Chọn phương thức nạp chồng|Một lớp có bốn phương thức `void m(long x)`, `void m(Integer x)`, `void m(Object x)` và `void m(int... x)`. Những phát biểu nào đúng? (Chọn 2)
++ `m(5)` gọi `m(long)`
++ `m('c')` gọi `m(long)`
+- `m(5)` gọi `m(Integer)`
+- `m(5L)` gọi `m(Object)`
+- `m()` không biên dịch vì không có phương thức nào không tham số
+>Thứ tự ưu tiên: khớp đúng, nới rộng kiểu nguyên thủy, autoboxing, rồi mới tới varargs. 5 và 'c' đều nới rộng được lên long. 5L khớp đúng m(long). m() khớp varargs với mảng rỗng.
+?Truyền tham trị|Những thay đổi nào thực hiện bên trong một phương thức mà nơi gọi vẫn nhìn thấy sau khi phương thức trả về? (Chọn 2)
++ `sb.append("x");` với tham số `StringBuilder sb`
++ `arr[0] = 9;` với tham số `int[] arr`
+- `sb = new StringBuilder("x");` với tham số `StringBuilder sb`
+- `s = s + "x";` với tham số `String s`
+- `n++;` với tham số `int n`
+>Java luôn truyền bản sao của giá trị; với đối tượng, bản sao đó là tham chiếu. Sửa đối tượng qua tham chiếu thì bên ngoài thấy. Gán lại tham số chỉ đổi bản sao cục bộ.
+?Nạp chồng|Những cặp phương thức nào, khi khai báo cùng một lớp, gây lỗi biên dịch? (Chọn 2)
++ `void a(int[] x)` và `void a(int... x)`
++ `void b(List<String> x)` và `void b(List<Integer> x)`
+- `void c(int x)` và `void c(Integer x)`
+- `void d(long x)` và `int d(int x)`
+- `static void e(String x)` và `void e(Object x)`
+>Varargs thực chất là mảng nên a có hai chữ ký giống nhau. Sau khi xoá kiểu, hai phương thức b đều nhận List. Các cặp còn lại khác kiểu tham số nên là nạp chồng hợp lệ; kiểu trả về hay static không tham gia vào chữ ký.
 </script>
 <script type="text/plain" class="wk" data-week="3">
 ##13
@@ -2369,6 +2584,20 @@ void main() { }
 - Không có dòng nào
 >reset() là phương thức instance, không gọi được trước super(). Sau super() thì dùng đối tượng tự do, nên dòng 7 hợp lệ.
 %cerr
+?Chuỗi gọi constructor|Những phát biểu nào đúng về constructor? (Chọn 2)
++ Lớp cha chỉ có constructor `Parent(int x)` thì lớp con không khai báo constructor nào sẽ lỗi biên dịch
++ Một constructor không thể gọi cả `this(...)` lẫn `super(...)`
+- Constructor mặc định do trình biên dịch sinh ra luôn có access `public`, bất kể access của lớp
+- Lời gọi `super(...)` được phép đặt bên trong một khối `if`
+- Constructor có thể khai báo thêm modifier `static`
+>Constructor mặc định gọi super() không tham số, nên lớp cha phải có constructor đó. Constructor mặc định có cùng access với lớp. this(...) hay super(...) phải là câu lệnh cấp cao nhất của thân constructor, mỗi constructor chỉ có một.
+?^Flexible constructor bodies|Lớp `B extends A` có constructor `B(int x) { ...; super(x); }`. Đặt câu lệnh nào vào chỗ `...` (trước `super(x)`) sẽ gây lỗi biên dịch trong Java 25? (Chọn 2)
++ `System.out.println(this);`
++ `super.toString();`
+- `if (x < 0) throw new IllegalArgumentException();`
+- `int y = Math.abs(x);`
+- `var list = new ArrayList<String>();`
+>Phần mở đầu constructor được chạy mã không dính tới đối tượng đang tạo: kiểm tra tham số, khai báo biến cục bộ, gọi phương thức static, ném ngoại lệ. Mọi cách dùng this hay super để truy cập đối tượng đều bị cấm.
 ##14
 ~Khi một câu hỏi in ra chuỗi ký tự từ nhiều khối khởi tạo, bạn chỉ cần thuộc đúng một trình tự. Bài này luyện trình tự đó và các quy tắc của final.
 @Khởi tạo lớp: phần static|Phần static của lớp chạy đúng một lần, khi lớp được dùng lần đầu, lớp cha trước lớp con.
@@ -2567,6 +2796,27 @@ void main() { }
 - Biên dịch được, MAX là 10
 >Trường static final chỉ được gán đúng một lần. Lần gán thứ hai ở dòng 4 bị từ chối.
 %cerr
+?Thứ tự khởi tạo|Những phát biểu nào đúng về thứ tự khởi tạo? (Chọn 2)
++ Khối static của lớp cha chạy trước khối static của lớp con
++ Khối khởi tạo instance chạy sau khi `super(...)` xong và trước phần còn lại của constructor
+- Khối khởi tạo instance chạy trước constructor của lớp cha
+- Trường static được khởi tạo lại mỗi khi tạo một đối tượng mới
+- Các khối static chạy theo thứ tự ngược với thứ tự viết trong lớp, khối viết cuối chạy đầu tiên
+>Khi tạo đối tượng: khởi tạo lớp (cha rồi con, các khối static theo thứ tự viết), sau đó constructor lớp cha chạy xong, rồi mới tới trường và khối instance của lớp con, cuối cùng là phần thân còn lại của constructor.
+?final|Những đoạn khai báo trong thân một lớp (không có constructor tự viết) biên dịch được? (Chọn 2)
++ `final int a; { a = 1; }`
++ `static final int b; static { b = 2; }`
+- `static final int c; { c = 3; }`
+- `final int d; void set() { d = 4; }`
+- `final int e = 1; { e = 2; }`
+>Trường final instance phải được gán đúng một lần, tại khai báo, trong khối instance hoặc trong constructor. Trường static final phải được gán tại khai báo hoặc trong khối static. Gán trong phương thức thường hay gán lần hai đều là lỗi.
+?final|Trong một phương thức có tham số `boolean flag`, những đoạn mã nào biên dịch được? (Chọn 2)
++ `final int x; if (flag) x = 1; else x = 2;`
++ `final var list = new ArrayList<String>(); list.add("a");`
+- `final int y; y = 1; y = 2;`
+- `final StringBuilder sb = new StringBuilder(); sb = new StringBuilder("a");`
+- `final String s; System.out.print(s);`
+>Biến final cục bộ được gán trễ, miễn mỗi nhánh gán đúng một lần. final chỉ khoá tham chiếu, đối tượng mà nó trỏ tới vẫn sửa được. Gán lần hai, gán lại tham chiếu final, hay đọc biến chưa được gán đều là lỗi.
 ##15
 ~Ghi đè và che giấu trông giống nhau trong mã nguồn nhưng chạy khác hẳn. Bài này gom bốn quy tắc ghi đè, lớp abstract và cách viết một lớp bất biến.
 @Bốn quy tắc ghi đè phương thức|Bản ghi đè không được chặt hơn về truy cập, không ném thêm checked exception, và kiểu trả về phải tương thích.
@@ -2761,6 +3011,29 @@ void main() { }
 - Không có dòng nào
 >Phương thức instance không thể ghi đè phương thức static cùng chữ ký. honk() ở dòng 8 là phương thức mới, khác tên với horn().
 %cerr
+?Quy tắc ghi đè|Lớp cha có `protected Number get() throws IOException`. Những khai báo nào trong lớp con là ghi đè hợp lệ? (Chọn 3)
++ `public Integer get() { return 1; }`
++ `protected Number get() throws FileNotFoundException { return 1; }`
++ `public Number get() throws RuntimeException { return 1; }`
+- `Number get() { return 1; }`
+- `protected Object get() { return 1; }`
+- `protected Number get() throws IOException, SQLException { return 1; }`
+>Phương thức ghi đè được mở rộng access, được trả về kiểu con (covariant), được ném ít hơn hoặc ném checked exception hẹp hơn, và ném unchecked tuỳ ý. Thu hẹp access xuống package, trả về kiểu cha Object, hay thêm checked exception mới như SQLException đều là lỗi biên dịch.
+?Ghi đè và che giấu|Những phát biểu nào đúng? (Chọn 2)
++ Phương thức static ở lớp con trùng chữ ký với phương thức static của lớp cha là che giấu, không phải ghi đè
++ Truy cập trường qua tham chiếu dùng kiểu khai báo của tham chiếu, không theo kiểu đối tượng thật
+- Phương thức instance của lớp con được phép trùng chữ ký với một phương thức static của lớp cha
+- Có thể gắn `@Override` lên phương thức static che giấu phương thức của lớp cha
+- Lời gọi phương thức instance được chọn theo kiểu khai báo của tham chiếu
+>Che giấu (hiding) áp dụng cho phương thức static và trường: chọn theo kiểu khai báo lúc biên dịch. Phương thức instance được ghi đè và chọn theo đối tượng thật lúc chạy. Trộn static với instance cùng chữ ký là lỗi, và @Override trên phương thức static cũng lỗi.
+?Lớp bất biến|Những biện pháp nào cần thiết khi thiết kế một lớp bất biến? (Chọn 3)
++ Đánh dấu lớp `final` hoặc để mọi constructor là private
++ Khai báo các trường là `private final`
++ Sao chép phòng vệ các tham số mutable truyền vào constructor
+- Cung cấp setter nhưng đánh dấu chúng `synchronized`
+- Trả thẳng tham chiếu tới List nội bộ trong getter
+- Khai báo mọi trường là `static` để dùng chung
+>Lớp bất biến không cho lớp con ghi đè hành vi, không có cách nào sửa trạng thái sau khi tạo, và không để lộ đối tượng mutable bên trong. Setter dù đồng bộ vẫn làm đổi trạng thái; trả thẳng List nội bộ thì bên ngoài sửa được.
 ##16
 ~Interface có nhiều modifier ngầm định mà đề thi chờ bạn quên. Từ Java 8 và 9 nó còn có phương thức default, static và private, mỗi loại một bộ quy tắc.
 @Modifier ngầm định|Phương thức không thân trong interface là public abstract; trường là public static final.
@@ -2934,6 +3207,27 @@ void main() { }
 - Biên dịch được, chỉ lỗi khi gọi speed()
 >Hai default trùng chữ ký từ hai interface không liên quan. Person buộc phải tự ghi đè speed().
 %cerr
+?Khai báo trong interface|Những phát biểu nào đúng về trường khai báo trong interface? (Chọn 2)
++ Trường ngầm định là `public static final`
++ Trường phải được gán giá trị ngay tại chỗ khai báo
+- Trường được phép khai báo `private`
+- Lớp hiện thực interface được gán lại giá trị của trường
+- Trường có thể được gán trong constructor của interface
+>Mọi trường của interface là hằng: public, static, final, nên bắt buộc có giá trị tại khai báo. Interface không có constructor, và trường private không được phép.
+?Phương thức default|Lớp `C implements A, B`, trong đó cả A và B đều có `default void go()`. Những cách nào giúp C biên dịch được? (Chọn 2)
++ Ghi đè `public void go()` trong C và gọi `A.super.go();` bên trong
++ Ghi đè `public void go()` trong C với thân tự viết
+- Không cần làm gì, C tự dùng bản của interface viết trước trong `implements`
+- Ghi đè `public void go()` trong C và gọi `super.go();` bên trong
+- Ghi đè `void go()` trong C, không ghi access modifier
+>Hai default trùng chữ ký buộc lớp phải ghi đè. Muốn dùng lại bản của một interface thì gọi `TênInterface.super.go()`. `super.go()` trỏ tới lớp cha Object, nơi không có go(). Phương thức của interface là public nên bản ghi đè cũng phải public.
+?Phương thức static của interface|Interface `I` có `static void s() { }` và `default void d() { }`; lớp `K implements I`. Những lời gọi nào biên dịch được? (Chọn 2)
++ `I.s();`
++ `new K().d();`
+- `K.s();`
+- `new K().s();`
+- `I.d();`
+>Phương thức static của interface không được kế thừa, chỉ gọi được qua tên interface. Phương thức default là phương thức instance nên phải gọi qua một đối tượng.
 ##17
 ~Enum và sealed cùng trả lời một câu hỏi: tập giá trị hoặc tập lớp con có đóng không. Khi tập đó đóng, switch không cần default nữa.
 @Enum cơ bản|Enum là một tập hằng số cố định; mỗi hằng là một đối tượng duy nhất nên so sánh bằng == được.
@@ -3120,6 +3414,28 @@ void main() {
 - Lỗi biên dịch vì enum có phương thức abstract
 >Mỗi hằng hiện thực apply theo cách riêng: 3 + 4 = 7 và 3 * 4 = 12, tổng 19. MUL đứng thứ hai nên ordinal là 1.
 %out:19 1
+?Enum cơ bản|Với `enum Size { S, M, L }`, những phát biểu nào đúng? (Chọn 2)
++ `Size.M.ordinal()` trả về 1
++ `Size.valueOf("L")` trả về hằng L
+- `Size.valueOf("l")` cũng trả về L vì không phân biệt hoa thường
+- `Size.S.compareTo(Size.L)` trả về một số dương
+- `Size.M == Size.valueOf("M")` cho false vì là hai đối tượng khác nhau
+>ordinal tính từ 0. valueOf phân biệt hoa thường và ném IllegalArgumentException khi không khớp. compareTo so theo ordinal nên S nhỏ hơn L. Mỗi hằng enum là duy nhất nên == luôn đúng.
+?sealed|Lớp `sealed class Shape permits Circle, Square { }` cùng tệp với các lớp con, trong đó có thể có `final class Ring extends Circle { }`. Những khai báo nào của Circle hợp lệ? (Chọn 3)
++ `final class Circle extends Shape { }`
++ `non-sealed class Circle extends Shape { }`
++ `sealed class Circle extends Shape permits Ring { }`
+- `class Circle extends Shape { }`
+- `abstract class Circle extends Shape { }`
+- `record Circle() extends Shape { }`
+>Lớp con trực tiếp của lớp sealed phải ghi rõ một trong ba modifier final, sealed hoặc non-sealed; abstract không thay được. Record ngầm kế thừa java.lang.Record nên không extends được lớp khác.
+?sealed|Những phát biểu nào đúng về lớp và interface sealed? (Chọn 2)
++ Được bỏ mệnh đề `permits` khi mọi lớp con nằm cùng tệp nguồn
++ Interface cũng có thể là sealed, và record được phép hiện thực nó
+- Trong một named module, lớp con bắt buộc nằm cùng package với lớp sealed
+- Lớp được đánh dấu `non-sealed` không thể có thêm lớp con
+- Enum không được phép hiện thực một sealed interface
+>Bỏ permits thì trình biên dịch tự lấy các lớp con trong cùng tệp. Record và enum đều ngầm final nên hiện thực sealed interface được. Trong named module, lớp con chỉ cần cùng module; cùng package là yêu cầu khi ở unnamed module. non-sealed mở lại cho kế thừa tự do.
 ##18
 ~Bài cuối của tuần hướng đối tượng: record thay cho lớp dữ liệu, bốn kiểu lớp lồng nhau, và cách Java quyết định phương thức nào chạy.
 @Record|Record là lớp dữ liệu bất biến: trình biên dịch sinh sẵn trường, constructor, accessor, equals, hashCode và toString.
@@ -3325,6 +3641,29 @@ void main() { }
 - Không có dòng nào
 >Trong compact constructor, trường được gán tự động khi khối kết thúc. Tự gán this.value là gán cho trường final lần thứ hai.
 %cerr
+?Record|Những khai báo nào đặt bên trong `record P(int x, int y) { }` biên dịch được? (Chọn 3)
++ `static int count;`
++ `P { if (x < 0) throw new IllegalArgumentException(); }`
++ `public int x() { return x * 2; }`
+- `int z;`
+- `P { this.x = Math.max(0, x); this.y = Math.max(0, y); }`
+- `int x() { return x; }`
+>Record được có trường static nhưng không có trường instance ngoài các thành phần. Compact constructor chỉ được sửa tham số, không gán this.x. Accessor tự viết được đổi nội dung nhưng phải public.
+?Lớp lồng nhau|Những phát biểu nào đúng về lớp lồng nhau? (Chọn 2)
++ Tạo đối tượng inner class từ bên ngoài cần một đối tượng lớp ngoài, ví dụ `outer.new Inner()`
++ Lớp lồng static tạo được bằng `new Outer.Nested()` mà không cần đối tượng Outer
+- Lớp vô danh có thể tự khai báo constructor của riêng nó
+- Lớp cục bộ đọc được mọi biến cục bộ của phương thức, kể cả biến bị gán lại sau khi lớp được khai báo
+- Inner class (không static) không được khai báo thành viên static nào
+>Inner class gắn với một đối tượng của lớp ngoài, còn lớp lồng static thì không. Lớp vô danh không có tên nên không có constructor. Lớp cục bộ chỉ dùng được biến final hoặc effectively final. Từ Java 16, inner class đã được khai báo thành viên static.
+?Ép kiểu tham chiếu|Cho `class A { }`, `class B extends A { }`, `interface I { }`, `final class F { }` và biến `A a = new B();`. Những câu lệnh nào biên dịch được? (Chọn 3)
++ `B b = (B) a;`
++ `I i = (I) a;`
++ `Object o = (Object) a;`
+- `F f = (F) a;`
+- `B b = a;`
+- `String s = (String) a;`
+>Ép xuống lớp con thì biên dịch được. Ép sang interface được vì có thể tồn tại lớp con của A hiện thực I. F và String là lớp không có quan hệ kế thừa với A nên trình biên dịch từ chối. Gán từ A xuống B phải ép kiểu tường minh.
 </script>
 <script type="text/plain" class="wk" data-week="4">
 ##19
@@ -3492,6 +3831,28 @@ void main() {
 - Lỗi biên dịch vì lambda dùng this
 >Trong lambda, this là đối tượng bao ngoài. Trong lớp vô danh, this là chính đối tượng vô danh, nên thấy trường name của nó.
 %out:outer anon
+?Cú pháp lambda|Những lambda nào gán được cho `BiFunction<Integer, Integer, Integer>`? (Chọn 3)
++ `(a, b) -> a * b`
++ `(var a, var b) -> { return a + b; }`
++ `(Integer a, Integer b) -> a - b`
+- `(a, Integer b) -> a + b`
+- `a, b -> a + b`
+- `(final a, final b) -> { return a + b; }`
+>Tham số lambda phải cùng một kiểu viết: cùng bỏ kiểu, cùng var, hoặc cùng ghi kiểu. Hai tham số trở lên bắt buộc có ngoặc. Muốn thêm final thì tham số phải ghi kiểu hoặc var, ví dụ `(final var a, final var b)`.
+?Biến effectively final|Trong một phương thức có `int n = 1;` và sau đó `Runnable r = () -> System.out.print(n);`. Thêm câu lệnh nào vào phương thức sẽ làm đoạn mã lỗi biên dịch? (Chọn 2)
++ `n++;` đặt sau dòng tạo lambda
++ `n = 2;` đặt giữa `int n = 1;` và dòng tạo lambda
+- `int m = n + 1;` đặt sau dòng tạo lambda
+- `r.run();` đặt sau dòng tạo lambda
+- `final int k = n;` đặt trước dòng tạo lambda
+>Lambda chỉ dùng được biến cục bộ final hoặc effectively final, tức là biến không bị gán lại ở bất kỳ đâu, trước hay sau lambda. Đọc giá trị của n thì không làm mất tính effectively final.
+?this trong lambda|Những phát biểu nào đúng về lambda? (Chọn 2)
++ Trong lambda, `this` chỉ đối tượng của lớp bao quanh lambda
++ Tham số lambda không được trùng tên với một biến cục bộ đang trong phạm vi
+- Lambda tạo phạm vi tên mới nên khai báo lại được biến cục bộ của phương thức
+- Lambda gán được cho biến kiểu `Object` mà không cần ép kiểu
+- Thân lambda luôn chạy ngay tại dòng khai báo lambda
+>Lambda không tạo phạm vi mới như lớp vô danh, nên this là đối tượng bên ngoài và trùng tên biến cục bộ là lỗi. Lambda cần một functional interface làm kiểu đích; Object không phải. Thân lambda chỉ chạy khi phương thức của interface được gọi.
 ##20
 ~Method reference là lambda viết gọn hơn nữa. Kèm theo là bộ functional interface dựng sẵn trong java.util.function mà mọi câu hỏi về stream đều dùng tới.
 @Bốn dạng method reference|Dấu :: trỏ tới một phương thức có sẵn; ngữ cảnh quyết định tham số được truyền thế nào.
@@ -3646,6 +4007,28 @@ System.out.println("" + charAt.apply("java", 1) + bound.apply(0) + up.apply("x")
 - alX3
 >String::charAt lấy "java" làm đối tượng và 1 làm chỉ số, cho 'a'. word::charAt đã gắn sẵn "lambda", chỉ số 0 cho 'l'.
 %out:alX7
+?Method reference|Những dòng nào biên dịch được? (Chọn 3)
++ `Function<String, Integer> f = String::length;`
++ `Supplier<List<String>> s = ArrayList::new;`
++ `BiFunction<String, String, Boolean> b = String::startsWith;`
+- `Supplier<String> s2 = String::length;`
+- `Consumer<String> c = System.out::println();`
+- `Supplier<Integer> r = Math::random;`
+>String::length là tham chiếu tới phương thức instance trên tham số đầu. ArrayList::new là tham chiếu constructor. String::startsWith dùng tham số đầu làm đối tượng, tham số sau làm đối số. Method reference không có ngoặc. Math.random trả về double, không đổi được thành Integer.
+?Functional interface dựng sẵn|Những phát biểu nào đúng về functional interface dựng sẵn? (Chọn 2)
++ `Supplier<T>` có phương thức `get()` không nhận tham số
++ `UnaryOperator<T>` kế thừa `Function<T, T>`
+- `Consumer<T>` có phương thức `accept` trả về `boolean`
+- Phương thức trừu tượng của `Predicate<T>` tên là `apply`
+- `IntSupplier` có phương thức `get()` trả về `int`
+>Supplier.get() không tham số. UnaryOperator là Function có cùng kiểu vào và ra. Consumer.accept trả về void. Predicate dùng test. Các interface cho kiểu nguyên thủy đặt tên riêng như getAsInt.
+?Phương thức ghép nối|Với `Function<Integer, Integer> inc = x -> x + 1, dbl = x -> x * 2;`, những biểu thức nào cho kết quả 8? (Chọn 2)
++ `inc.andThen(dbl).apply(3)`
++ `dbl.compose(inc).apply(3)`
+- `inc.compose(dbl).apply(3)`
+- `dbl.andThen(inc).apply(3)`
+- `dbl.andThen(dbl).apply(3)`
+>`f.andThen(g)` chạy f trước rồi g; `f.compose(g)` chạy g trước rồi f. Hai biểu thức đúng đều là (3 + 1) * 2 = 8. Hai biểu thức kế tiếp là 3 * 2 + 1 = 7, biểu thức cuối là 3 * 2 * 2 = 12.
 ##21
 ~Ba họ collection đầu tiên: danh sách có thứ tự, tập không trùng, và hàng đợi hai đầu. Phần lớn câu hỏi xoay quanh phương thức nào ném ngoại lệ và phương thức nào trả null.
 @List và các bản không sửa được|ArrayList thay đổi tự do; List.of bất biến; Arrays.asList cố định kích thước.
@@ -3801,6 +4184,28 @@ list.add("c");
 - `new HashSet<String>().add(null);`
 - `new LinkedList<String>().add(null);`
 >Các collection bất biến tạo bằng of() và ArrayDeque không chấp nhận null. ArrayList, LinkedList và HashSet thì chứa được null.
+?List không sửa được|Những phát biểu nào đúng? (Chọn 2)
++ Danh sách từ `Arrays.asList(...)` cho phép `set` nhưng ném ngoại lệ khi `add`
++ `List.copyOf(list)` trả về một danh sách không sửa được
+- Danh sách từ `List.of(...)` cho phép `set` nhưng không cho `add`
+- `Arrays.asList(arr)` tạo bản sao độc lập, sửa mảng không ảnh hưởng tới danh sách
+- `List.of(1, 2).contains(null)` trả về false
+>Arrays.asList có kích thước cố định và ghi xuyên vào mảng gốc. List.of và List.copyOf hoàn toàn không sửa được, và còn không chấp nhận null, kể cả trong contains: lời gọi đó ném NullPointerException.
+?Deque|Sau `Deque<Integer> d = new ArrayDeque<>(); d.push(1); d.push(2); d.offer(3);`, xét từng phương án độc lập, những lời gọi nào trả về 2? (Chọn 3)
++ `d.peek()`
++ `d.pop()`
++ `d.poll()`
+- `d.peekLast()`
+- `d.size()`
+- `d.removeLast()`
+>push thêm vào đầu, offer thêm vào cuối, nên deque là [2, 1, 3]. peek, pop và poll đều làm việc ở đầu deque. peekLast và removeLast lấy 3 ở cuối, size là 3.
+?Set|Những phát biểu nào đúng về Set? (Chọn 2)
++ `TreeSet` dùng thứ tự tự nhiên ném NullPointerException khi `add(null)`
++ `add` trả về false nếu phần tử đã có trong set
+- `HashSet` duyệt phần tử theo đúng thứ tự thêm vào
+- `TreeSet<Object>` chứa được cùng lúc cả String lẫn Integer
+- `Set.of("a", "a")` tạo ra một set có một phần tử
+>TreeSet phải so sánh phần tử nên không nhận null và không trộn được kiểu không so sánh với nhau (ClassCastException). HashSet không đảm bảo thứ tự. Set.of gặp phần tử trùng thì ném IllegalArgumentException.
 ##22
 ~Map lưu cặp khoá và giá trị, và có nhóm phương thức merge, compute rất hay bị hỏi. Phần sau là sequenced collection của Java 21: một bộ tên thống nhất cho phần tử đầu và cuối.
 @Map cơ bản|put trả về giá trị cũ; get trả null khi không có khoá.
@@ -3970,6 +4375,28 @@ System.out.println(sb + " " + rev);
 - p3f2a1 [4, 3, 2, 1]
 >TreeMap duyệt theo thứ tự khoá: apple, fig, pear. reversed() là khung nhìn nên thấy luôn phần tử 4 được thêm sau đó.
 %out:a1f2p3 [4, 3, 2, 1]
+?put và compute|Cho `Map<String, Integer> m = new HashMap<>(Map.of("a", 1));`. Xét từng phương án độc lập, những câu lệnh nào làm m không còn khoá "a"? (Chọn 2)
++ `m.merge("a", 5, (x, y) -> null);`
++ `m.compute("a", (k, v) -> null);`
+- `m.put("a", null);`
+- `m.computeIfAbsent("a", k -> null);`
+- `m.replace("a", null);`
+>Với merge và compute, hàm trả về null nghĩa là xoá khoá. put và replace với null chỉ đặt giá trị null, khoá vẫn còn. computeIfAbsent không làm gì vì khoá đã có.
+?SequencedCollection|Những lớp nào là `SequencedCollection`? (Chọn 3)
++ `ArrayList`
++ `LinkedHashSet`
++ `ArrayDeque`
+- `HashSet`
+- `PriorityQueue`
+- `HashMap`
+>List, Deque, LinkedHashSet và SortedSet đều là SequencedCollection vì có thứ tự gặp xác định. HashSet và PriorityQueue không có thứ tự duyệt xác định. HashMap không phải Collection.
+?SequencedMap|Những phát biểu nào đúng về `SequencedMap`? (Chọn 2)
++ `TreeMap` và `LinkedHashMap` đều là SequencedMap
++ `pollFirstEntry()` xoá rồi trả về entry đầu tiên
+- `firstEntry()` ném NoSuchElementException khi map rỗng
+- `reversed()` trả về một bản sao độc lập với map gốc
+- `HashMap` có phương thức `putFirst`
+>firstEntry và pollFirstEntry trả về null khi map rỗng. reversed() là khung nhìn: sửa qua nó thì map gốc cũng đổi. HashMap không có thứ tự nên không phải SequencedMap.
 ##23
 ~Sắp xếp có hai con đường: lớp tự biết so sánh (Comparable), hoặc truyền luật so sánh từ ngoài vào (Comparator). Đề thi kiểm tra bạn phân biệt lỗi lúc biên dịch với lỗi lúc chạy.
 @Comparable|compareTo trả số âm, 0 hoặc dương: âm nghĩa là đối tượng hiện tại đứng trước.
@@ -4123,6 +4550,28 @@ System.out.println(w);
 - `Comparable` nằm trong package `java.util`
 - `Comparator` nằm trong package `java.lang`
 >Comparable thuộc java.lang và so sánh this với một đối tượng khác. Comparator thuộc java.util và so sánh hai đối tượng được truyền vào.
+?Comparator dựng sẵn|Những Comparator nào sắp xếp danh sách chuỗi theo độ dài giảm dần? (Chọn 3)
++ `Comparator.comparing(String::length).reversed()`
++ `(a, b) -> b.length() - a.length()`
++ `Comparator.comparing(String::length, Comparator.reverseOrder())`
+- `Comparator.comparing(String::length).thenComparing(Comparator.reverseOrder())`
+- `Comparator.<String>reverseOrder()`
+- `(a, b) -> a.length() - b.length()`
+>reversed() đảo toàn bộ phép so sánh; comparing với Comparator thứ hai đảo thứ tự của khoá. thenComparing chỉ áp dụng khi độ dài bằng nhau nên thứ tự chính vẫn tăng dần. reverseOrder() so chuỗi theo bảng chữ cái.
+?Comparable và Comparator|Những phát biểu nào đúng? (Chọn 2)
++ `Collections.sort(list)` không truyền Comparator đòi kiểu phần tử phải hiện thực `Comparable`
++ TreeSet coi hai phần tử là trùng khi phép so sánh trả về 0, dù `equals` trả về false
+- `compareTo` bắt buộc trả về đúng một trong ba giá trị -1, 0 hoặc 1, giá trị khác làm phép sắp xếp ném ngoại lệ
+- `Comparator.naturalOrder()` tự đặt các phần tử null lên đầu
+- `list.sort(null)` luôn ném NullPointerException
+>Collections.sort(List<T>) có ràng buộc T extends Comparable nên sai kiểu là lỗi biên dịch. TreeSet chỉ dựa vào phép so sánh. compareTo chỉ cần âm, 0 hoặc dương. naturalOrder gặp null sẽ ném NullPointerException; muốn xử lý null phải dùng nullsFirst. list.sort(null) nghĩa là sắp theo thứ tự tự nhiên.
+?Tìm kiếm nhị phân|Cho `List<Integer> l = new ArrayList<>(List.of(5, 1, 3));` rồi gọi `Collections.sort(l);`. Những phát biểu nào đúng? (Chọn 2)
++ `Collections.binarySearch(l, 3)` trả về 1
++ `Collections.binarySearch(l, 4)` trả về -3
+- `Collections.binarySearch(l, 0)` trả về 0
+- `Collections.binarySearch(l, 5)` trả về 3
+- `Collections.binarySearch(l, 6)` trả về -3
+>Sau khi sắp xếp, l là [1, 3, 5]. Không tìm thấy thì trả về -(điểm chèn) - 1: số 4 chèn ở vị trí 2 nên ra -3, số 0 chèn ở 0 nên ra -1, số 6 chèn ở 3 nên ra -4. Số 5 nằm ở vị trí 2.
 ##24
 ~Generic cho phép viết một lớp hay phương thức dùng được với nhiều kiểu mà vẫn được kiểm tra lúc biên dịch. Phần gây nhầm nhiều nhất là wildcard: khi nào đọc được, khi nào thêm được.
 @Lớp và phương thức generic|Tham số kiểu của lớp đặt sau tên lớp; của phương thức đặt ngay trước kiểu trả về.
@@ -4283,6 +4732,28 @@ System.out.println((a.getClass() == b.getClass()) + " " + a.getClass().getSimple
 - Lỗi biên dịch vì so sánh hai kiểu khác nhau
 >Sau khi xoá kiểu, cả hai đều là đối tượng của cùng một lớp ArrayList. Đối số kiểu không tồn tại lúc chạy.
 %out:true ArrayList
+?Wildcard có cận|Những phép gán nào biên dịch được? (Chọn 3)
++ `List<? extends Number> a = new ArrayList<Integer>();`
++ `List<? super Integer> b = new ArrayList<Number>();`
++ `List<?> c = new ArrayList<String>();`
+- `List<Number> d = new ArrayList<Integer>();`
+- `List<? super Number> e = new ArrayList<Integer>();`
+- `List<? extends Integer> f = new ArrayList<Number>();`
+>Generic không hiệp biến nên List<Number> không nhận ArrayList<Integer>. `? extends X` nhận X và kiểu con, `? super X` nhận X và kiểu cha. Integer không phải kiểu cha của Number, Number không phải kiểu con của Integer.
+?Wildcard có cận|Phương thức có tham số `List<? extends Number> nums`. Những câu lệnh nào trong thân phương thức biên dịch được? (Chọn 2)
++ `Number n = nums.get(0);`
++ `nums.add(null);`
+- `nums.add(1);`
+- `Integer i = nums.get(0);`
+- `nums.add(Double.valueOf(1));`
+>Với cận trên, đọc ra luôn an toàn dưới dạng Number, nhưng trình biên dịch không biết kiểu phần tử thật nên không cho thêm gì ngoài null. Đọc ra Integer cần ép kiểu.
+?Phương thức generic|Những khai báo phương thức nào biên dịch được (đặt trong một lớp không generic)? (Chọn 2)
++ `static <T> T first(List<T> l) { return l.get(0); }`
++ `<T extends Comparable<T>> T max(T a, T b) { return a.compareTo(b) > 0 ? a : b; }`
+- `static T first(List<T> l) { return l.get(0); }`
+- `<T> static T id(T t) { return t; }`
+- `static <? extends Number> double sum(List<? extends Number> l) { return 0; }`
+>Tham số kiểu của phương thức phải khai báo trong cặp ngoặc nhọn, đặt sau các modifier và ngay trước kiểu trả về. Wildcard `?` chỉ dùng làm đối số kiểu, không dùng để khai báo tham số kiểu.
 </script>
 <script type="text/plain" class="wk" data-week="5">
 ##25
@@ -4428,6 +4899,28 @@ void main() {
 - `Stream.iterate(1, x -> x + 1).limit(5).count();`
 - `Stream.generate(() -> 1).findFirst();`
 >allMatch chỉ dừng khi gặp phần tử không thoả, noneMatch chỉ dừng khi gặp phần tử thoả; ở đây cả hai không bao giờ gặp. anyMatch và findFirst dừng ngay ở phần tử đầu, limit cắt stream còn 5 phần tử.
+?Optional|Những phát biểu nào đúng về Optional? (Chọn 2)
++ `Optional.ofNullable(null)` trả về một Optional rỗng
++ `Optional.empty().orElseGet(() -> "x")` trả về "x"
+- `Optional.of(null)` trả về một Optional rỗng
+- `Optional.empty().get()` trả về null thay vì ném ngoại lệ, giống như `Map.get`
+- `isPresent()` trả về một Optional mới
+>of(null) ném NullPointerException, nên khi giá trị có thể null phải dùng ofNullable. get() trên Optional rỗng ném NoSuchElementException. isPresent() trả về boolean.
+?Bước kết thúc|Những thao tác nào của Stream là thao tác kết thúc (terminal)? (Chọn 3)
++ `forEach`
++ `reduce`
++ `anyMatch`
+- `peek`
+- `sorted`
+- `takeWhile`
+>Thao tác kết thúc kích hoạt pipeline và cho ra kết quả hoặc tác dụng phụ. peek, sorted và takeWhile đều trả về Stream nên là thao tác trung gian.
+?reduce|Với `Stream<Integer> s`, những biểu thức nào có kiểu `Optional<Integer>`? (Chọn 2)
++ `s.reduce(Integer::sum)`
++ `s.max(Comparator.naturalOrder())`
+- `s.reduce(0, Integer::sum)`
+- `s.count()`
+- `s.filter(x -> x > 0).findFirst().orElse(0)`
+>reduce không có giá trị khởi đầu, min và max trả về Optional vì stream có thể rỗng. reduce có giá trị khởi đầu trả về Integer. count trả về long. orElse mở Optional ra thành Integer.
 ##26
 ~Các bước trung gian biến đổi dòng dữ liệu, và mỗi bước trả về một stream mới. Stream nguyên thủy có thêm các phép tính số học mà Stream thường không có.
 @Lọc và cắt|filter, distinct, limit, skip, takeWhile, dropWhile giữ lại một phần của stream.
@@ -4568,6 +5061,28 @@ b.add(3);
 - Lỗi biên dịch tại dòng 5
 >Stream.toList() trả danh sách bất biến. Danh sách từ Collectors.toList() trong thực tế là ArrayList nên thêm được.
 %rt:UnsupportedOperationException
+?Stream nguyên thủy|Những phát biểu nào đúng? (Chọn 2)
++ `IntStream.range(1, 4)` không chứa 4, còn `IntStream.rangeClosed(1, 4)` có chứa 4
++ `average()` của IntStream trả về `OptionalDouble`
+- `sum()` của IntStream trả về `OptionalInt` vì stream có thể rỗng
+- `mapToObj` biến một `Stream<T>` thành `IntStream` để dùng các phép tính số
+- `max()` của IntStream trả về `int`
+>sum trả về int (stream rỗng thì là 0), còn max, min trả về OptionalInt và average trả về OptionalDouble. mapToObj là phương thức của IntStream, đổi ngược ra Stream<T>.
+?Bước trung gian|Với `Stream<String> s`, những biểu thức nào biên dịch được? (Chọn 3)
++ `s.mapToInt(String::length).sum()`
++ `s.flatMap(x -> Stream.of(x, x))`
++ `IntStream.of(1, 2).boxed().toList()`
+- `s.map(String::length).sum()`
+- `IntStream.of(1, 2).toList()`
+- `s.flatMap(x -> List.of(x))`
+>sum chỉ có trên stream nguyên thủy, nên phải mapToInt chứ không phải map. IntStream không có toList, cần boxed() trước. Hàm truyền cho flatMap phải trả về Stream, không phải List.
+?takeWhile và dropWhile|Mỗi pipeline dưới đây kết thúc bằng `.forEach(System.out::print)`. Những pipeline nào in ra 23? (Chọn 2)
++ `Stream.of(1, 2, 3, 4).skip(1).limit(2)`
++ `Stream.of(1, 2, 3, 1).dropWhile(x -> x < 2).takeWhile(x -> x > 1)`
+- `Stream.of(1, 2, 3, 4).filter(x -> x > 1).limit(3)`
+- `Stream.of(3, 2, 1).skip(1).sorted()`
+- `Stream.of(1, 2, 3).takeWhile(x -> x > 1)`
+>dropWhile bỏ phần đầu cho tới khi điều kiện sai, còn [2, 3, 1]; takeWhile lấy tới khi điều kiện sai, còn [2, 3]. filter rồi limit(3) cho 234. skip(1) trước rồi mới sắp xếp cho 12. takeWhile dừng ngay ở phần tử đầu vì 1 > 1 sai nên không in gì.
 ##27
 ~Collector quyết định kết quả cuối cùng của stream có hình dạng gì. Stream Gatherers của Java 24 làm điều tương tự cho bước trung gian: bạn tự định nghĩa cách gom và biến đổi dòng dữ liệu.
 @Collector cơ bản|collect nhận một Collector để gom stream thành collection, chuỗi hoặc một con số.
@@ -4705,6 +5220,27 @@ System.out.println(r);
 - [2, 2, 1]
 >Ba cửa sổ thành "ab", "cd", "e". scan nối độ dài của từng chuỗi vào chuỗi tích luỹ: "2", rồi "22", rồi "221". Đây là nối chuỗi, không phải cộng số.
 %out:[2, 22, 221]
+?Collector|Những phát biểu nào đúng về Collector? (Chọn 2)
++ `Collectors.toMap` không có hàm merge sẽ ném IllegalStateException khi gặp khoá trùng
++ `partitioningBy` luôn cho map có cả hai khoá true và false, kể cả khi stream rỗng
+- `groupingBy` không truyền map factory trả về một `TreeMap`
+- `groupingBy` lặng lẽ bỏ qua phần tử có khoá phân loại là null, các phần tử khác vẫn được gom nhóm
+- `Collectors.joining()` dùng dấu phẩy làm ký tự ngăn cách mặc định
+>partitioningBy luôn tạo đủ hai nhóm. groupingBy mặc định dùng HashMap và ném NullPointerException nếu hàm phân loại trả về null. joining() không có tham số nối liền các phần tử, không chèn gì.
+?^Stream Gatherers|Với `Stream.of(1, 2, 3, 4, 5)` (mỗi phương án một stream mới), những phát biểu nào đúng? (Chọn 2)
++ `.gather(Gatherers.windowFixed(2)).toList()` cho `[[1, 2], [3, 4], [5]]`
++ `.gather(Gatherers.scan(() -> 0, Integer::sum)).toList()` cho `[1, 3, 6, 10, 15]`
+- `.gather(Gatherers.windowSliding(4)).count()` cho 1
+- `.gather(Gatherers.fold(() -> 0, Integer::sum)).toList()` cho số 15 không bọc trong List
+- `.gather(Gatherers.windowFixed(2))` bỏ đi phần tử lẻ ở cuối
+>windowFixed giữ lại cửa sổ cuối dù chưa đủ phần tử. scan phát ra từng giá trị cộng dồn. windowSliding(4) trên 5 phần tử cho 2 cửa sổ [1, 2, 3, 4] và [2, 3, 4, 5]. fold cho stream một phần tử nên toList() là [15].
+?^Stream Gatherers|Những phát biểu nào đúng về Gatherer (chính thức từ Java 24)? (Chọn 2)
++ `Gatherers.mapConcurrent(n, f)` chạy f đồng thời trên thread ảo nhưng vẫn giữ thứ tự kết quả
++ Integrator của gatherer trả về false để báo không cần nhận thêm phần tử
+- Interface `Gatherer` nằm trong package `java.util.function`
+- `Stream.gather` chỉ nhận gatherer có sẵn trong lớp `Gatherers`, không tự viết gatherer riêng được
+- `Gatherers.scan` là thao tác kết thúc và trả về Optional
+>Gatherer nằm trong java.util.stream và ai cũng tự viết được bằng Gatherer.of hoặc ofSequential. Integrator trả về boolean để báo có tiếp tục hay không, nhờ đó gatherer cắt ngắn được stream. scan là gatherer, dùng trong bước gather trung gian.
 ##28
 ~Ngoại lệ chiếm một nhóm mục tiêu riêng trong đề. Phải thuộc lớp nào là checked, và nhìn một khối try là biết ngay nó có biên dịch được không.
 @Phân cấp ngoại lệ|Checked exception buộc phải xử lý hoặc khai báo; RuntimeException và Error thì không.
@@ -4907,6 +5443,28 @@ void main() { }
 - Không có dòng nào
 >open() gọi một phương thức ném checked exception mà không bắt cũng không khai báo. close() khai báo Exception, rộng hơn IOException, nên hợp lệ.
 %cerr
+?Multi-catch|Thân try có thể ném `IOException`. Những khối catch nào biên dịch được? (Chọn 2)
++ `catch (IOException | RuntimeException e) { }`
++ `catch (IllegalArgumentException | IOException e) { }`
+- `catch (FileNotFoundException | IOException e) { }`
+- `catch (IOException e | SQLException e) { }`
+- `catch (IOException | RuntimeException e) { e = null; }`
+>Các kiểu trong multi-catch không được có quan hệ cha con, chỉ khai báo một tên biến ở cuối, và biến đó ngầm final nên không gán lại được. Thứ tự các kiểu không quan trọng.
+?Phân cấp ngoại lệ|Những lớp nào là lớp con (trực tiếp hoặc gián tiếp) của `RuntimeException`? (Chọn 3)
++ `ArithmeticException`
++ `ClassCastException`
++ `ArrayIndexOutOfBoundsException`
+- `FileNotFoundException`
+- `ExceptionInInitializerError`
+- `CloneNotSupportedException`
+>ArrayIndexOutOfBoundsException kế thừa IndexOutOfBoundsException, rồi tới RuntimeException. FileNotFoundException và CloneNotSupportedException là checked. ExceptionInInitializerError thuộc nhánh Error.
+?finally và return|Những phát biểu nào đúng? (Chọn 2)
++ Nếu khối finally có `return`, giá trị đó thay cho giá trị mà khối try trả về
++ Gọi `System.exit(0)` trong khối try thì khối finally không chạy
+- Khối finally chỉ chạy khi có ngoại lệ xảy ra
+- Khối try bắt buộc phải có ít nhất một khối catch
+- Ngoại lệ ném trong finally được gắn làm suppressed của ngoại lệ ban đầu, nên không ngoại lệ nào bị mất
+>finally luôn chạy khi try kết thúc, trừ khi JVM dừng. try chỉ cần catch hoặc finally. Ngoại lệ ném từ finally thay thế hẳn ngoại lệ ban đầu, ngoại lệ ban đầu bị mất; cơ chế suppressed chỉ có ở try-with-resources.
 ##29
 ~try-with-resources tự đóng tài nguyên cho bạn. Đề thi hỏi rất kỹ ba điều: đóng theo thứ tự nào, đóng vào lúc nào, và ngoại lệ nào thắng khi cả thân try lẫn close() đều ném.
 @AutoCloseable và cú pháp|Mọi tài nguyên khai báo trong ngoặc của try phải hiện thực AutoCloseable.
@@ -5106,6 +5664,27 @@ void main() {
 - `Closeable.close()` khai báo ném `Exception`
 - Biến tài nguyên gán lại được trong thân try
 >Closeable.close() khai báo ném IOException; bản khai báo Exception là của AutoCloseable. Biến tài nguyên ngầm định final.
+?Biến tài nguyên|Trong phương thức `void m(AutoCloseable r) throws Exception`, với r không bị gán lại ở đâu, những câu lệnh nào biên dịch được? (Chọn 2)
++ `try (r) { }`
++ `try (var s = new Scanner(System.in)) { }`
+- `try (String s = "a") { }`
+- `try (Scanner s; s = new Scanner(System.in)) { }`
+- `try (r = null) { }`
+>Phần tài nguyên nhận một khai báo biến có khởi tạo, hoặc tên một biến final hay effectively final có sẵn. Kiểu tài nguyên phải hiện thực AutoCloseable; String thì không.
+?Ngoại lệ bị nén|Thân try-with-resources ném ExceptionA, sau đó `close()` của tài nguyên ném ExceptionB. Khối catch bắt được ngoại lệ đó vào biến e. Những phát biểu nào đúng? (Chọn 2)
++ Biến e là ExceptionA
++ `e.getSuppressed()` chứa ExceptionB
+- Biến e là ExceptionB
+- ExceptionA nằm trong `getSuppressed()` của ExceptionB
+- ExceptionB bị bỏ đi, không lưu lại ở đâu
+>Ngoại lệ từ thân try là ngoại lệ chính. Ngoại lệ phát sinh lúc đóng tài nguyên được gắn vào nó bằng addSuppressed, nên không bị mất.
+?Thứ tự đóng|Những phát biểu nào đúng về try-with-resources? (Chọn 2)
++ Tài nguyên khởi tạo bị lỗi thì không được đóng, nhưng các tài nguyên khai báo trước nó vẫn được đóng
++ Thân try chạy bình thường mà `close()` ném ngoại lệ thì ngoại lệ đó được ném ra làm ngoại lệ chính
+- Tài nguyên chỉ được đóng sau khi các khối catch và finally đã chạy xong, theo đúng thứ tự khai báo
+- Biến tài nguyên vẫn dùng được trong catch và finally, vì nó được khai báo ở phần đầu câu lệnh try
+- `close()` của `AutoCloseable` là phương thức default, không bắt buộc hiện thực
+>Tài nguyên được đóng ngay khi thân try kết thúc, trước catch và finally, theo thứ tự ngược. Biến tài nguyên chỉ có phạm vi trong thân try. AutoCloseable chỉ có một phương thức abstract là close().
 ##30
 ~Cùng một con số hay một ngày tháng, mỗi nước viết một kiểu. Bài này học cách định dạng theo Locale và cách Java chọn tệp tài nguyên, phần có quy tắc tìm kiếm cần thuộc lòng.
 @Locale|Locale gồm mã ngôn ngữ viết thường, có thể kèm mã quốc gia viết hoa.
@@ -5245,6 +5824,20 @@ System.out.println(shortF.format(1_500_000) + " " + longF.format(7_300) + " " + 
 - Pet_fr.properties
 - Không ở đâu cả, ném MissingResourceException
 >Bundle được chọn là Pet_fr_CA. Khoá chỉ được tìm trong nó và các cha của nó: Pet_fr rồi Pet. Pet_en thuộc nhánh của Locale mặc định nên không tham gia.
+?Định dạng số|Với Locale.US, những phát biểu nào đúng? (Chọn 2)
++ `NumberFormat.getCompactNumberInstance(Locale.US, NumberFormat.Style.SHORT).format(1_200_000)` cho "1M"
++ `NumberFormat.getPercentInstance(Locale.US).format(0.25)` cho "25%"
+- `NumberFormat.getInstance(Locale.US).parse("12abc")` ném ParseException
+- `NumberFormat.getCompactNumberInstance(Locale.US, NumberFormat.Style.LONG).format(1_200_000)` cho "1M"
+- `new DecimalFormat("#.00").format(0.5)` cho "0.50"
+>Compact SHORT làm tròn 1,2 triệu thành 1M (mặc định không lấy phần thập phân). parse đọc phần đầu hợp lệ và bỏ phần còn lại nên ra 12. Kiểu LONG viết đầy đủ thành "1 million". Ký hiệu # không in số 0 vô nghĩa nên kết quả là ".50".
+?Định dạng ngày giờ|Những phát biểu nào đúng về mẫu của `DateTimeFormatter.ofPattern`? (Chọn 2)
++ `MM` là tháng, còn `mm` là phút
++ Chữ cố định phải đặt trong dấu nháy đơn, ví dụ `'at'`
+- `hh` là giờ theo thang 0 đến 23
+- Định dạng một `LocalDate` bằng mẫu có `HH` vẫn chạy bình thường
+- `yyyy` và `YYYY` cho kết quả như nhau với mọi ngày
+>hh là giờ 1 đến 12, HH mới là 0 đến 23. LocalDate không có thông tin giờ nên mẫu có HH ném UnsupportedTemporalTypeException. YYYY là năm theo tuần, khác yyyy ở những ngày cuối tháng 12 hoặc đầu tháng 1.
 </script>
 <script type="text/plain" class="wk" data-week="6">
 ##31
@@ -5349,6 +5942,21 @@ module zoo.care {
 - `exports` nhận tên một module
 - Một module có thể có nhiều tệp module-info.java
 >Tên module theo quy tắc của tên package nên không có gạch ngang. exports nhận tên package; requires mới nhận tên module.
+?Tệp module-info.java|Những chỉ thị nào hợp lệ trong thân khai báo module? (Chọn 3)
++ `exports zoo.api to zoo.staff;`
++ `requires static zoo.tools;`
++ `opens zoo.data to zoo.json;`
+- `exports zoo.api.*;`
+- `exports zoo.api, zoo.impl;`
+- `requires zoo.api version 2;`
+>exports và opens có thể kèm `to` để chỉ mở cho một số module. `requires static` là phụ thuộc chỉ bắt buộc lúc biên dịch. Mỗi exports chỉ nhận đúng một tên package, không có wildcard, và requires không có cú pháp phiên bản.
+?Dòng lệnh|Những phát biểu nào đúng về các lệnh khi làm việc với module? (Chọn 2)
++ `javac --module-source-path src -m zoo.animal -d out` biên dịch module zoo.animal theo tên
++ `jar --create --file zoo.jar --main-class zoo.Main -C out .` ghi lớp main vào JAR
+- `java -m zoo.animal` chạy được mà không cần `-p` dù module không nằm trong JDK
+- Với lệnh java, `-d` là thư mục đích chứa các tệp .class sinh ra, giống tuỳ chọn `-d` của javac
+- Tuỳ chọn `--module-path` chỉ dùng được với javac
+>javac có chế độ biên dịch theo tên module khi dùng --module-source-path. jar ghi Main-Class (và với module là thuộc tính lớp main) nhờ --main-class. Module của bạn phải được tìm thấy qua -p. Với java, -d là --describe-module. --module-path dùng chung cho javac, java, jdeps, jlink.
 ##32
 ~Phần hai của module: cơ chế service để nối lỏng các module, ba loại module cùng tồn tại trong lúc di trú, và bộ công cụ dòng lệnh đi kèm.
 @Service: uses và provides|Bên cung cấp khai báo provides ... with; bên tìm kiếm khai báo uses.
@@ -5433,6 +6041,20 @@ Top-down: đặt mọi JAR lên module path để chúng thành automatic module
 - `java -p mods -m zoo.animal`
 - `jdeps --list-modules zoo.animal`
 >Với java, -d là viết tắt của --describe-module. Với javac, -d lại là thư mục đích. -m dùng để chạy module.
+?Service|Những phát biểu nào đúng về `ServiceLoader`? (Chọn 2)
++ Đối tượng `ServiceLoader.load(...)` trả về duyệt được bằng for-each
++ `stream()` của ServiceLoader cho các `Provider`, gọi `get()` để lấy bản hiện thực
+- Package chứa lớp provider bắt buộc phải được exports để ServiceLoader thấy
+- Module cung cấp service khai báo bằng chỉ thị `uses`
+- ServiceLoader chỉ tìm provider trên classpath, bỏ qua module path
+>ServiceLoader hiện thực Iterable, và stream() trả về Stream<ServiceLoader.Provider<S>>. Module cung cấp dùng provides ... with, module tìm kiếm dùng uses; lớp provider không cần nằm trong package được export. ServiceLoader tìm trên cả module path lẫn classpath.
+?Automatic module|Những phát biểu nào đúng về automatic module? (Chọn 2)
++ Automatic module đọc mọi module khác, kể cả unnamed module
++ Tên được lấy từ `Automatic-Module-Name` trong MANIFEST.MF nếu có
+- Automatic module chỉ export những package được liệt kê trong MANIFEST.MF
+- Named module không thể khai báo `requires` tới một automatic module
+- Đặt một JAR thường lên classpath sẽ biến nó thành automatic module
+>JAR thường đặt trên module path trở thành automatic module: export mọi package, đọc mọi module. Named module requires nó bằng tên tự động. JAR trên classpath thuộc về unnamed module.
 ##33
 ~Thread là đơn vị chạy song song nhỏ nhất. Java 21 thêm thread ảo, và Java 24 gỡ bỏ hạn chế lớn nhất của chúng khi dùng với synchronized.
 @Tạo và khởi chạy thread|start() tạo một luồng chạy mới; gọi thẳng run() thì mã chạy ngay trên thread hiện tại.
@@ -5599,6 +6221,28 @@ void main() throws InterruptedException {
 - Thứ tự các chữ thay đổi theo mỗi lần chạy
 >Mỗi lần join() buộc main đợi thread kia xong mới đi tiếp, nên thứ tự được xác định hoàn toàn: a, rồi b, rồi c.
 %out:abc false TERMINATED
+?start và run|Những phát biểu nào đúng? (Chọn 2)
++ Gọi `run()` trực tiếp sẽ chạy mã trên thread hiện tại, không tạo thread mới
++ Gọi `start()` lần thứ hai trên cùng một Thread ném IllegalThreadStateException
+- Gọi `start()` đảm bảo run() chạy xong trước khi dòng lệnh kế tiếp của thread gọi được thực thi
+- `Thread.sleep` nhả khoá monitor mà thread đang giữ
+- `Thread.sleep` khai báo ném `IOException`
+>start() tạo thread mới và trả về ngay; muốn chờ thì dùng join(). Mỗi Thread chỉ start được một lần. sleep giữ nguyên các khoá đang có và khai báo ném InterruptedException.
+?Thread ảo|Những câu lệnh nào tạo và khởi chạy một thread ảo (biến `r` là Runnable)? (Chọn 3)
++ `Thread.startVirtualThread(r);`
++ `Thread.ofVirtual().start(r);`
++ `Executors.newVirtualThreadPerTaskExecutor().submit(r);`
+- `new VirtualThread(r).start();`
+- `Thread.ofPlatform().virtual().start(r);`
+- `new Thread(r).setVirtual(true);`
+>Thread ảo được tạo qua Thread.startVirtualThread, builder Thread.ofVirtual() hoặc executor tạo một thread ảo cho mỗi tác vụ. Không có lớp public VirtualThread hay phương thức setVirtual.
+?^Thread ảo|Những phát biểu nào đúng về thread ảo trong Java 25? (Chọn 2)
++ Thread ảo luôn là daemon thread
++ Từ Java 24, thread ảo bị chặn trong khối `synchronized` không còn ghim (pin) thread mang
+- Có thể gọi `setDaemon(false)` để biến thread ảo thành non-daemon
+- Thread ảo nên được gom vào một pool nhỏ để tái sử dụng
+- `setPriority` đổi được độ ưu tiên của thread ảo
+>Thread ảo luôn là daemon; setDaemon(false) ném IllegalArgumentException. setPriority không có tác dụng, độ ưu tiên luôn là NORM_PRIORITY. Thread ảo rẻ nên tạo mới cho mỗi tác vụ, không gom pool. JEP 491 (Java 24) bỏ hiện tượng pinning của synchronized.
 ##34
 ~Thay vì tự tạo thread, bạn giao tác vụ cho một ExecutorService và nhận lại Future. Java 25 có thêm hai cập nhật nhỏ cho ForkJoinPool và CompletableFuture.
 @Các loại ExecutorService|Lớp Executors có sẵn các phương thức tạo pool; mọi ExecutorService đều phải được đóng.
@@ -5761,6 +6405,27 @@ System.out.println(cf.join());
 - `Future.get()` của một tác vụ Runnable ném NullPointerException
 - `scheduleAtFixedRate` nhận được Callable
 >shutdown() để tác vụ đang chạy hoàn tất; shutdownNow() mới cố dừng chúng. get() của tác vụ Runnable trả null. Các phương thức lặp theo chu kỳ chỉ nhận Runnable.
+?Future|Những phát biểu nào đúng? (Chọn 2)
++ `submit(Callable)` trả về Future, và `get()` bọc ngoại lệ của tác vụ trong ExecutionException
++ Sau `shutdown()`, các tác vụ đã gửi trước đó vẫn được chạy cho tới xong
+- `shutdown()` chặn thread gọi lại, chờ mọi tác vụ đã gửi chạy xong rồi mới trả về, giống `awaitTermination`
+- `execute(Runnable)` trả về một `Future<?>`
+- `Callable.call()` không được phép ném checked exception
+>shutdown() chỉ ngừng nhận tác vụ mới và trả về ngay; muốn chờ thì gọi awaitTermination. execute trả về void. Callable.call() khai báo throws Exception, khác Runnable.run().
+?invokeAll|Những phát biểu nào đúng về `invokeAll` và `invokeAny`? (Chọn 2)
++ `invokeAll` chờ mọi tác vụ hoàn tất rồi trả về `List<Future<T>>`
++ `invokeAny` trả về kết quả của một tác vụ chạy xong thành công và huỷ các tác vụ còn lại
+- `invokeAll` nhận một danh sách các `Runnable`
+- `invokeAny` trả về ngay một `Future<T>`, gọi `get()` trên nó để lấy kết quả của tác vụ xong sớm nhất
+- `invokeAll` trả về ngay, không chờ tác vụ nào xong
+>Cả hai nhận Collection các Callable và đều chặn lại. invokeAll trả về danh sách Future đã xong; invokeAny trả thẳng giá trị T.
+?ExecutorService|Những phát biểu nào đúng? (Chọn 2)
++ `ExecutorService` hiện thực AutoCloseable nên dùng được trong try-with-resources
++ `scheduleAtFixedRate` nhận độ trễ ban đầu, chu kỳ và đơn vị thời gian
+- `schedule(Runnable, delay, unit)` trả về `Future` thường chứ không phải `ScheduledFuture`
+- `scheduleWithFixedDelay` tính khoảng chờ từ lúc lần chạy trước bắt đầu
+- `Executors.newSingleThreadScheduledExecutor()` trả về kiểu không có phương thức `schedule`
+>Từ Java 19, close() của ExecutorService gọi shutdown rồi chờ tác vụ xong. Các phương thức schedule trả về ScheduledFuture. scheduleWithFixedDelay đếm khoảng chờ từ lúc lần chạy trước kết thúc; scheduleAtFixedRate mới tính theo lúc bắt đầu. newSingleThreadScheduledExecutor trả về ScheduledExecutorService.
 ##35
 ~Khi nhiều thread cùng đụng vào một dữ liệu, kết quả có thể sai mà không báo lỗi. Bài này học các công cụ bảo vệ dữ liệu chung, và scoped values của Java 25: cách chia sẻ dữ liệu bất biến trong một phạm vi lời gọi.
 @Race condition và synchronized|count++ gồm ba bước đọc, cộng, ghi; hai thread chen vào giữa sẽ làm mất một lần tăng.
@@ -5939,6 +6604,27 @@ System.out.println(m.containsKey("aa") + " " + again + " " + lock.getHoldCount()
 - true true 1
 >ConcurrentHashMap cho phép thêm phần tử trong lúc duyệt. ReentrantLock cho chính thread đang giữ khoá lấy lại lần nữa, số lần giữ tăng lên 2.
 %out:true true 2
+?Lock|Những phát biểu nào đúng? (Chọn 2)
++ `AtomicInteger.incrementAndGet()` tăng giá trị một cách nguyên tử
++ Khoá `ReentrantLock` phải được mở bằng `unlock()`, thường đặt trong khối finally
+- Từ khoá `synchronized` dùng được trên khai báo một biến
+- Gọi `unlock()` khi thread không giữ khoá thì không có tác dụng gì
+- `tryLock()` không tham số luôn chờ cho tới khi lấy được khoá
+>Lock không tự mở như synchronized, nên phải unlock trong finally. unlock khi không giữ khoá ném IllegalMonitorStateException. tryLock() thử một lần rồi trả về true hoặc false ngay. synchronized chỉ đặt trên phương thức hoặc khối lệnh.
+?Collection đồng thời|Những phát biểu nào đúng? (Chọn 2)
++ `ConcurrentHashMap` không chấp nhận khoá hay giá trị null
++ Sửa `CopyOnWriteArrayList` trong lúc duyệt không ném ConcurrentModificationException
+- Iterator của `Collections.synchronizedList` tự đồng bộ trong suốt lúc duyệt
+- `ConcurrentHashMap` khoá toàn bộ map cho mỗi lần gọi `get`
+- `ArrayList` an toàn luồng nếu các thread chỉ gọi `add`
+>CopyOnWriteArrayList tạo mảng mới mỗi lần sửa, iterator duyệt trên bản chụp cũ. Với synchronizedList, người dùng phải tự synchronized trên list khi duyệt. ConcurrentHashMap đọc không cần khoá toàn map. ArrayList không an toàn luồng kể cả chỉ add.
+?^Scoped values|Với `static final ScopedValue<String> KEY = ScopedValue.newInstance();`, những phát biểu nào đúng trong Java 25? (Chọn 2)
++ `ScopedValue.where(KEY, "v").run(r)` gắn giá trị cho KEY chỉ trong lúc r chạy
++ Gọi `KEY.get()` khi KEY chưa được gắn giá trị ném NoSuchElementException
+- `KEY.set("x")` đổi được giá trị của KEY ngay bên trong phạm vi đang chạy
+- Sau khi `run(r)` kết thúc, KEY vẫn giữ giá trị "v" cho thread đó
+- ScopedValue vẫn là preview, phải chạy với `--enable-preview`
+>ScopedValue chính thức từ Java 25 (JEP 506). Giá trị bất biến trong phạm vi, không có set; muốn đổi thì lồng một where mới. Ra khỏi run hay call, KEY trở lại trạng thái chưa gắn.
 ##36
 ~Bài cuối của phần đa luồng: bốn kiểu sự cố kinh điển và parallel stream. Với parallel stream, câu hỏi luôn là kết quả có còn xác định không.
 @Bốn vấn đề đa luồng|Deadlock đứng yên; livelock chạy mà không tiến; starvation không tới lượt; race condition cho kết quả sai.
@@ -6059,6 +6745,20 @@ System.out.println(seen.size() + " " + total);
 - Ném ConcurrentModificationException
 >Tập tạo bằng ConcurrentHashMap.newKeySet() an toàn luồng nên không mất phần tử nào. Phép cộng kết hợp và có khởi đầu 0 nên tổng từ 0 đến 499 luôn là 124750.
 %out:500 124750
+?Thứ tự trên parallel stream|Những phát biểu nào đúng về parallel stream? (Chọn 2)
++ `forEachOrdered` giữ đúng thứ tự gặp, kể cả trên parallel stream
++ `findAny()` trên parallel stream có thể trả về bất kỳ phần tử nào
+- `reduce` với phép toán không kết hợp như phép trừ vẫn cho kết quả ổn định
+- Gọi `parallel()` luôn làm pipeline chạy nhanh hơn
+- `unordered()` xáo trộn ngẫu nhiên các phần tử của stream
+>reduce trên parallel stream đòi phép toán có tính kết hợp, nếu không kết quả thay đổi theo cách chia. Song song hoá có chi phí chia và gộp nên không phải lúc nào cũng nhanh hơn. unordered() chỉ bỏ ràng buộc giữ thứ tự, không chủ động xáo trộn.
+?Vấn đề đa luồng|Những mô tả nào đúng? (Chọn 2)
++ Livelock: các thread vẫn hoạt động nhưng cứ nhường nhau nên không thread nào tiến triển
++ Race condition: kết quả phụ thuộc thứ tự xen kẽ của các thread khi cùng sửa dữ liệu chung
+- Deadlock: một thread mãi không được cấp tài nguyên vì các thread khác luôn được ưu tiên
+- Starvation: hai thread mãi mãi chờ khoá mà thread kia đang giữ
+- Livelock: các thread bị chặn vĩnh viễn ở trạng thái BLOCKED vì cùng chờ một khoá không bao giờ được nhả
+>Phương án thứ ba là starvation, phương án thứ tư là deadlock. Trong livelock các thread không bị chặn, chúng vẫn chạy nhưng không làm được việc gì.
 </script>
 <script type="text/plain" class="wk" data-week="7">
 ##37
@@ -6213,6 +6913,27 @@ void main() throws IOException {
 - Ném FileAlreadyExistsException ở dòng 3
 >createDirectories tạo cả chuỗi a, b, c. createDirectory chỉ tạo một cấp và đòi thư mục cha x phải có sẵn.
 %rt:NoSuchFileException
+?Thành phần của Path|Những biểu thức nào trả về `true`? (Chọn 2)
++ `Path.of("a/b/../c").normalize().equals(Path.of("a/c"))`
++ `Path.of("a/b").getNameCount() == 2`
+- `Path.of("a/b").resolve("/c").equals(Path.of("a/b/c"))`
+- `Path.of("x").getParent() != null`
+- `Path.of("a/./b").getNameCount() == 2`
+>normalize bỏ các phần `.` và `..` thừa. resolve với một path tuyệt đối trả về chính path đó, nên kết quả là /c. Path chỉ một phần tên thì không có cha, getParent trả về null. Không normalize thì `.` vẫn được tính là một phần tên.
+?relativize|Những phát biểu nào đúng? (Chọn 2)
++ `relativize` ném IllegalArgumentException khi một path tuyệt đối và path kia tương đối
++ `Path.of("a").relativize(Path.of("a/b/c"))` cho `b/c`
+- `relativize` đọc hệ thống tệp và ném NoSuchFileException nếu path không tồn tại
+- `resolve` luôn trả về path đã được normalize
+- `Path.of("a/b").relativize(Path.of("a/c"))` cho `c`
+>relativize và resolve chỉ thao tác trên chuỗi đường dẫn, không chạm tới đĩa và không tự normalize. Từ a/b sang a/c phải lùi một cấp: kết quả là ../c.
+?Thao tác với Files|Những phát biểu nào đúng về lớp Files? (Chọn 2)
++ `Files.delete` ném NoSuchFileException khi tệp không tồn tại, còn `deleteIfExists` trả về false
++ `Files.createDirectories` không báo lỗi khi thư mục đã tồn tại
+- `Files.copy(a, b)` không truyền tuỳ chọn nào vẫn ghi đè b nếu b đã tồn tại, giống lệnh cp
+- `Files.delete` xoá được cả thư mục còn chứa tệp
+- `Files.createDirectory` tự tạo luôn các thư mục cha còn thiếu
+>copy không có REPLACE_EXISTING thì ném FileAlreadyExistsException. delete trên thư mục không rỗng ném DirectoryNotEmptyException. createDirectory chỉ tạo một cấp; thiếu thư mục cha thì ném NoSuchFileException.
 ##38
 ~I/O stream là dòng dữ liệu chảy qua chương trình, chia thành dòng byte và dòng ký tự. Tên lớp cho bạn biết nó thuộc loại nào và bọc được cái gì.
 @Byte stream và character stream|Tên kết thúc bằng InputStream hoặc OutputStream là dòng byte; kết thúc bằng Reader hoặc Writer là dòng ký tự.
@@ -6383,6 +7104,21 @@ void main() throws IOException {
 - Nó có từ Java 21
 - Nó khai báo ném IOException
 >Reader.of có từ Java 24, khai báo trả về Reader và không ném checked exception khi tạo. Chỉ các thao tác đọc về sau mới có thể ném IOException.
+?Byte stream và character stream|Những lớp nào là character stream (đọc hoặc ghi theo char)? (Chọn 3)
++ `FileReader`
++ `BufferedWriter`
++ `PrintWriter`
+- `FileInputStream`
+- `ObjectOutputStream`
+- `BufferedInputStream`
+>Character stream kế thừa Reader hoặc Writer, tên thường kết thúc bằng Reader hay Writer. Các lớp tên kết thúc bằng InputStream hay OutputStream là byte stream.
+?^Reader.of|Những phát biểu nào đúng về `Reader.of(CharSequence)` (Java 24)? (Chọn 2)
++ Trả về một Reader đọc lần lượt các ký tự của chuỗi truyền vào
++ Reader trả về hỗ trợ `mark()` và `reset()`
+- Bản thân lời gọi `Reader.of(...)` khai báo ném IOException
+- Chuỗi truyền vào được hiểu là đường dẫn của một tệp cần đọc
+- Sau khi close, `read()` trả về -1 thay vì ném ngoại lệ
+>Reader.of bọc trực tiếp CharSequence, giống StringReader nhưng nhận được cả StringBuilder hay CharBuffer. Reader này hỗ trợ mark/reset; sau close, read() ném IOException.
 ##39
 ~Tuần tự hoá biến đối tượng thành dòng byte và ngược lại, với những quy tắc riêng về constructor. Phần sau là ba cách nói chuyện với người dùng qua bàn phím: System.in, Console và lớp IO mới.
 @Serializable và transient|Chỉ đối tượng của lớp Serializable mới ghi được; trường transient và trường static không được ghi.
@@ -6571,6 +7307,20 @@ void main() throws IOException {
 - Không có dòng nào
 >readObject khai báo ném ClassNotFoundException, một checked exception không thuộc họ IOException. main chỉ khai báo IOException nên chưa đủ.
 %cerr
+?Tuần tự hoá|Những phát biểu nào đúng về tuần tự hoá? (Chọn 2)
++ Trường `transient` và trường `static` không được ghi vào luồng
++ Khi đọc lại, constructor không tham số của lớp cha gần nhất không Serializable được gọi
+- Mọi trường của lớp Serializable, kể cả trường transient, phải có kiểu Serializable
+- Lớp không khai báo `serialVersionUID` sẽ lỗi biên dịch
+- Khi đọc lại, constructor của chính lớp Serializable được gọi để tạo đối tượng
+>Trường transient được bỏ qua nên không cần Serializable. serialVersionUID không bắt buộc, JVM tự tính nếu thiếu. Lúc đọc lại, constructor của các lớp Serializable không chạy; chỉ lớp cha đầu tiên không Serializable mới chạy constructor không tham số.
+?^Console|Những phát biểu nào đúng về `java.io.Console`? (Chọn 2)
++ `readPassword` trả về `char[]` chứ không trả về String
++ Java 23 thêm `readLine(Locale, String, Object...)` để định dạng lời nhắc theo Locale
+- `readLine()` trả về `char[]` để bảo mật dữ liệu
+- Console có phương thức `readInt()` để đọc trực tiếp một số nguyên
+- `printf` của Console trả về void nên không gọi nối tiếp được
+>Mật khẩu trả về mảng char để xoá được khỏi bộ nhớ sau khi dùng, còn readLine trả về String. Console không có readInt. format và printf trả về chính Console nên nối được.
 ##40
 ~Phần còn lại của NIO.2: đọc thuộc tính tệp và duyệt cây thư mục bằng stream. Điểm chung cần nhớ là các stream này giữ tài nguyên của hệ điều hành và phải được đóng.
 @Thuộc tính tệp|Đọc nhiều thuộc tính thì gom một lần bằng readAttributes thay vì gọi lẻ từng phương thức.
@@ -6728,6 +7478,20 @@ void main() throws IOException {
 - Bộ lọc của `Files.find` là một `Predicate<Path>`
 - `Files.readAllLines` trả về một `Stream<String>`
 >walk luôn bắt đầu bằng chính thư mục xuất phát. find dùng BiPredicate. readAllLines trả List; Files.lines mới trả Stream.
+?list và walk|Những phát biểu nào đúng? (Chọn 2)
++ `Files.list(dir)` chỉ trả về các mục con trực tiếp, không đi vào thư mục con
++ `Files.walk(dir, 1)` trả về chính dir cùng các mục con trực tiếp
+- `Files.walk` mặc định đi theo symbolic link
+- `Files.find` không có tham số giới hạn độ sâu
+- Stream lấy từ `Files.list` không cần đóng, vì tài nguyên được giải phóng khi bước kết thúc chạy xong
+>walk mặc định không theo symbolic link, phải truyền FileVisitOption.FOLLOW_LINKS. find(start, maxDepth, matcher, options) bắt buộc có độ sâu tối đa. Stream của list, walk, find giữ tài nguyên hệ thống nên nên đóng bằng try-with-resources.
+?Thuộc tính tệp|Những phát biểu nào đúng? (Chọn 2)
++ `Files.readAttributes(p, BasicFileAttributes.class)` đọc nhiều thuộc tính trong một lần gọi
++ `Files.isSameFile(p, p)` trả về true, kể cả khi p không tồn tại
+- `Files.getLastModifiedTime(p)` trả về giá trị kiểu `long`
+- `BasicFileAttributeView` chỉ đọc được, không có cách đổi thời gian của tệp
+- `Files.isDirectory(p)` ném NoSuchFileException khi p không tồn tại
+>isSameFile trả về true ngay khi hai Path bằng nhau mà không cần đọc đĩa. getLastModifiedTime trả về FileTime. BasicFileAttributeView có setTimes. Các phương thức isXxx trả về false khi không tồn tại thay vì ném ngoại lệ.
 ##41
 ~Bài này gom mọi thứ đề 1Z0-831 có mà đề Java 21 không có về một chỗ. Nếu bạn đang ôn bằng tài liệu Java 21, đây là danh sách phải học thêm.
 @Thay đổi về ngôn ngữ|Năm thay đổi cú pháp: dấu _, import module, compact source file, instance main và câu lệnh trước super().
@@ -6890,6 +7654,21 @@ void main() {
 - ab!?
 >forEach nối hai khoá, bỏ qua giá trị bằng dấu _. getFirst trên danh sách rỗng ném NoSuchElementException nên thêm dấu chấm than. Độ dài 3 lớn hơn 2 nên case đầu khớp.
 %out:ab!3
+?Tính năng chính thức|Những tính năng nào đã chính thức (không cần `--enable-preview`) trong Java 25? (Chọn 3)
++ Flexible constructor bodies
++ Module import declarations
++ Scoped values
+- Primitive types in patterns, instanceof và switch
+- Structured concurrency
+- String templates
+>Java 25 chốt flexible constructor bodies (JEP 513), module import (JEP 511) và scoped values (JEP 506). Primitive patterns và structured concurrency vẫn là preview. String templates đã bị rút khỏi JDK từ Java 23.
+?Java 21 và Java 25|Những phát biểu nào đúng khi so sánh Java 21 với Java 25? (Chọn 2)
++ Biến và pattern không tên `_` là preview ở Java 21 và chính thức từ Java 22
++ Stream Gatherers chính thức từ Java 24
+- Instance main method đã chính thức ngay từ Java 21, cùng lúc với record pattern và pattern switch
+- Compact source file chính thức từ Java 23
+- Record pattern vẫn còn là preview trong Java 25
+>Instance main và compact source file là preview từ Java 21 tới 24, chính thức ở Java 25 (JEP 512). Record pattern chính thức từ Java 21. Gatherers chính thức ở Java 24 (JEP 485), biến không tên ở Java 22 (JEP 456).
 ##42
 ~Bài cuối không có kiến thức mới. Nó nói về cách đọc một câu hỏi có code, cách chia 120 phút, và mười cái bẫy đã gặp rải rác trong 41 bài trước.
 @Trình tự đọc một câu có code|Tìm lỗi biên dịch trước, rồi ngoại lệ lúc chạy, cuối cùng mới tính kết quả in ra.
@@ -7032,6 +7811,20 @@ void main() {
 - Lỗi biên dịch vì forEach không nhận lambda
 >Files.delete khai báo ném IOException. Phương thức accept của Consumer không khai báo checked exception nào, nên lambda phải tự bắt nó.
 %cerr
+?Ép kiểu ngầm|Những đoạn mã nào gây lỗi biên dịch? (Chọn 2)
++ `int x = 5; long y = x; int z = y;`
++ `List<int> l = new ArrayList<>();`
+- `char c = 65; int code = c + 1; short s = 10;`
+- `Integer i = 5; long n = i; double d = n * 2;`
+- `double d = 'a';`
+>Gán long xuống int cần ép kiểu. Generic không nhận kiểu nguyên thủy. 65 là hằng nằm trong phạm vi char nên được thu hẹp ngầm. Integer được mở hộp thành int rồi nới rộng lên long. char nới rộng lên double được.
+?Checked exception trong lambda|Bên trong `void m()` (không có mệnh đề throws), những câu lệnh nào gây lỗi biên dịch? (Chọn 2)
++ `Thread.sleep(10);`
++ `List.of(1).forEach(x -> Files.readString(Path.of("a")));`
+- `throw new IllegalStateException();`
+- `Integer.parseInt("x");`
+- `List.of(1).forEach(x -> { throw new RuntimeException(); });`
+>Thread.sleep ném InterruptedException, Files.readString ném IOException; cả hai đều checked. Consumer.accept không khai báo throws nên lambda cũng không được ném checked exception. Ném hay gặp unchecked exception thì không cần khai báo.
 </script>
 <script type="text/plain" class="wk" data-exam="1">
 ##E1
@@ -12437,6 +13230,44 @@ render();
     save();close();render();toast(b.dataset.bk==='m'?T.okM:T.okR);
   });
   addEventListener('keydown',e=>{if(e.key==='Escape'&&!pop.hidden)close()});
+})();
+</script>
+<!-- Luyện hôm nay: một chạm trộn câu đến hạn ôn, câu trong sổ lỗi và câu ôn từ các bài gần nhất -->
+<script>
+(function(){
+  const EN=false,N=20;
+  const T=EN?{h:'Today\'s practice',d:(a,b,c)=>`${a} due for review · ${b} in the error notebook · the rest from recent lessons`,go:'Start 20 questions',none:'Nothing to practise yet. Finish today\'s lesson first.',t:'Today\'s practice',done:(p,n)=>`Done: ${p}% correct. ${n} item(s) still due.`}
+  :{h:'Luyện hôm nay',d:(a,b,c)=>`${a} mục đến hạn ôn · ${b} mục trong sổ lỗi · phần còn lại ôn từ các bài gần nhất`,go:'Bắt đầu 20 câu',none:'Chưa có gì để luyện. Hãy học bài hôm nay trước.',t:'Luyện hôm nay',done:(p,n)=>`Xong: đúng ${p}%. Còn ${n} mục đến hạn ôn.`};
+  const S=()=>{try{if(typeof P==='function'){const p=P();if(p)return p}}catch(e){}try{if(typeof ST==='object'&&ST)return ST}catch(e){}return null};
+  const tday=()=>{try{return today()}catch(e){return new Date().toISOString().slice(0,10)}};
+  const dueKeys=()=>{const s=S();if(!s)return [];const m=Object.assign({},s.mem||{},s.srs||{}),t=tday();return Object.keys(m).filter(k=>m[k]&&m[k].d<=t).sort((a,b)=>(m[a].b||0)-(m[b].b||0))};
+  const wrongKeys=()=>{const s=S();return s&&s.wrong?Object.keys(s.wrong).sort((a,b)=>s.wrong[b]-s.wrong[a]):[]};
+  const fromKey=k=>{try{return qFromKey(k)}catch(e){return null}};
+  function fill(k){
+    if(k<=0)return [];const ok=a=>Array.isArray(a)?a.filter(Boolean):[];
+    try{if(typeof lessonBefore==='function'||typeof TEACH!=='undefined')return ok(reviewQs(todayN(),k))}catch(e){}
+    try{if(typeof D==='function'&&typeof todayN==='function')for(let n=todayN();n>=1;n--){const d=D(n);if(d&&d.les){let r=ok(reviewQs(d.les.n,k));if(!r.length&&typeof pool==='function'&&typeof mkQ==='function')r=ok(shuf(pool([d.les],false)).slice(0,k).map(mkQ));return r}}}catch(e){}
+    try{if(typeof LS!=='undefined'&&Array.isArray(LS)&&LS.length&&S()){const s=S(),done=LS.filter(L=>s.done&&s.done[L.id]);return ok(reviewQs(done.length?done[done.length-1]:LS[0],k))}}catch(e){}
+    return [];
+  }
+  function build(){
+    const seen=new Set(),out=[],add=q=>{if(q&&out.length<N&&!(q.key&&seen.has(q.key))){if(q.key)seen.add(q.key);out.push(q)}};
+    dueKeys().slice(0,10).map(fromKey).forEach(add);
+    wrongKeys().slice(0,5).map(fromKey).forEach(add);
+    fill(N-out.length+4).forEach(add);
+    try{return shuf(out)}catch(e){return out}
+  }
+  function box(){
+    const s=S();if(!s)return '';
+    return `<section class="sec todaybox" style="border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin:0 0 16px;background:var(--card)"><h2 style="margin:0 0 4px">${T.h}</h2>
+      <p class="mute" style="margin:0 0 8px">${T.d(Math.min(10,dueKeys().length),Math.min(5,wrongKeys().length))}</p><div class="row"><button class="btn" data-today="go">${T.go}</button></div></section>`;
+  }
+  const wrap=n=>{try{const o=window[n];if(typeof o!=='function')return;window[n]=function(){const h=o.apply(this,arguments);return typeof h==='string'&&!arguments[0]?box()+h:h}}catch(e){}};
+  wrap('home');wrap('pracV');
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-today="go"]');if(!b)return;e.preventDefault();
+    const qs=build();if(!qs.length){toast(T.none);return}
+    startQuiz(T.t,qs,{done:p=>{try{toast(T.done(p,dueKeys().length))}catch(x){}}})});
+  try{if(/^#\/?(prac)?$/.test(location.hash||'#/'))render()}catch(e){}
 })();
 </script>
 </body>

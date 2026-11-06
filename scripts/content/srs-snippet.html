@@ -1,0 +1,28 @@
+<!-- Ôn tập ngắt quãng (SRS): mỗi câu đã làm được xếp lịch ôn lại sau 1, 3, 7, 14, 30 ngày -->
+<script>
+(function(){
+  const EN=__EN__,INT=[0,1,3,7,14,30];
+  const T=EN?{h:'Spaced review',due:n=>`${n} item(s) due today`,seen:n=>`${n} tracked`,known:n=>`${n} well known`,go:n=>`Review ${n} due items`,none:'Nothing is due today. Items you answer anywhere in the course are scheduled again after 1, 3, 7, 14 and 30 days; a wrong answer sends an item back to the start.',
+    note:'Every item you answer is scheduled again after 1, 3, 7, 14 and 30 days; a wrong answer sends it back to the start.',title:'Spaced review'}
+  :{h:'Ôn tập ngắt quãng',due:n=>`${n} mục đến hạn hôm nay`,seen:n=>`${n} mục đang theo dõi`,known:n=>`${n} mục đã nhớ chắc`,go:n=>`Ôn ${n} mục đến hạn`,none:'Hôm nay chưa có mục nào đến hạn. Mỗi câu bạn làm trong lộ trình được xếp lịch ôn lại sau 1, 3, 7, 14 và 30 ngày; trả lời sai thì mục đó quay lại từ đầu.',
+    note:'Mỗi câu bạn làm được xếp lịch ôn lại sau 1, 3, 7, 14 và 30 ngày; trả lời sai thì quay lại từ đầu.',title:'Ôn tập ngắt quãng'};
+  const S=()=>{try{if(typeof P==='function'){const p=P();if(p)return p}}catch(e){}try{if(typeof ST==='object'&&ST)return ST}catch(e){}return null};
+  const day=n=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)};
+  function up(s,k,ok){s.srs=s.srs||{};const m=s.srs[k]||{b:0};m.b=ok?Math.min(5,m.b+1):0;m.d=day(ok?INT[m.b]:0);s.srs[k]=m}
+  const dueKeys=()=>{const s=S();if(!s||!s.srs)return [];const t=today();return Object.keys(s.srs).filter(k=>s.srs[k].d<=t).sort((a,b)=>s.srs[a].b-s.srs[b].b)};
+  const of=finishQuiz;
+  finishQuiz=function(){try{const z=QZ,s=S();if(z&&z.qs&&s)z.qs.forEach((q,i)=>{if(q&&q.key&&i<z.res.length)up(s,q.key,z.res[i]===true)})}catch(e){}return of.apply(this,arguments)};
+  function box(){
+    const s=S();if(!s)return '';const m=s.srs||{},ks=Object.keys(m),due=dueKeys().length,known=ks.filter(k=>m[k].b>=4).length;
+    return `<section class="sec srsbox" style="border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin:0 0 16px;background:var(--card)"><h2 style="margin:0 0 4px">${T.h}</h2>
+      <p style="margin:0 0 8px"><b>${T.due(due)}</b> · ${T.seen(ks.length)} · ${T.known(known)}</p>
+      ${due?`<div class="row"><button class="btn" data-srs="go">${T.go(Math.min(20,due))}</button></div><p class="mute" style="margin:8px 0 0">${T.note}</p>`:`<p class="mute" style="margin:0">${T.none}</p>`}</section>`;
+  }
+  const wrap=n=>{try{const o=window[n];if(typeof o!=='function')return;window[n]=function(){const h=o.apply(this,arguments);return typeof h==='string'&&!arguments[0]?box()+h:h}}catch(e){}};
+  wrap('pracV');wrap('wrongV');
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-srs="go"]');if(!b)return;e.preventDefault();
+    const qs=dueKeys().slice(0,20).map(k=>{try{return qFromKey(k)}catch(x){return null}}).filter(Boolean);
+    if(!qs.length){toast(T.none);return}startQuiz(T.title,qs)});
+  try{if(/^#\/(prac|wrong)/.test(location.hash))render()}catch(e){}
+})();
+</script>

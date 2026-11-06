@@ -1,0 +1,2 @@
+const qXz=(x,t)=>{const [s,d]=x.split('||'),q=qX(s,t);if(q||!d||t!=='o')return q;const m=s.match(/＜([^|]+)\|([^＞]+)＞/),a=ruby(s.slice(0,m.index)),b=ruby(s.slice(m.index+m[0].length));
+  return Q('Chọn chữ viết đúng',`Phần gạch chân viết bằng kanji thế nào?<div class="qs jp">${a}<u>${m[2]}</u>${b}</div>`,m[1],d.split('|'),`<span class="jp">${a}<ruby>${m[1]}<rt>${m[2]}</rt></ruby>${b}</span>`,null)};
